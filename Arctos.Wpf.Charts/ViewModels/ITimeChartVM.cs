@@ -6,7 +6,6 @@ namespace Arctos.Wpf.Charts
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
-        //PriceBarSpan PriceBarSpan { get; set; }
         DateTime? StartTime { get; set; }
         DateTime? EndTime { get; set; }
         DateTime? CurrentTime { get; set; }
