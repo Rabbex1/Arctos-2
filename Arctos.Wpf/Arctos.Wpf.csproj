@@ -1,106 +1,107 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	<UseWPF>true</UseWPF>
-	<UseWindowsForms>true</UseWindowsForms>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<Version>2.0.0</Version>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Themes\Images\DockAnchorableBottom.png" />
-    <None Remove="Themes\Images\DockAnchorableLeft.png" />
-    <None Remove="Themes\Images\DockAnchorableRight.png" />
-    <None Remove="Themes\Images\DockAnchorableTop.png" />
-    <None Remove="Themes\Images\DockDocumentAsAnchorableBottom.png" />
-    <None Remove="Themes\Images\DockDocumentAsAnchorableLeft.png" />
-    <None Remove="Themes\Images\DockDocumentAsAnchorableRight.png" />
-    <None Remove="Themes\Images\DockDocumentAsAnchorableTop.png" />
-    <None Remove="Themes\Images\DockDocumentBottom.png" />
-    <None Remove="Themes\Images\DockDocumentInside.png" />
-    <None Remove="Themes\Images\DockDocumentLeft.png" />
-    <None Remove="Themes\Images\DockDocumentRight.png" />
-    <None Remove="Themes\Images\DockDocumentTop.png" />
-    <None Remove="Themes\Images\DockPaneEmpty.png" />
-    <None Remove="Themes\Images\DockPaneLargeEmpty.png" />
-    <None Remove="Themes\Images\HTabGroup.png" />
-    <None Remove="Themes\Images\Locked.png" />
-    <None Remove="Themes\Images\PinAutoHide.png" />
-    <None Remove="Themes\Images\PinAutoHide_Black.png" />
-    <None Remove="Themes\Images\PinAutoHide_Dark.png" />
-    <None Remove="Themes\Images\PinClose.png" />
-    <None Remove="Themes\Images\PinClose_Black.png" />
-    <None Remove="Themes\Images\PinClose_Dark.png" />
-    <None Remove="Themes\Images\PinDocMenu.png" />
-    <None Remove="Themes\Images\PinDocMenu_Black.png" />
-    <None Remove="Themes\Images\PinMaximize.png" />
-    <None Remove="Themes\Images\PinMaximize_Black.png" />
-    <None Remove="Themes\Images\PinMaximize_Dark.png" />
-    <None Remove="Themes\Images\PinMenu.png" />
-    <None Remove="Themes\Images\PinMenu_Black.png" />
-    <None Remove="Themes\Images\PinMenu_Dark.png" />
-    <None Remove="Themes\Images\PinRestore.png" />
-    <None Remove="Themes\Images\PinRestore_Black.png" />
-    <None Remove="Themes\Images\PinRestore_Dark.png" />
-    <None Remove="Themes\Images\VTabGroup.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Themes\Images\DockAnchorableBottom.png" />
+		<None Remove="Themes\Images\DockAnchorableLeft.png" />
+		<None Remove="Themes\Images\DockAnchorableRight.png" />
+		<None Remove="Themes\Images\DockAnchorableTop.png" />
+		<None Remove="Themes\Images\DockDocumentAsAnchorableBottom.png" />
+		<None Remove="Themes\Images\DockDocumentAsAnchorableLeft.png" />
+		<None Remove="Themes\Images\DockDocumentAsAnchorableRight.png" />
+		<None Remove="Themes\Images\DockDocumentAsAnchorableTop.png" />
+		<None Remove="Themes\Images\DockDocumentBottom.png" />
+		<None Remove="Themes\Images\DockDocumentInside.png" />
+		<None Remove="Themes\Images\DockDocumentLeft.png" />
+		<None Remove="Themes\Images\DockDocumentRight.png" />
+		<None Remove="Themes\Images\DockDocumentTop.png" />
+		<None Remove="Themes\Images\DockPaneEmpty.png" />
+		<None Remove="Themes\Images\DockPaneLargeEmpty.png" />
+		<None Remove="Themes\Images\HTabGroup.png" />
+		<None Remove="Themes\Images\Locked.png" />
+		<None Remove="Themes\Images\PinAutoHide.png" />
+		<None Remove="Themes\Images\PinAutoHide_Black.png" />
+		<None Remove="Themes\Images\PinAutoHide_Dark.png" />
+		<None Remove="Themes\Images\PinClose.png" />
+		<None Remove="Themes\Images\PinClose_Black.png" />
+		<None Remove="Themes\Images\PinClose_Dark.png" />
+		<None Remove="Themes\Images\PinDocMenu.png" />
+		<None Remove="Themes\Images\PinDocMenu_Black.png" />
+		<None Remove="Themes\Images\PinMaximize.png" />
+		<None Remove="Themes\Images\PinMaximize_Black.png" />
+		<None Remove="Themes\Images\PinMaximize_Dark.png" />
+		<None Remove="Themes\Images\PinMenu.png" />
+		<None Remove="Themes\Images\PinMenu_Black.png" />
+		<None Remove="Themes\Images\PinMenu_Dark.png" />
+		<None Remove="Themes\Images\PinRestore.png" />
+		<None Remove="Themes\Images\PinRestore_Black.png" />
+		<None Remove="Themes\Images\PinRestore_Dark.png" />
+		<None Remove="Themes\Images\VTabGroup.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Arctos\Arctos.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Arctos\Arctos.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Themes\Images\DockAnchorableBottom.png" />
-    <Resource Include="Themes\Images\DockAnchorableLeft.png" />
-    <Resource Include="Themes\Images\DockAnchorableRight.png" />
-    <Resource Include="Themes\Images\DockAnchorableTop.png" />
-    <Resource Include="Themes\Images\DockDocumentAsAnchorableBottom.png" />
-    <Resource Include="Themes\Images\DockDocumentAsAnchorableLeft.png" />
-    <Resource Include="Themes\Images\DockDocumentAsAnchorableRight.png" />
-    <Resource Include="Themes\Images\DockDocumentAsAnchorableTop.png" />
-    <Resource Include="Themes\Images\DockDocumentBottom.png" />
-    <Resource Include="Themes\Images\DockDocumentInside.png" />
-    <Resource Include="Themes\Images\DockDocumentLeft.png" />
-    <Resource Include="Themes\Images\DockDocumentRight.png" />
-    <Resource Include="Themes\Images\DockDocumentTop.png" />
-    <Resource Include="Themes\Images\DockPaneEmpty.png" />
-    <Resource Include="Themes\Images\DockPaneLargeEmpty.png" />
-    <Resource Include="Themes\Images\HTabGroup.png" />
-    <Resource Include="Themes\Images\Locked.png" />
-    <Resource Include="Themes\Images\PinAutoHide.png" />
-    <Resource Include="Themes\Images\PinAutoHide_Black.png" />
-    <Resource Include="Themes\Images\PinAutoHide_Dark.png" />
-    <Resource Include="Themes\Images\PinClose.png" />
-    <Resource Include="Themes\Images\PinClose_Black.png" />
-    <Resource Include="Themes\Images\PinClose_Dark.png" />
-    <Resource Include="Themes\Images\PinDocMenu.png" />
-    <Resource Include="Themes\Images\PinDocMenu_Black.png" />
-    <Resource Include="Themes\Images\PinMaximize.png" />
-    <Resource Include="Themes\Images\PinMaximize_Black.png" />
-    <Resource Include="Themes\Images\PinMaximize_Dark.png" />
-    <Resource Include="Themes\Images\PinMenu.png" />
-    <Resource Include="Themes\Images\PinMenu_Black.png" />
-    <Resource Include="Themes\Images\PinMenu_Dark.png" />
-    <Resource Include="Themes\Images\PinRestore.png" />
-    <Resource Include="Themes\Images\PinRestore_Black.png" />
-    <Resource Include="Themes\Images\PinRestore_Dark.png" />
-    <Resource Include="Themes\Images\VTabGroup.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Themes\Images\DockAnchorableBottom.png" />
+		<Resource Include="Themes\Images\DockAnchorableLeft.png" />
+		<Resource Include="Themes\Images\DockAnchorableRight.png" />
+		<Resource Include="Themes\Images\DockAnchorableTop.png" />
+		<Resource Include="Themes\Images\DockDocumentAsAnchorableBottom.png" />
+		<Resource Include="Themes\Images\DockDocumentAsAnchorableLeft.png" />
+		<Resource Include="Themes\Images\DockDocumentAsAnchorableRight.png" />
+		<Resource Include="Themes\Images\DockDocumentAsAnchorableTop.png" />
+		<Resource Include="Themes\Images\DockDocumentBottom.png" />
+		<Resource Include="Themes\Images\DockDocumentInside.png" />
+		<Resource Include="Themes\Images\DockDocumentLeft.png" />
+		<Resource Include="Themes\Images\DockDocumentRight.png" />
+		<Resource Include="Themes\Images\DockDocumentTop.png" />
+		<Resource Include="Themes\Images\DockPaneEmpty.png" />
+		<Resource Include="Themes\Images\DockPaneLargeEmpty.png" />
+		<Resource Include="Themes\Images\HTabGroup.png" />
+		<Resource Include="Themes\Images\Locked.png" />
+		<Resource Include="Themes\Images\PinAutoHide.png" />
+		<Resource Include="Themes\Images\PinAutoHide_Black.png" />
+		<Resource Include="Themes\Images\PinAutoHide_Dark.png" />
+		<Resource Include="Themes\Images\PinClose.png" />
+		<Resource Include="Themes\Images\PinClose_Black.png" />
+		<Resource Include="Themes\Images\PinClose_Dark.png" />
+		<Resource Include="Themes\Images\PinDocMenu.png" />
+		<Resource Include="Themes\Images\PinDocMenu_Black.png" />
+		<Resource Include="Themes\Images\PinMaximize.png" />
+		<Resource Include="Themes\Images\PinMaximize_Black.png" />
+		<Resource Include="Themes\Images\PinMaximize_Dark.png" />
+		<Resource Include="Themes\Images\PinMenu.png" />
+		<Resource Include="Themes\Images\PinMenu_Black.png" />
+		<Resource Include="Themes\Images\PinMenu_Dark.png" />
+		<Resource Include="Themes\Images\PinRestore.png" />
+		<Resource Include="Themes\Images\PinRestore_Black.png" />
+		<Resource Include="Themes\Images\PinRestore_Dark.png" />
+		<Resource Include="Themes\Images\VTabGroup.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Themes\DockBrushes.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-    <None Update="Themes\DockTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Themes\DockBrushes.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</None>
+		<None Update="Themes\DockTheme.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</None>
+	</ItemGroup>
 
 </Project>
