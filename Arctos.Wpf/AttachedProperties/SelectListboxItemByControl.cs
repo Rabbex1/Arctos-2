@@ -1,0 +1,39 @@
+﻿using System.Windows;
+using System.Windows.Controls;
+
+namespace Arctos.Wpf.AttachedProperties
+{
+    public class SelectListboxItemByControl
+    {
+        public static readonly DependencyProperty EnableProperty = DependencyProperty.RegisterAttached(
+            "Enable",
+            typeof(bool),
+            typeof(SelectListboxItemByControl),
+            new FrameworkPropertyMetadata(false, OnEnableChanged));
+
+
+        public static bool GetEnable(FrameworkElement frameworkElement)
+        {
+            return (bool)frameworkElement.GetValue(EnableProperty);
+        }
+
+
+        public static void SetEnable(FrameworkElement frameworkElement, bool value)
+        {
+            frameworkElement.SetValue(EnableProperty, value);
+        }
+
+
+        private static void OnEnableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ListBoxItem listBoxItem)
+                listBoxItem.PreviewGotKeyboardFocus += ListBoxItem_PreviewGotKeyboardFocus;
+        }
+
+        private static void ListBoxItem_PreviewGotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        {
+            var listBoxItem = (ListBoxItem)sender;
+            listBoxItem.IsSelected = true;
+        }
+    }
+}

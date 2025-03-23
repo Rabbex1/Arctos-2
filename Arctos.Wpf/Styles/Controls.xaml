@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/Brushes.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/WindowButtons.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/MetroWindow.xaml" />
+
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/MenuStyle.xaml" />
+
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/MenuStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ButtonStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/TextBoxStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/TextBlockStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ButtonStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ComboBoxStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/CheckBoxStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ListBoxStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ToolTipStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/TreeViewStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/DataGridStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ListViewStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ExpanderStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ScrollBarStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ScrollViewer.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/SliderStyle.xaml" />
+
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWpf>true</UseWpf>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Arctos.Wpf\Arctos.Wpf.csproj" />
+		<ProjectReference Include="..\Arctos\Arctos.csproj" />
+	</ItemGroup>
+
+</Project>

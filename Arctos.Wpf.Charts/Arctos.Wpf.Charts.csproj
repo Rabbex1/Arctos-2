@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWpf>true</UseWpf>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="OpenTK" Version="4.9.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Arctos\Arctos 2\Arctos.Shell\Arctos.Shell.csproj" />
+	  <ProjectReference Include="..\..\..\Arctos\Arctos 2\Arctos.Wpf\Arctos.Wpf.csproj" />
+	  <ProjectReference Include="..\..\..\Arctos\Arctos 2\Arctos\Arctos.csproj" />
+	  <ProjectReference Include="..\Arctos.Wpf.OpenTk\Arctos.Wpf.OpenTk.csproj" />
+	</ItemGroup>
+
+</Project>

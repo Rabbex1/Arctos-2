@@ -1,0 +1,98 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Brushes.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style x:Key="UrsaCheckBox" TargetType="{x:Type CheckBox}">
+        <Setter Property="Foreground" Value="{StaticResource CheckBoxForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderBrush}"/>
+        <Setter Property="Background" Value="{StaticResource CheckBoxBackgroundBrush}"/>
+        <Setter Property="SnapsToDevicePixels" Value="true" />
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="FocusVisualStyle" Value="{DynamicResource CheckBoxFocusVisual}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <BulletDecorator Background="Transparent">
+                        <BulletDecorator.Bullet >
+                            <Grid VerticalAlignment="Center">
+                                <Border x:Name="Border"
+                                        Width="13"
+                                        Height="13"
+                                        CornerRadius="0"
+                                        BorderThickness="1"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        Background="{TemplateBinding Background}" VerticalAlignment="Center">
+                                    <Grid>
+                                        <Path Visibility="Collapsed"
+                                            Width="7"
+                                            Height="7"
+                                            x:Name="CheckMark"
+                                            SnapsToDevicePixels="True"
+                                            StrokeThickness="1.5"
+                                            Stroke="{StaticResource CheckBoxForegroundBrush}"
+                                            Data="M 0.59829534 4.0569408 2.6551793 5.6594071 6.2717839 0.69747074">
+                                        </Path>
+                                        <Path Visibility="Collapsed"
+                                            Width="7"
+                                            Height="7"
+                                            x:Name="InderminateMark"
+                                            SnapsToDevicePixels="True"
+                                            StrokeThickness="2"
+                                            Stroke="{StaticResource CheckBoxForegroundBrush}"
+                                            Data="M 0 7 L 7 0">
+                                        </Path>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </BulletDecorator.Bullet>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)"
+                                                   Storyboard.TargetName="CheckMark">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unchecked" />
+                                <VisualState x:Name="Indeterminate">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)"
+                                                   Storyboard.TargetName="InderminateMark">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter 
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            RecognizesAccessKey="True" />
+                    </BulletDecorator>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource TextBoxBackgroundSelectedBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter Property="Background" Value="{StaticResource TextBoxBackgroundSelectedBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value=".5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource UrsaCheckBox}"/>
+
+
+</ResourceDictionary>

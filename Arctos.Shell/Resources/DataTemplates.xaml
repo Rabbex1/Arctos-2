@@ -1,0 +1,87 @@
+﻿<ResourceDictionary x:Class="Arctos.Shell.Resources.DataTemplates"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:valueConverters="clr-namespace:Arctos.Wpf.ValueConverters;assembly=Arctos.Wpf"
+                    xmlns:menu="clr-namespace:Arctos.Shell.Menu"
+                    xmlns:selectors="clr-namespace:Arctos.Shell.Selectors"
+                    xmlns:toolbar="clr-namespace:Arctos.Shell.Toolbar"
+                    xmlns:options="clr-namespace:Arctos.Shell.Options">
+
+    <valueConverters:StringToResourceConverter x:Key="String2Resource" />
+
+    <selectors:MenuNodeTemplateSelector x:Key="MenuNodeTemplateSelector"/>
+
+
+    <!--<dialogs:SaveChangesDialogView x:Key="{x:Type dialogs:SaveChangesDialogVM}" x:Shared="False"/>-->
+
+    <HierarchicalDataTemplate DataType="{x:Type menu:MenuVM}" ItemsSource="{Binding Children}">
+        <MenuItem Header="{Binding DisplayName}"
+                  IsEnabled="{Binding IsEnabled}"
+                  UsesItemContainerTemplate ="true"
+                  ItemContainerTemplateSelector= "{StaticResource MenuNodeTemplateSelector}"/>
+    </HierarchicalDataTemplate>
+
+    <DataTemplate DataType="{x:Type menu:MenuItemVM}">
+        <MenuItem Header="{Binding DisplayName}"
+                  Icon="{Binding Icon, Converter={StaticResource String2Resource}}"
+                  InputGestureText="{Binding IgtText}"
+                  Command="{Binding ExecuteCommand}"
+                  CommandParameter="{Binding DataContext, RelativeSource={RelativeSource AncestorType=MenuBase}}"
+                  IsEnabled="{Binding IsEnabled}"
+                  Visibility="{Binding IsVisible, Converter={StaticResource Bool2Vis}}"
+                  IsCheckable="{Binding IsCheckable}"
+                  IsChecked="{Binding IsChecked}"
+                  UsesItemContainerTemplate ="true"
+                  ItemContainerTemplateSelector= "{StaticResource MenuNodeTemplateSelector}"/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type menu:MenuGroupVM}">
+        <Separator Visibility="{Binding IsVisible, Converter={StaticResource Bool2Vis}}">
+            <Separator.Style>
+                <Style TargetType="{x:Type Separator}" BasedOn="{StaticResource ResourceKey={x:Static MenuItem.SeparatorStyleKey}}"/>
+            </Separator.Style>
+        </Separator>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ToolBarButtonTemplate" DataType="{x:Type toolbar:ToolbarButtonVM}">
+        <Button Command="{Binding ExecuteCommand}"
+                CommandParameter="{Binding DataContext, RelativeSource={RelativeSource Self}}"
+                IsEnabled="{Binding IsEnabled}"
+                Visibility="{Binding IsVisible, Converter={StaticResource Bool2Vis}}"
+                ToolTip="{Binding ToolTip}">
+            <Button.Style>
+                <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ResourceKey={x:Static ToolBar.ButtonStyleKey}}"/>
+            </Button.Style>
+            <ContentPresenter Content="{Binding Icon, Converter={StaticResource String2Resource}}"/>
+        </Button>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ToolBarToggleButtonTemplate" DataType="{x:Type toolbar:ToolbarButtonVM}">
+        <ToggleButton Command="{Binding ExecuteCommand }"
+                      CommandParameter="{Binding IsChecked}"
+                      IsEnabled="{Binding IsEnabled}"
+                      Visibility="{Binding IsVisible, Converter={StaticResource Bool2Vis}}"
+                      ToolTip="{Binding ToolTip}"
+                      IsChecked ="{Binding IsChecked}">
+            <ToggleButton.Style>
+                <Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource ResourceKey={x:Static ToolBar.ToggleButtonStyleKey}}"/>
+            </ToggleButton.Style>
+            <ContentPresenter Content="{Binding Icon, Converter={StaticResource String2Resource}}"/>
+        </ToggleButton>
+    </DataTemplate>
+
+    <selectors:ToolBarItemTemplateSelector x:Key="ToolBarItemTemplateSelector" 
+                                           ToolBarButtonTemplate="{StaticResource ToolBarButtonTemplate}" 
+                                           ToolBarToggleButtonTemplate="{StaticResource ToolBarToggleButtonTemplate}"></selectors:ToolBarItemTemplateSelector>
+                                            <!--ToolBarRadioButtonTemplate="{StaticResource ToolBarRadioButtonTemplate}"
+                                             ToolBarComboTemplate="{StaticResource ToolBarComboTemplate}"
+                                             ToolBarTextBoxTemplate="{StaticResource ToolBarTextBoxTemplate}"
+                                             ToolBarSeparatorTemplate="{StaticResource ToolBarSeparatorTemplate}"/>-->
+
+    <!--<DataTemplate DataType="{x:Type options:OptionsDialogVM}">
+        <options:OptionsDialogView/>
+    </DataTemplate>-->
+
+    <options:OptionsDialogView x:Key="{x:Type options:OptionsDialogVM}" x:Shared="False"/>
+
+
+</ResourceDictionary>

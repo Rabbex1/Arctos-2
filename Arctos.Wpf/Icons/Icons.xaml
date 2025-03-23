@@ -1,0 +1,442 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/Brushes.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style x:Key="PathDisabledStyle" TargetType="{x:Type Path}">
+        <!--<Setter Property="Stroke" Value="Black"/>-->
+        <!--<Setter Property="StrokeThickness" Value="0"></Setter>-->
+        <!--<Setter Property="Fill" Value="Black"/>-->
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <!--<Trigger.EnterActions>
+          <BeginStoryboard Name="IsDisabled">
+            <Storyboard>
+              <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Path.Fill).(Color)" Duration="0:0:0">
+                <LinearColorKeyFrame Value="{StaticResource DisabledIconColor}" KeyTime="0" />
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Path.Stroke).(Color)" Duration="0:0:0">
+                <LinearColorKeyFrame Value="{StaticResource DisabledIconColor}" KeyTime="0" />
+              </ColorAnimationUsingKeyFrames>
+            </Storyboard>
+          </BeginStoryboard>
+        </Trigger.EnterActions>
+        <Trigger.ExitActions>
+          <RemoveStoryboard BeginStoryboardName="IsDisabled" />
+        </Trigger.ExitActions>-->
+                <Setter Property="Opacity" Value="0.5"></Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="IconDisabledStyle" TargetType="{x:Type Viewbox}">
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.5"></Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+
+    <Style x:Key="EllipseDisabledStyle" TargetType="{x:Type Ellipse}">
+        <Setter Property="Stroke" Value="Black"/>
+        <Setter Property="StrokeThickness" Value="0"></Setter>
+        <Setter Property="Fill" Value="Black"/>
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Trigger.EnterActions>
+                    <BeginStoryboard Name="IsDisabled">
+                        <Storyboard>
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Fill).(Color)" Duration="0:0:0">
+                                <LinearColorKeyFrame Value="{StaticResource DisabledIconColor}" KeyTime="0" />
+                            </ColorAnimationUsingKeyFrames>
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.Stroke).(Color)" Duration="0:0:0">
+                                <LinearColorKeyFrame Value="{StaticResource DisabledIconColor}" KeyTime="0" />
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <RemoveStoryboard BeginStoryboardName="IsDisabled" />
+                </Trigger.ExitActions>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="RectangleDisabledStyle" TargetType="{x:Type Rectangle}">
+        <Setter Property="Stroke" Value="Black"/>
+        <Setter Property="StrokeThickness" Value="0"></Setter>
+        <Setter Property="Fill" Value="Black"/>
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Trigger.EnterActions>
+                    <BeginStoryboard Name="IsDisabled">
+                        <Storyboard>
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Rectangle.Fill).(Color)" Duration="0:0:0">
+                                <LinearColorKeyFrame Value="{StaticResource DisabledIconColor}" KeyTime="0" />
+                            </ColorAnimationUsingKeyFrames>
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Rectangle.Stroke).(Color)" Duration="0:0:0">
+                                <LinearColorKeyFrame Value="{StaticResource DisabledIconColor}" KeyTime="0" />
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <RemoveStoryboard BeginStoryboardName="IsDisabled" />
+                </Trigger.ExitActions>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Viewbox x:Key="ArctosWpf:SettingsIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Canvas Width="22" Height="22" Background="Transparent">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource ForegroundBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 16.262218,18.99062 c -0.856014,-0.0988 -1.393302,-0.30968 -1.735069,-0.68105 -0.374615,-0.40706 -0.463055,-0.68378 -0.455503,-1.42522 0.004,-0.39611 -0.0072,-0.54972 -0.05088,-0.70304 -0.12272,-0.42952 -0.201,-0.53182 -1.145255,-1.49656 l -0.888662,-0.90793 0.703439,-0.71318 0.703431,-0.71316 -0.256912,-0.58614 c -0.141296,-0.32239 -0.25084,-0.59266 -0.243416,-0.60062 0.0072,-0.008 0.525152,0.50061 1.150503,1.13015 0.91855,0.9247 1.174206,1.16411 1.33067,1.24614 0.306631,0.16074 0.531959,0.20514 1.041254,0.20514 0.553696,0 0.730512,0.0315 1.040736,0.18545 0.468519,0.23251 1.13411,1.00229 1.385349,1.60221 0.109136,0.26059 0.180424,0.59426 0.15172,0.71012 -0.04192,0.16906 -0.11484,0.14393 -0.886278,-0.30526 -0.795143,-0.46299 -0.912631,-0.50517 -1.193287,-0.42849 -0.220984,0.0604 -0.366648,0.22499 -0.663608,0.74991 -0.356119,0.6295 -0.389367,0.75048 -0.294839,1.07294 0.07792,0.26576 0.225695,0.39569 0.887647,0.78042 0.32844,0.19089 0.629839,0.37782 0.669783,0.41539 0.09362,0.0881 0.09948,0.26896 0.01032,0.31732 -0.180279,0.0977 -0.927639,0.18394 -1.261095,0.14546 z M 5.2429773,18.89302 C 5.0376576,18.82642 4.9027218,18.73803 4.5561143,18.4428 4.1914747,18.13223 3.8067793,17.73218 3.5139236,17.35899 3.1415002,16.8844 3.0721483,16.51303 3.272684,16.06717 c 0.07,-0.15562 0.4028074,-0.50639 2.4446927,-2.57659 l 2.3636603,-2.39644 0.467288,0.22735 0.467287,0.22736 0.379264,-0.381 L 9.774139,10.78686 9.427516,10.43462 9.0809,10.08239 9.439396,9.71921 9.797891,9.35604 10.38997,9.62253 10.982041,9.88902 13.393559,7.4462 15.805075,5.00337 15.948363,4.66156 16.091651,4.31974 17.040394,3.68839 17.989145,3.05705 18.415536,3.48616 c 0.257896,0.25953 0.416279,0.44273 0.400791,0.46357 -0.01408,0.0189 -0.296351,0.45385 -0.627263,0.96642 l -0.601639,0.93195 -0.333759,0.14094 -0.333752,0.14093 -2.412045,2.44368 -2.412044,2.44369 0.263055,0.59979 0.263056,0.59981 -0.358496,0.36317 -0.358495,0.36317 -0.347704,-0.35114 -0.347695,-0.35115 -0.376088,0.38421 -0.37608,0.38422 0.224496,0.47352 0.224488,0.47353 -2.365645,2.3942 c -2.0681493,2.09312 -2.3885969,2.40482 -2.5480927,2.4786 -0.2332556,0.10788 -0.5344153,0.1335 -0.749647,0.0637 z M 7.5307822,9.27148 C 6.932495,8.67167 6.7874232,8.54323 6.6097195,8.45601 6.2761759,8.29232 6.0699762,8.25156 5.5755288,8.25156 5.0332256,8.25156 4.8538818,8.21946 4.5482583,8.06757 4.0779789,7.83386 3.4111398,7.06385 3.1594842,6.4639 3.0464683,6.19447 2.9775404,5.87637 3.0066843,5.75873 3.0498043,5.5846 3.1183882,5.60778 3.8918272,6.05804 4.6879941,6.52153 4.8037939,6.56341 5.0757696,6.48627 5.3151612,6.41837 5.451161,6.26778 5.7497447,5.73999 6.1072961,5.10796 6.1405121,4.98734 6.0459282,4.66466 5.9680082,4.39892 5.8202326,4.26898 5.1582815,3.88425 4.4496104,3.47237 4.4093385,3.43942 4.4224105,3.28217 c 0.00896,-0.10792 0.0208,-0.11924 0.1809117,-0.17304 0.2853836,-0.0959 0.7663269,-0.1337 1.1801904,-0.0928 0.4863193,0.0481 0.8476148,0.14272 1.2010383,0.31452 0.2330877,0.11331 0.3321276,0.18492 0.4841834,0.35014 0.3750395,0.40749 0.4655354,0.68253 0.4655354,1.41498 0,0.55014 0.03624,0.74718 0.2011753,1.09432 0.09031,0.19005 0.246064,0.36091 1.40883,1.54548 0.719007,0.73249 1.300919,1.3379 1.293119,1.34536 -0.008,0.007 -0.274536,-0.10357 -0.59276,-0.24671 L 9.666035,8.57416 8.969348,9.27939 C 8.586165,9.66727 8.265517,9.98435 8.256789,9.98401 8.248089,9.98367 7.9213577,9.66301 7.5307822,9.27144 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:PlusIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{StaticResource MenuIconLightGreenBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="M 10 3 C 9.4477381 3.0000552 9.0000552 3.4477381 9 4 V 9 H 4 c -0.5522619 5.52e-5 -0.9999448 0.4477381 -1 1 v 2 c 5.52e-5 0.552262 0.4477381 0.999945 1 1 h 5 v 5 c 5.52e-5 0.552262 0.4477381 0.999945 1 1 h 2 c 0.552262 -5.5e-5 0.999945 -0.447738 1 -1 v -5 h 5 c 0.552262 -5.5e-5 0.999945 -0.447738 1 -1 V 10 C 18.999945 9.4477381 18.552262 9.0000552 18 9 H 13 V 4 C 12.999945 3.4477381 12.552262 3.0000552 12 3 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:MinusIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{StaticResource MenuIconRedBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 5 9 a 1.0001 1.0001 0 0 0 -1 1 v 2 a 1.0001 1.0001 0 0 0 1 1 h 12 a 1.0001 1.0001 0 0 0 1 -1 V 10 A 1.0001 1.0001 0 0 0 17 9 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:MoveUpIcon" Style="{StaticResource IconDisabledStyle}"  x:Shared="False" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{StaticResource MenuIconPaleBlueBrush}" >
+                <Path.Data>
+                    <PathGeometry Figures="M 10.976562 3 C 10.688308 3.00692 10.417066 3.1379133 10.232422 3.359375 L 5.2324219 9.359375 C 4.6893993 10.010525 5.1521381 10.999585 6 11 L 9 11 L 9 18 A 1.0001 1.0001 0 0 0 10 19 L 12 19 A 1.0001 1.0001 0 0 0 13 18 L 13 11 L 16 11 C 16.847862 10.999585 17.310601 10.010525 16.767578 9.359375 L 11.767578 3.359375 C 11.572427 3.1253271 11.281216 2.9930233 10.976562 3 z " FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:MoveDownIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{StaticResource MenuIconPaleBlueBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="M 10 3 A 1.0001 1.0001 0 0 0 9 4 L 9 11 L 6 11 C 5.1521381 11.000415 4.6893993 11.989475 5.2324219 12.640625 L 10.232422 18.640625 C 10.63221 19.119276 11.36779 19.119276 11.767578 18.640625 L 16.767578 12.640625 C 17.310601 11.989475 16.847862 11.000415 16 11 L 13 11 L 13 4 A 1.0001 1.0001 0 0 0 12 3 L 10 3 z " FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+
+    <Viewbox x:Key="ArctosWpf:ExitIcon" x:Shared="False" Stretch="Uniform" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightGreyBrush}" StrokeThickness="1">
+                <Path.Data>
+                    <PathGeometry Figures="M 5 6 V 16 H 17 V 6 Z m 1.5 2 h 3 L 11 9.5 12.5 8 h 3 l -3 3 3 3 h -3 L 11 12.5 9.5 14 h -3 l 3 -3 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:SaveIcon" x:Shared="False" Stretch="Uniform" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Opacity="1" Fill="{StaticResource MenuIconLightBlueBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 5 5 h 3 v 5 h 6 V 5 h 1 l 2 2 V 17 H 5 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightBlueBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 11 5 v 3 h 2 V 5 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:SaveAllIcon" x:Shared="False" Stretch="Uniform" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightBlueBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 4 10 v 8 h 8 v -6 l -2 -2 v 3 H 6 v -3 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightBlueBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 8 10 v 2 h 1 v -2 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightBlueBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 10 4 v 5 l 3 3 h 5 V 6 L 16 4 V 7 H 12 V 4 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightBlueBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 14 4 v 2 h 1 V 4 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:PasteIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="Uniform" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightGreyBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="M 5 11 L 5 18 L 11 18 L 11 11 L 5 11 z M 6 12 L 10 12 L 10 17 L 6 17 L 6 12 z " FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Fill="{StaticResource MenuIconLightGreyBrush}" StrokeThickness="0" StrokeMiterLimit="4">
+                <Path.Data>
+                    <PathGeometry Figures="M 12 4 A 3 3.5 0 0 0 9.0332031 7 L 7 7 L 7 10 L 8 10 L 8 8 L 16 8 L 16 17 L 12 17 L 12 18 L 17 18 L 17 7 L 14.964844 7 A 3 3.5 0 0 0 12 4 z M 12 5 A 2 2.5 0 0 1 13.957031 7 L 10.039062 7 A 2 2.5 0 0 1 12 5 z " FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:CopyIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="Uniform" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{StaticResource MenuIconLightGreyBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="M 5 8 L 5 18 L 13 18 L 13 8 L 5 8 z M 6 9 L 12 9 L 12 17 L 6 17 L 6 9 z " FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Fill="{StaticResource MenuIconLightGreyBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 9 4 h 8 v 10 h -3 v -1 h 2 V 5 H 10 V 7 H 9 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:CutIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="Uniform" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{StaticResource MenuIconLightGreyBrush}" StrokeThickness="0" StrokeMiterLimit="4" Opacity="1">
+                <Path.Data>
+                    <PathGeometry Figures="M 7.5 4 C 6.9214642 6.6034109 8.5158885 9.6787481 9.9648438 11.833984 L 9.3730469 12.855469 C 8.9155296 12.334272 8.2512029 12 7.5 12 C 6.115 12 5 13.115 5 14.5 L 5 15.5 C 5 16.885 6.115 18 7.5 18 C 8.885 18 10 16.885 10 15.5 L 10 14.5 C 10 14.5 10.423863 14.02565 11 13.283203 C 11.576223 14.025776 12 14.5 12 14.5 L 12 15.5 C 12 16.885 13.115 18 14.5 18 C 15.885 18 17 16.885 17 15.5 L 17 14.5 C 17 13.115 15.885 12 14.5 12 C 13.748797 12 13.08447 12.334272 12.626953 12.855469 L 12.035156 11.833984 C 13.484261 9.678715 15.078611 6.6037493 14.5 4 L 11 10.044922 L 7.5 4 z M 11 10.986328 A 0.49228355 0.49999997 0 0 1 11.492188 11.486328 A 0.49228355 0.49999997 0 0 1 11 11.986328 A 0.49228355 0.49999997 0 0 1 10.507812 11.486328 A 0.49228355 0.49999997 0 0 1 11 10.986328 z M 7.5 13 C 8.331 13 9 13.669 9 14.5 L 9 15.5 C 9 16.331 8.331 17 7.5 17 C 6.669 17 6 16.331 6 15.5 L 6 14.5 C 6 13.669 6.669 13 7.5 13 z M 14.5 13 C 15.331 13 16 13.669 16 14.5 L 16 15.5 C 16 16.331 15.331 17 14.5 17 C 13.669 17 13 16.331 13 15.5 L 13 14.5 C 13 13.669 13.669 13 14.5 13 z " FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:OpenFolderIcon" x:Shared="False" Stretch="Uniform"  Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconFolderGoldBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 5 6 -0.75 0.25 -0.25 0.75 V 11 H 2 l 4 5 H 18 V 7 l -0.25 -0.75 -0.75 -0.25 h -2 v 1 h 2 V 14.75 L 14 11 H 5 V 7 h 2 v -1 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconLightGreenBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="M 11 3 8 6 v 1 h 1 l 1 -1 0 4 H 12 v -4 l 1 1 h 1 v -1 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:OpenFileIcon" x:Shared="False" Stretch="Uniform"  Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconFolderGoldBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 7.5 7 v 1 H 14.5 v -1 z M 4.25 7.25 4 8 V 12 H 2 l 4 5 H 18 V 8 l -0.25 -0.75 -0.75 -0.25 h -2.5 v 1 H 17 V 15.75 L 14 12 H 5 V 8 h 2.5 v -1 H 5 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:DataFileIcon" x:Shared="False" Stretch="Uniform"  Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{DynamicResource MenuIconLightGreyBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="M 4 2 L 4 18 L 16 18 L 16 5.5 L 12.5 2 L 4 2 z M 5 3 L 11 3 L 11 7 L 15 7 L 15 17 L 5 17 L 5 3 z M 12 3 L 15 6 L 12 6 L 12 3 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Rectangle Canvas.Left="6" Canvas.Top="5" Width="4" Height="1" Fill="{DynamicResource MenuIconLightGreyBrush}"/>
+            <Rectangle Canvas.Left="6" Canvas.Top="8" Width="8" Height="1" Fill="{DynamicResource MenuIconLightGreyBrush}"/>
+            <Rectangle Canvas.Left="6" Canvas.Top="11" Width="8" Height="1" Fill="{DynamicResource MenuIconLightGreyBrush}"/>
+            <Rectangle Canvas.Left="6" Canvas.Top="14" Width="8" Height="1" Fill="{DynamicResource MenuIconLightGreyBrush}"/>
+        </Canvas>
+    </Viewbox>
+
+
+    <Viewbox x:Key="ArctosWpf:PendingAdd" x:Shared="False" Stretch="Uniform" Width="7" Height="7">
+        <Canvas Width="7" Height="7">
+            <Canvas>
+                <Path Fill="{StaticResource MenuIconLightGreenBrush}">
+                    <Path.Data>
+                        <PathGeometry Figures="M 0 3 V 5 H 2 V 7 H 4 V 5 H 6 V 3 H 4 V 1 H 2 v 2 z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+            </Canvas>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:PendingRemove" x:Shared="False" Stretch="Uniform" Width="7" Height="7">
+        <Canvas Width="7" Height="7">
+            <Path Fill="{StaticResource MenuIconRedBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="M 1 3 V 5 H 5 V 3 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:MediumUpArrow" x:Shared="False" Stretch="Uniform" Width="20" Height="20">
+        <Canvas Width="20" Height="20">
+            <Path Fill="{StaticResource Grey50Brush}" >
+                <Path.Data>
+                    <PathGeometry Figures="M 10 5 C 2 15 2 15 2 15 h 16 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:ToTopIcon" x:Shared="False" Stretch="Uniform" Width="20" Height="20">
+        <Canvas Width="20" Height="20">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{DynamicResource MenuIconPaleBlueBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="M 10 8 3 16 H 17 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Rectangle Canvas.Left="3" Canvas.Top="6" Width="14" Height="2" Fill="{DynamicResource MenuIconPaleBlueBrush}" />
+        </Canvas>
+    </Viewbox>
+
+    <!--<Viewbox x:Key="ArctosWpf:HideIcon" x:Shared="False" Stretch="Uniform" Width="20" Height="20">
+    <Canvas Width="20" Height="20">
+      <Path Fill="{StaticResource Grey70Brush}">
+        <Path.Data>
+          <PathGeometry Figures="m 9.4157241 10.558395 -7.5323924 -7.53338 0.5718501 -0.5584 0.5718499 -0.55839 7.5593043 7.55831 7.559305 7.55832 -0.520911 0.53346 c -0.286501 0.2934 -0.555945 0.53346 -0.598762 0.53346 -0.04282 0 -3.467428 -3.39002 -7.6102439 -7.53338 z m -1.2615073 4.98127 c -1.8460321 -0.36474 -3.500979 -1.36131 -5.5335574 -3.33216 l -1.6206593 -1.57145 0.076078 -0.67496 c 0.071188 -0.63158 0.1678581 -0.76674 1.5039716 -2.10286 l 1.4278936 -1.42789 1.0494936 1.04249 1.0494938 1.04249 -0.0783 1.0353 c -0.095716 1.26559 0.097361 2.02227 0.7428783 2.91136 0.8756199 1.20604 2.5805461 1.8777 4.01855 1.58312 l 0.705159 -0.14445 0.641233 0.65103 c 0.352679 0.35806 0.641234 0.69003 0.641234 0.7377 0 0.31441 -3.3743969 0.49707 -4.6234682 0.25028 z m 6.8595832 -3.0687 -1.080249 -1.09589 0.107307 -0.67586 c 0.434055 -2.73386 -1.712773 -4.9773 -4.5138339 -4.71696 l -0.934648 0.0869 -0.684222 -0.69467 -0.6842222 -0.69466 0.6204638 -0.17762 c 0.9404244 -0.26922 3.2873753 -0.23122 4.2895783 0.0695 2.112609 0.6338 4.346362 2.17361 6.160309 4.2465 0.807383 0.92265 0.894023 1.39701 0.402441 2.20344 -0.3331 0.54645 -2.278576 2.54528 -2.477341 2.54528 -0.06893 0 -0.611447 -0.49315 -1.205583 -1.09588 z" FillRule="NonZero"/>
+        </Path.Data>
+      </Path>
+    </Canvas>
+  </Viewbox>-->
+
+    <Viewbox x:Key="ArctosWpf:EditPencilIcon" x:Shared="False" Stretch="Uniform" Width="20" Height="20">
+        <Canvas Width="20" Height="20">
+            <Path Fill="{StaticResource Grey80Brush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 1.0117693 18.891879 c 0.0143 -0.0697 0.16903 -1.08012 0.34377 -2.24531 0.17474 -1.16518 0.32213 -2.1338 0.32752 -2.15247 0.005 -0.0187 0.8819 0.83831 1.94779 1.90442 1.06588 1.0661 1.91444 1.93836 1.88568 1.93836 -0.0493 0 -4.05685 0.60001 -4.38013 0.65579 -0.14553996 0.0251 -0.14979996 0.0217 -0.12463 -0.10079 z m 3.10365 -3.00044 -1.94924 -1.94962 5.46602 -5.4658795 5.4660197 -5.46588 c 0 0 3.901781 3.9899405 3.91987 3.92289 l -5.45392 5.4540495 c -2.9996497 2.99973 -5.4641697 5.45406 -5.4767197 5.45406 -0.0125 0 -0.89995 -0.87733 -1.97203 -1.94962 z M 15.564189 4.4421495 l -1.94949 -1.94988 0.64251 -0.63744 c 0.35339 -0.35059 0.70337 -0.66716 0.77774 -0.70349 0.23817 -0.11634 0.60047 -0.17970004 0.84961 -0.14857 0.49228 0.0615 0.64623 0.17506 1.79608 1.32474 1.24764 1.24746 1.31662 1.35038 1.31933 1.96853 0.002 0.54617 -0.10585 0.7386 -0.83577 1.48595 -0.3277 0.33552 -0.60812 0.61004 -0.62317 0.61004 -0.015 0 -0.90462 -0.87745 -1.97684 -1.94988 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:DeleteIcon"  x:Shared="False" Stretch="Uniform" Width="22" Height="22">
+        <Canvas Name="svg5" Width="22" Height="22">
+            <Path Fill="{StaticResource MenuIconRedBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 4 3 a 1 1 0 0 0 -0.7070312 0.2929688 1 1 0 0 0 0 1.4140624 C 5.3906235 6.8046845 7.4882803 8.9023436 9.5859375 11 7.4882349 13.097702 5.391073 15.194862 3.2929688 17.292969 a 1 1 0 0 0 0 1.414062 1 1 0 0 0 1.4140624 0 C 6.8051352 16.608924 8.9022976 14.511765 11 12.414062 c 2.097657 2.097657 4.195315 4.195312 6.292969 6.292969 a 1 1 0 0 0 1.414062 0 1 1 0 0 0 0 -1.414062 C 16.609377 15.195311 14.51172 13.097657 12.414062 11 14.511674 8.902389 16.609826 6.804235 18.707031 4.7070312 a 1 1 0 0 0 0 -1.4140624 1 1 0 0 0 -1.414062 0 C 15.195764 5.3901725 13.097612 7.4883265 11 9.5859375 8.902343 7.4882811 6.8046857 5.390622 4.7070312 3.2929688 A 1 1 0 0 0 4 3 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:ShowIcon" x:Shared="False" Stretch="None" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="M 10.980469 5.2871094 C 9.4141124 5.2879481 7.8476254 5.6967469 6.2324219 6.5136719 C 4.0010289 7.6422419 1 10.227884 1 11.021484 C 1 11.354494 1.5770809 12.040531 2.6542969 12.988281 C 4.8100779 14.884961 6.9498453 16.048188 9.1445312 16.517578 C 12.388239 17.211338 15.815297 16.042806 19.255859 13.066406 C 20.333972 12.133746 21 11.346809 21 11.005859 C 21 10.662149 20.523245 10.066393 19.546875 9.1894531 C 18.106996 7.8962031 17.145712 7.2210456 15.732422 6.5097656 C 14.112832 5.6944856 12.546825 5.2862706 10.980469 5.2871094 z M 7.1972656 8.1640625 C 7.2411626 8.1640625 7.2044075 8.3729363 7.1171875 8.6289062 C 6.8715575 9.3497962 6.9621353 10.741391 7.3007812 11.462891 C 8.0746762 13.111711 9.882173 14.108318 11.59375 13.830078 C 13.326807 13.548358 14.743456 12.131876 15.015625 10.410156 C 15.106162 9.8374163 14.992198 8.7007481 14.810547 8.3613281 C 14.752267 8.2523981 14.743659 8.1640625 14.792969 8.1640625 C 15.017683 8.1640625 16.773733 9.3333844 17.722656 10.115234 L 18.771484 10.978516 L 18.261719 11.429688 C 16.690281 12.819177 15.039684 13.832883 13.503906 14.351562 C 12.618004 14.650793 12.339436 14.696262 11.207031 14.726562 C 9.8093632 14.764022 9.1359435 14.640549 7.8046875 14.099609 C 7.1172325 13.820269 5.9660021 13.173898 5.3300781 12.710938 C 4.5394371 12.135347 3.3710938 11.114107 3.3710938 10.998047 C 3.3710938 10.879497 4.1084241 10.206289 4.9707031 9.5371094 C 5.4406191 9.1724294 7.0760946 8.1640625 7.1972656 8.1640625 z M 10.859375 8.7890625 A 1.2197058 1.2197058 0 0 1 11.988281 9.2871094 L 11 10 L 12.21875 10 A 1.2197058 1.2197058 0 0 1 11.189453 11.205078 A 1.2197058 1.2197058 0 0 1 9.8398438 10.375 A 1.2197058 1.2197058 0 0 1 10.449219 8.9121094 A 1.2197058 1.2197058 0 0 1 10.859375 8.7890625 z " FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:HideIcon" x:Shared="False" Stretch="None" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 13.233439 14.5076 0.613078 -0.19626 -0.405812 -0.31583 C 12.831728 13.52156 12.827251 13.52052 12.192937 13.70492 11.777462 13.8257 11.351659 13.86323 10.753234 13.83183 9.693394 13.77623 8.964661 13.44636 8.154886 12.65577 7.3652313 11.88482 7.0479043 11.15792 6.9910793 9.98983 6.9489193 9.12325 6.9326293 9.07087 6.6405413 8.86288 6.3993323 8.69113 6.2863953 8.66724 6.1092463 8.7505 5.7055263 8.94027 4.4419103 9.8743 3.820188 10.44252 l -0.608044 0.55571 0.662461 0.60529 c 1.4048273 1.28359 3.5686493 2.52488 5.170449 2.96607 1.013339 0.27912 3.225126 0.24638 4.188385 -0.062 z m 4.27087 -1.19672 -0.712184 -0.53524 0.358567 -0.3167 c 0.197211 -0.17419 0.648576 -0.56661 1.003034 -0.87205 0.631369 -0.54405 0.640664 -0.55958 0.457248 -0.76429 -0.658928 -0.73541 -3.411531 -2.6702 -3.798863 -2.6702 -0.02452 0 0.02487 0.23699 0.109791 0.52665 0.18022 0.61479 0.152321 2.19084 -0.04222 2.38531 -0.09651 0.0965 -0.177411 0.0891 -0.362711 -0.0331 C 14.232156 10.84349 8.101914 6.20545 7.9664953 6.07527 7.7825973 5.8985 8.118439 5.69464 8.915321 5.49935 c 1.182811 -0.28988 3.199349 -0.26867 4.378652 0.046 2.223835 0.59348 4.288303 1.79354 6.265935 3.64234 1.951869 1.82473 1.94908 1.88091 -0.188836 3.8086 -0.521022 0.46979 -0.993948 0.85317 -1.050945 0.85195 -0.057 -0.001 -0.424115 -0.24308 -0.815815 -0.53746 z m 1.307044 4.68199 c -0.128807 -0.0512 -0.907342 -0.60401 -1.730078 -1.22841 l -1.495886 -1.13527 -0.705275 0.29606 c -1.396117 0.58607 -2.33188 0.77146 -3.866048 0.76589 C 9.207985 16.68414 8.071192 16.39999 6.2936653 15.50933 4.7852263 14.75351 3.427627 13.76018 2.082758 12.42832 1.054158 11.40966 0.893182 11.14321 1.053367 10.72448 1.187314 10.37434 2.629829 8.96239 3.708003 8.1261 4.220983 7.72821 4.6214923 7.37315 4.5980223 7.33709 4.5745623 7.30099 4.045213 6.88927 3.421713 6.42208 2.798212 5.95488 2.224311 5.48854 2.14637 5.38576 1.906204 5.06903 1.966103 4.59359 2.283063 4.30077 c 0.37076 -0.34251 0.5911 -0.41368 0.907891 -0.29323 0.142113 0.054 2.2752353 1.62375 4.7402673 3.48828 2.4650317 1.86452 5.3446137 4.04265 6.3990677 4.84028 1.054458 0.79764 2.686664 2.03174 3.627123 2.74245 0.94046 0.71071 1.7905 1.39006 1.88898 1.50967 0.274862 0.33381 0.23202 0.80701 -0.101327 1.11911 -0.346375 0.3243 -0.623297 0.40898 -0.933712 0.28554 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:TickIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="None" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 19.545777,2.4541968 0.454217,0.6488825 q -2.777216,2.0894011 -6.17736,6.4369137 -3.400144,4.347512 -5.19106,8.124008 L 7.6712285,18.312883 Q 6.4772848,19.143453 6.0490227,19.54576 5.880313,18.93581 5.3092965,17.547202 L 4.9459223,16.703655 Q 4.1672634,14.886784 3.4924257,14.017281 2.8305659,13.147779 1.9999964,12.862271 q 1.401586,-1.479452 2.5695744,-1.479452 0.9992786,0 2.2191776,2.712328 l 0.4023074,0.908436 Q 9.384278,11.304953 12.823355,7.8139654 16.262432,4.3229782 19.545777,2.4541968 Z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:CrossIcon" Style="{StaticResource IconDisabledStyle}" x:Shared="False" Stretch="None" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 10.901496,14.752234 -0.268656,0.376119 q -2.7940299,4.226865 -4.5850745,4.226865 -2.0597012,0 -4.0477606,-3.349253 0.2686567,0.01791 0.3940298,0.01791 2.3462683,0 5.22985,-3.58209 L 8.107467,11.832831 7.4806012,11.152234 Q 4.8477657,8.358205 4.8477657,6.4059665 q 0,-1.59403 2.8835817,-3.7611935 0.4119406,2.7761186 2.4537306,5.408955 l 0.537314,0.680596 0.42985,-0.555224 q 2.991045,-3.8149243 5.426865,-3.8149243 1.898508,0 2.883582,2.8835813 -0.286567,-0.035817 -0.41194,-0.035817 -0.859702,0 -2.41791,1.164179 -1.558209,1.146269 -2.632836,2.597014 l -0.537313,0.734329 0.519403,0.501493 q 2.883582,2.794029 6.017909,2.794029 -1.683581,3.402985 -3.510446,3.402985 -1.647761,0 -4.764179,-2.901492 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:KebabMenu" x:Shared="False" Stretch="Uniform"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 13,17.09757 a 2,2 0 0 1 -2,2 2,2 0 0 1 -2,-2 2,2 0 0 1 2,-2 2,2 0 0 1 2,2 z m 0,-6.07318 a 2,2 0 0 1 -2,2 2,2 0 0 1 -2,-2 2,2 0 0 1 2,-2 2,2 0 0 1 2,2 z m 0,-6.07318 a 2,2 0 0 1 -2,2 2,2 0 0 1 -2,-2 2,2 0 0 1 2,-2 2,2 0 0 1 2,2 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:MeatballMenu" x:Shared="False" Stretch="Uniform"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 17.07318,9 a 2,2 0 0 1 2,2 2,2 0 0 1 -2,2 2,2 0 0 1 -2,-2 2,2 0 0 1 2,-2 z M 11,9 a 2,2 0 0 1 2,2 2,2 0 0 1 -2,2 2,2 0 0 1 -2,-2 2,2 0 0 1 2,-2 z M 4.92682,9 a 2,2 0 0 1 2,2 2,2 0 0 1 -2,2 2,2 0 0 1 -2,-2 2,2 0 0 1 2,-2 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:SettingsCogIcon" x:Shared="False" Stretch="None" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 11.000018,7.1157303 c -2.1433048,0 -3.8842701,1.7409652 -3.8842701,3.8842697 0,2.143305 1.7409653,3.88427 3.8842701,3.88427 2.143304,0 3.88427,-1.740965 3.88427,-3.88427 0,-2.1433045 -1.740966,-3.8842697 -3.88427,-3.8842697 z m 0,6.7532897 c -1.5830374,0 -2.8690204,-1.285982 -2.8690204,-2.86902 0,-1.5830372 1.285983,-2.86902 2.8690204,-2.86902 1.583037,0 2.86902,1.2859828 2.86902,2.86902 0,1.583038 -1.285983,2.86902 -2.86902,2.86902 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="M 19.07872,9.1105079 17.815298,8.8961773 C 17.683692,8.4712766 17.514483,8.0614165 17.307673,7.6703574 L 18.05219,6.6287863 C 18.368044,6.1850846 18.319162,5.579695 17.931863,5.1961563 L 16.811329,4.0756215 c -0.210571,-0.2105703 -0.488824,-0.327136 -0.785879,-0.327136 -0.233131,0 -0.454982,0.071443 -0.642991,0.2068101 L 14.337127,4.699812 c -0.4061,-0.2143304 -0.831,-0.3910592 -1.270941,-0.5226656 L 12.855615,2.9287654 C 12.765371,2.3910591 12.302868,2 11.757642,2 H 10.174604 C 9.6293772,2 9.1668747,2.3910591 9.0766303,2.9287654 L 8.8585393,4.2072279 C 8.4373992,4.3388343 8.0275391,4.5118028 7.63648,4.7223731 L 6.6024295,3.9778567 C 6.4144203,3.8424901 6.1888093,3.7710466 5.9556778,3.7710466 c -0.2970545,0 -0.5790683,0.1165657 -0.7858784,0.327136 L 4.0455045,5.2187174 C 3.6619657,5.6022561 3.6093231,6.2076457 3.9251785,6.6513474 L 4.6772153,7.7079593 C 4.4704052,8.1027786 4.3049571,8.5126386 4.1771109,8.9375394 L 2.9287298,9.1481097 C 2.3910236,9.2383541 1.9999644,9.7008567 1.9999644,10.246083 v 1.583038 c 0,0.545226 0.3910592,1.007729 0.9287654,1.097973 l 1.2784625,0.218091 c 0.1316064,0.421141 0.3045749,0.831 0.5151453,1.22206 l -0.7407563,1.03029 c -0.3158554,0.443702 -0.266973,1.049091 0.1203259,1.43263 L 5.2224419,17.9507 c 0.2105704,0.210571 0.4888239,0.327136 0.7858785,0.327136 0.2331314,0 0.4549822,-0.07144 0.6429914,-0.20681 l 1.0566117,-0.752037 c 0.3797786,0.19929 0.7783577,0.360978 1.188218,0.488824 l 0.2105706,1.263422 C 9.1969564,19.608941 9.659459,20 10.204685,20 h 1.586798 c 0.545226,0 1.00773,-0.391059 1.097974,-0.928765 l 0.21433,-1.263422 c 0.424901,-0.131606 0.834761,-0.300814 1.22582,-0.507625 l 1.041571,0.744517 c 0.188009,0.135367 0.413621,0.20681 0.646752,0.20681 v 0 c 0.297054,0 0.575308,-0.116566 0.785878,-0.327137 l 1.120535,-1.120534 c 0.383539,-0.383539 0.436181,-0.988928 0.120326,-1.43263 l -0.744516,-1.045331 c 0.206809,-0.394819 0.379778,-0.80468 0.507624,-1.22582 l 1.263422,-0.21057 c 0.537706,-0.09024 0.928766,-0.552747 0.928766,-1.097974 V 10.208481 C 20.007525,9.6632549 19.616426,9.2007522 19.07872,9.1105079 Z m -0.08648,2.6810111 c 0,0.04888 -0.03384,0.09025 -0.08273,0.09777 l -1.579278,0.263213 c -0.19929,0.03384 -0.357217,0.180489 -0.406099,0.372258 -0.142888,0.552747 -0.360979,1.082933 -0.654272,1.575517 -0.101525,0.172968 -0.094,0.387299 0.02256,0.552747 l 0.928765,1.308544 c 0.02632,0.0376 0.02256,0.094 -0.01128,0.127846 l -1.120535,1.120535 c -0.02632,0.02632 -0.05264,0.03008 -0.07144,0.03008 -0.02256,0 -0.04136,-0.0076 -0.0564,-0.0188 l -1.304784,-0.928765 c -0.161689,-0.116566 -0.379779,-0.124087 -0.552747,-0.02256 -0.492584,0.293294 -1.02277,0.511384 -1.575518,0.654272 -0.195529,0.04888 -0.342176,0.21057 -0.372258,0.4061 l -0.266973,1.579277 c -0.0076,0.04888 -0.04888,0.08273 -0.09777,0.08273 H 10.20845 c -0.04888,0 -0.09024,-0.03384 -0.09776,-0.08273 L 9.8474727,17.330265 c -0.03384,-0.19929 -0.1804888,-0.357219 -0.3722582,-0.4061 -0.537706,-0.139128 -1.0566119,-0.353458 -1.5416755,-0.631711 -0.078964,-0.04513 -0.1692082,-0.06768 -0.2556925,-0.06768 -0.1015249,0 -0.2068101,0.03008 -0.2932943,0.094 L 6.0684878,17.25506 c -0.018801,0.01128 -0.037602,0.0188 -0.056402,0.0188 -0.015041,0 -0.045123,-0.0038 -0.071443,-0.03008 L 4.8201023,16.12325 C 4.7862603,16.08941 4.7825003,16.03677 4.8088213,15.995405 L 5.733827,14.698141 C 5.8503927,14.532693 5.8579131,14.314603 5.7563881,14.141634 5.4630938,13.65281 5.2374827,13.122624 5.0945957,12.569877 5.0419532,12.378107 4.8840254,12.231461 4.6884959,12.197619 L 3.0979381,11.926885 c -0.048882,-0.0076 -0.082724,-0.04888 -0.082724,-0.09776 v -1.583038 c 0,-0.04888 0.033842,-0.09024 0.082724,-0.09776 L 4.6659348,9.8851057 C 4.8652245,9.8512641 5.0269124,9.7046168 5.0757948,9.5090873 5.2149216,8.9563403 5.4292521,8.4223942 5.7187863,7.9298101 5.8203112,7.7568417 5.8090307,7.5425111 5.6924649,7.3808233 L 4.7561792,6.0647588 C 4.7298579,6.0271569 4.733618,5.9707542 4.7674598,5.9369125 L 5.8879946,4.8163777 c 0.026321,-0.026322 0.052642,-0.030082 0.071443,-0.030082 0.022561,0 0.041362,0.00752 0.056402,0.018801 L 7.3131037,5.7301022 C 7.4785517,5.8466679 7.6966424,5.8541883 7.8696109,5.7526635 8.3584346,5.4593691 8.8886202,5.2337581 9.4413671,5.0908711 9.6331365,5.0382289 9.7797842,4.8803009 9.8136253,4.6847712 L 10.084358,3.0942135 c 0.0076,-0.048883 0.04888,-0.082724 0.09777,-0.082724 h 1.583038 c 0.04888,0 0.09024,0.033842 0.09776,0.082724 l 0.263214,1.5679967 c 0.03384,0.1992897 0.180489,0.3609776 0.376018,0.40986 0.567788,0.142887 1.109254,0.3647378 1.613119,0.6617924 0.172969,0.1015249 0.387298,0.094005 0.552747,-0.022561 l 1.297263,-0.9325257 c 0.0188,-0.011281 0.0376,-0.018801 0.0564,-0.018801 0.01504,0 0.04513,0.00376 0.07144,0.030082 l 1.120536,1.1205348 c 0.03384,0.033842 0.0376,0.086484 0.01128,0.1278462 L 16.29618,7.3432214 c -0.116566,0.1616878 -0.124086,0.3797785 -0.02256,0.552747 0.293294,0.492584 0.511385,1.02277 0.654272,1.575517 0.04888,0.1955295 0.21057,0.3421767 0.4061,0.3722582 l 1.579277,0.2669724 c 0.04888,0.0076 0.08273,0.04888 0.08273,0.09777 v 1.583038 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:PersonIcon" x:Shared="False" Stretch="None" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 3.3290409,18.692751 c -0.2532546,-0.305155 -0.2332239,-0.693594 0.093764,-1.818404 0.64991,-2.235611 1.909221,-3.7185 4.379328,-5.156817 C 7.8460792,11.691911 7.5790516,11.224515 7.2087318,10.678818 6.0091911,8.9111986 5.9805769,6.8971371 7.1304206,5.1666358 7.8498485,4.0838962 9.7506003,3.0685642 11.05811,3.0685642 c 1.30751,0 3.208262,1.015332 3.927689,2.0980716 1.155961,1.7397203 1.121393,3.7443207 -0.09549,5.5374892 -0.385532,0.568119 -0.566852,1.058693 -0.410552,1.1108 0.833716,0.277902 2.575984,1.842491 3.269524,2.936094 1.43242,2.258688 1.658984,4.45716 0.440934,4.27862 -0.424241,-0.06223 -0.641192,-0.39662 -0.88851,-1.369659 C 16.045443,12.71743 10.346131,11.029998 6.7604569,14.538961 5.67676,15.59947 5.0862188,16.698257 4.4987418,18.747208 c -0.1294857,0.451611 -0.774636,0.421573 -1.169705,-0.05447 z m 9.3515231,-8.073373 c 1.036448,-0.612247 1.680187,-2.0207987 1.48502,-3.2493379 -0.225477,-1.4193344 -1.699569,-2.7002526 -3.107473,-2.7002526 -1.4079021,0 -2.8819952,1.2809182 -3.1074727,2.7002526 -0.4205816,2.6474799 2.4317097,4.6069339 4.7299257,3.2493379 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox x:Key="ArctosWpf:PeopleIcon" x:Shared="False" Stretch="None" Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Fill="{DynamicResource ForegroundBrush}">
+                <Path.Data>
+                    <PathGeometry Figures="m 8.8482073,3.0000001 c -3.8179852,0 -6.1171457,4.3569228 -3.888672,7.3710939 l 0.6660157,0.902344 -1.1113282,0.65625 c -1.955351,1.153685 -3.99969935,5.450604 -3.2050782,6.736328 0.2925028,0.473275 1.4466936,0.432594 1.5996094,-0.05664 0.068806,-0.220132 0.215711,-0.943257 0.3261719,-1.607421 0.2268108,-1.363739 1.6994424,-3.216415 3.154297,-3.968751 1.2426347,-0.642591 3.6733811,-0.642591 4.9160161,0 1.454855,0.752336 2.927487,2.605012 3.154297,3.968751 0.313559,1.885325 0.421297,2.058574 1.191406,1.949218 0.64492,-0.09158 0.714906,-0.267453 0.666016,-1.65625 -0.06766,-1.922184 -1.386054,-4.200701 -3.058594,-5.289062 l -1.167969,-0.761719 0.654297,-0.886719 C 14.962946,7.357073 12.656187,3.0000001 8.8482073,3.0000001 Z M 8.7388323,4.7871095 C 9.0636031,4.7781162 9.4071428,4.830008 9.7603167,4.9531251 11.738069,5.6425734 12.378259,8.1437767 10.943911,9.5781252 9.9334686,10.588567 7.8699718,10.668249 6.9341447,9.7324221 5.0601556,7.858433 6.4654367,4.8500627 8.7388323,4.7871095 Z M 19.160798,18.63191 c -0.07203,-0.232485 -0.214168,-0.902487 -0.31587,-1.488893 -0.332369,-1.916419 -1.219624,-3.286714 -2.961141,-4.573248 -0.941749,-0.695711 -1.712271,-1.415554 -1.712271,-1.599652 0,-0.184099 0.432262,-0.766986 0.960582,-1.2953061 1.73834,-1.73834 1.069348,-3.993707 -1.440872,-4.857602 -1.713754,-0.589789 -1.801308,-1.613287 -0.149902,-1.752325 2.142021,-0.180345 4.471524,2.204589 4.471524,4.577927 0,0.52832 -0.251929,1.44837 -0.559842,2.044556 l -0.559841,1.0839751 1.507671,1.542817 c 1.550542,1.586686 2.661166,4.236171 2.437114,5.813934 -0.114705,0.807744 -1.457976,1.211263 -1.677152,0.503817 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+
+</ResourceDictionary>

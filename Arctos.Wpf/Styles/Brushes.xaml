@@ -1,0 +1,237 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="WhiteColor">#ffffff</Color>
+    <Color x:Key="BlackColor">#000000</Color>
+
+    <Color x:Key="GreyColor90">#e6e6e6</Color>
+    <Color x:Key="GreyColor80">#cccccc</Color>
+    <Color x:Key="GreyColor70">#b3b3b3</Color>
+    <Color x:Key="GreyColor60">#999999</Color>
+    <Color x:Key="GreyColor50">#808080</Color>
+    <Color x:Key="GreyColor40">#666666</Color>
+    <Color x:Key="GreyColor30">#4d4d4d</Color>
+    <Color x:Key="GreyColor20">#333333</Color>
+    <Color x:Key="GreyColor15">#262626</Color>
+    <Color x:Key="GreyColor10">#1a1a1a</Color>
+    <Color x:Key="GreyColor05">#0d0d0d</Color>
+
+
+    <Color x:Key="AccentHighLight">#0055ff</Color>
+    <Color x:Key="Accent">#6699ff</Color>
+
+    <Color x:Key="AccentL80">#99bbff</Color>
+    <Color x:Key="AccentL60">#3377ff</Color>
+    <Color x:Key="AccentL40">#0044cc</Color>
+    <Color x:Key="AccentL20">#002266</Color>
+    <Color x:Key="AccentL10">#001133</Color>
+
+    <Color x:Key="AccentS80">#759ef0</Color>
+    <Color x:Key="AccentS60">#85a3e0</Color>
+    <Color x:Key="AccentS40">#94a8d1</Color>
+    <Color x:Key="AccentS20">#a3adc2</Color>
+    <Color x:Key="AccentS0">#b3b3b3</Color>
+
+    <Color x:Key="AccentH30">#ffffff</Color>
+    <Color x:Key="AccentH60">#ffffff</Color>
+    <Color x:Key="AccentH90">#ffffff</Color>
+    <Color x:Key="AccentH120">#ffffff</Color>
+    <Color x:Key="AccentH150">#ffffff</Color>
+    <Color x:Key="AccentH180">#ffffff</Color>
+    <Color x:Key="AccentH210">#ffffff</Color>
+    <Color x:Key="AccentH240">#ffffff</Color>
+    <Color x:Key="AccentH270">#ffffff</Color>
+    <Color x:Key="AccentH300">#ffffff</Color>
+    <Color x:Key="AccentH330">#ffffff</Color>
+
+    <!--General-->
+    <SolidColorBrush x:Key="WhiteBrush" Color="{DynamicResource WhiteColor}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{DynamicResource BlackColor}"/>
+    <SolidColorBrush x:Key="ForegroundBrush" Color="#FFF1F1F1"/>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#FF2D2D30"/>
+    <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="{DynamicResource AccentL40}"/>
+    <SolidColorBrush x:Key="SelectedBorderBrush" Color="{DynamicResource AccentL60}"/>
+    <SolidColorBrush x:Key="SelectedUnfocusedBrush" Color="{DynamicResource GreyColor40}"/>
+
+    <SolidColorBrush x:Key="DisabledForegroundBrush" Color="#FF7F7F7F"/>
+    <SolidColorBrush x:Key="ToolDocumentPaneBackgroundBrush" Color="#FF292929"/>
+
+    <!-- Accent Brushes -->
+    <SolidColorBrush x:Key="AccentHighLightBrush" Color="{DynamicResource AccentHighLight}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource Accent}"/>
+
+    <SolidColorBrush x:Key="AccentL80Brush" Color="{DynamicResource AccentL80}"/>
+    <SolidColorBrush x:Key="AccentL60Brush" Color="{DynamicResource AccentL60}"/>
+    <SolidColorBrush x:Key="AccentL40Brush" Color="{DynamicResource AccentL40}"/>
+    <SolidColorBrush x:Key="AccentL20Brush" Color="{DynamicResource AccentL20}"/>
+    <SolidColorBrush x:Key="AccentL10Brush" Color="{DynamicResource AccentL10}"/>
+
+    <SolidColorBrush x:Key="AccentS80Brush" Color="{DynamicResource AccentS80}"/>
+    <SolidColorBrush x:Key="AccentS60Brush" Color="{DynamicResource AccentS60}"/>
+    <SolidColorBrush x:Key="AccentS40Brush" Color="{DynamicResource AccentS40}"/>
+    <SolidColorBrush x:Key="AccentS20Brush" Color="{DynamicResource AccentS20}"/>
+    <SolidColorBrush x:Key="AccentS0Brush" Color="{DynamicResource AccentS0}"/>
+
+    <SolidColorBrush x:Key="AccentH30Brush" Color="{DynamicResource AccentH30}"/>
+    <SolidColorBrush x:Key="AccentH60Brush" Color="{DynamicResource AccentH60}"/>
+    <SolidColorBrush x:Key="AccentH90Brush" Color="{DynamicResource AccentH90}"/>
+    <SolidColorBrush x:Key="AccentH120Brush" Color="{DynamicResource AccentH120}"/>
+    <SolidColorBrush x:Key="AccentH150Brush" Color="{DynamicResource AccentH150}"/>
+    <SolidColorBrush x:Key="AccentH180Brush" Color="{DynamicResource AccentH180}"/>
+    <SolidColorBrush x:Key="AccentH210Brush" Color="{DynamicResource AccentH210}"/>
+    <SolidColorBrush x:Key="AccentH240Brush" Color="{DynamicResource AccentH240}"/>
+    <SolidColorBrush x:Key="AccentH270Brush" Color="{DynamicResource AccentH270}"/>
+    <SolidColorBrush x:Key="AccentH300Brush" Color="{DynamicResource AccentH300}"/>
+    <SolidColorBrush x:Key="AccentH330Brush" Color="{DynamicResource AccentH330}"/>
+
+    <Color x:Key="DisabledIconColor">#777777</Color>
+    <SolidColorBrush x:Key="DisabledIconBrush" Color="{DynamicResource DisabledIconColor}"/>
+
+    <SolidColorBrush x:Key="Grey90Brush" Color="{StaticResource GreyColor90}"/>
+    <SolidColorBrush x:Key="Grey80Brush" Color="{StaticResource GreyColor80}"/>
+    <SolidColorBrush x:Key="Grey70Brush" Color="{StaticResource GreyColor70}"/>
+    <SolidColorBrush x:Key="Grey60Brush" Color="{StaticResource GreyColor60}"/>
+    <SolidColorBrush x:Key="Grey50Brush" Color="{StaticResource GreyColor50}"/>
+    <SolidColorBrush x:Key="Grey40Brush" Color="{StaticResource GreyColor40}"/>
+    <SolidColorBrush x:Key="Grey30Brush" Color="{StaticResource GreyColor30}"/>
+    <SolidColorBrush x:Key="Grey20Brush" Color="{StaticResource GreyColor20}"/>
+    <SolidColorBrush x:Key="Grey10Brush" Color="{StaticResource GreyColor10}"/>
+    <SolidColorBrush x:Key="Grey05Brush" Color="{StaticResource GreyColor05}"/>
+
+    <SolidColorBrush x:Key="TranslucentWhiteBrush" Color="#66FFFFFF"/>
+
+    <!-- Docking Brushes -->
+    <SolidColorBrush x:Key="ToolWindowBackgroundBrush" Color="#FF252526"/>
+    <SolidColorBrush x:Key="DocumentWindowBackgroundBrush" Color="#FF22282A"/>
+    <SolidColorBrush x:Key="ToolWindowBorderBrush" Color="#FF3F3F46"/>
+    <SolidColorBrush x:Key="DocumentWindowBorderBrush" Color="#FF3F3F46"/>
+    <SolidColorBrush x:Key="DockButtonBorderHoverBrush" Color="#393939"/>
+    <SolidColorBrush x:Key="DockButtonBackgroundHoverBrush" Color="#393939"/>
+
+    <!--Custom Chrome Window Brushes-->
+    <SolidColorBrush x:Key="ContentBackgroundBrush" Color="#FF191919"/>
+    <SolidColorBrush x:Key="CaptionBackgroundBrush" Color="#FF3B3F40"/>
+    <SolidColorBrush x:Key="CaptionForegroundBrush" Color="White"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#FF3B3F40"/>
+
+    <!--Menu-->
+    <SolidColorBrush x:Key="MenuBackgroundBrush" Color="#FF2D2D30"/>
+    <SolidColorBrush x:Key="MenuForegroundBrush" Color="#FFF1F1F1"/>
+    <SolidColorBrush x:Key="MenuSeparatorBrush" Color="#333337"/>
+    <SolidColorBrush x:Key="MenuItemHighlightedBackground" Color="#FF2D2D30"/>
+    <SolidColorBrush x:Key="SubmenuItemBackground" Color="#1B1B1C"/>
+    <SolidColorBrush x:Key="SubmenuItemBackgroundHighlighted" Color="#333334"/>
+    <SolidColorBrush x:Key="SubMenuBackgroundBrushBrush" Color="#FF1B1B1B"/>
+    <SolidColorBrush x:Key="MenuDisabledForeground" Color="#666666"/>
+    <SolidColorBrush x:Key="MenuItemHoverBrush" Color="#FF3E3E40"/>
+    <SolidColorBrush x:Key="MenuItemPressedBrush" Color="#FF3E3E40"/>
+    <SolidColorBrush x:Key="SubMenuArrowHoverBrush" Color="#007ACC"/>
+
+    <!--Menu Icons-->
+    <SolidColorBrush x:Key="MenuIconPaleBlueBrush" Color="#FF6EBBFF"/>
+    <SolidColorBrush x:Key="MenuIconLightBlueBrush" Color="#FF37ADE7"/>
+    <SolidColorBrush x:Key="MenuIconPaleGreenBrush" Color="#FF88D184"/>
+    <SolidColorBrush x:Key="MenuIconLightGreenBrush" Color="#FF83CE7F"/>
+    <SolidColorBrush x:Key="MenuIconFolderGoldBrush" Color="#FFD7AB68"/>
+    <SolidColorBrush x:Key="MenuIconRedBrush" Color="#FFF38B76"/>
+    <SolidColorBrush x:Key="MenuIconErrorRedBrush" Color="#FFE51400"/>
+    <SolidColorBrush x:Key="MenuIconGreyBrush" Color="{StaticResource GreyColor70}"/>
+    <SolidColorBrush x:Key="MenuIconLightGreyBrush" Color="{StaticResource GreyColor70}"/>
+    <SolidColorBrush x:Key="MenuIconDarkGreyBrush" Color="{StaticResource GreyColor30}"/>
+
+    <!--Button-->
+    <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#FFF1F1F1"/>
+    <SolidColorBrush x:Key="ButtonDisabledForegroundBrush" Color="#6A6A75"/>
+    <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#3F3F46"/>
+    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="ButtonHoverBorderBrush" Color="#6A6A75"/>
+    <SolidColorBrush x:Key="ButtonHoverBackgroundBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="ButtonPressedBackgroundBrush" Color="{StaticResource Accent}"/>
+    <SolidColorBrush x:Key="ButtonPressedBorderBrush" Color="{StaticResource AccentHighLight}"/>
+
+    <!-- ToggleButton -->
+    <SolidColorBrush x:Key="ButtonCheckedBrush" Color="#6A6A75"/>
+
+    <!--Link Button-->
+    <SolidColorBrush x:Key="LinkButtonForegroundBrush" Color="#1297FB"/>
+    <SolidColorBrush x:Key="LinkButtonHoverForegroundBrush" Color="#55AAFF"/>
+
+    <!--ComboBox-->
+    <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{DynamicResource GreyColor10}"/>
+    <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="ComboBoxHoverBackgroundBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="ComboBoxPopupBackgroundBrush" Color="#FF1B1B1B"/>
+    <SolidColorBrush x:Key="ComboBoxArrowBrush" Color="#999999"/>
+    <SolidColorBrush x:Key="ComboBoxArrowHoverBrush" Color="#007ACC"/>
+
+    <!--TreeViewBrushes-->
+    <SolidColorBrush x:Key="TreeViewBackgroundBrush" Color="{DynamicResource GreyColor10}"/>
+    <SolidColorBrush x:Key="TreeViewBorderBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="TreeViewHoverBackgroundBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="TreeViewArrowBrush" Color="#999999"/>
+    <SolidColorBrush x:Key="TreeViewArrowHoverBrush" Color="#007ACC"/>
+
+    <!--ListBoxBrushes-->
+    <SolidColorBrush x:Key="ListBoxBackgroundBrush" Color="{DynamicResource GreyColor10}"/>
+    <SolidColorBrush x:Key="ListBoxAlternateBackgroundBrush" Color="#1a1a1e"/>
+    <SolidColorBrush x:Key="ListBoxBorderBrush" Color="#FF3B3F40"/>
+    <SolidColorBrush x:Key="ListBoxHoverBackgroundBrush" Color="{DynamicResource GreyColor20}"/>
+    <SolidColorBrush x:Key="ListBoxSelectedBackgroundBrush" Color="{DynamicResource GreyColor30}"/>
+    <SolidColorBrush x:Key="ListBoxArrowBrush" Color="#999999"/>
+    <SolidColorBrush x:Key="ListBoxArrowHoverBrush" Color="#007ACC"/>
+
+    <!--DataGrid-->
+    <SolidColorBrush x:Key="DataGridBackgroundBrush" Color="#2D2D30"/>
+    <SolidColorBrush x:Key="DataGridBorderBrush" Color="#FF3B3F40"/>
+    <SolidColorBrush x:Key="DataGridLineBrush" Color="#FF3B3F40"/>
+    <SolidColorBrush x:Key="DataGridHeaderBackgroundBrush" Color="#3F3F46"/>
+    <SolidColorBrush x:Key="DatGridHeaderHoverBackgroundBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="DataGridCellSelectedBrush" Color="#007ACC"/>
+
+    <!--ListView-->
+    <SolidColorBrush x:Key="ListViewBackgroundBrush" Color="#2D2D30"/>
+    <SolidColorBrush x:Key="ListViewBorderBrush" Color="#FF3B3F40"/>
+    <SolidColorBrush x:Key="ListViewLineBrush" Color="#FF3B3F40"/>
+    <SolidColorBrush x:Key="ListViewHeaderBackgroundBrush" Color="#3F3F46"/>
+    <SolidColorBrush x:Key="ListViewHeaderHoverBackgroundBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="ListViewSelectedBrush" Color="#007ACC"/>
+
+    <!--TextBox-->
+    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="#333337"/>
+    <SolidColorBrush x:Key="TextBoxBorderBrush" Color="#54545C"/>
+    <SolidColorBrush x:Key="TextBoxBackgroundSelectedBrush" Color="#3F3F46"/>
+    <SolidColorBrush x:Key="SearchTextForegroundBrush" Color="#999999"/>
+
+    <!-- CheckBox Brushes -->
+    <SolidColorBrush x:Key="CheckBoxBackgroundBrush" Color="{DynamicResource GreyColor10}"/>
+    <SolidColorBrush x:Key="CheckBoxBorderBrush" Color="{StaticResource GreyColor30}"/>
+    <SolidColorBrush x:Key="CheckBoxForegroundBrush" Color="{DynamicResource AccentS60}" />
+
+    <!-- RadioButton Brushes -->
+    <SolidColorBrush x:Key="RadioButtonBackgroundBrush" Color="{DynamicResource GreyColor10}"/>
+    <SolidColorBrush x:Key="RadioButtonBorderBrush" Color="{StaticResource GreyColor30}"/>
+    <SolidColorBrush x:Key="RadioButtonGlyphBrush" Color="{DynamicResource AccentL60}" />
+    <SolidColorBrush x:Key="RadioButtonBorderHoverBrush" Color="{StaticResource GreyColor40}"/>
+
+    <!-- ToolBar Brushes -->
+    <SolidColorBrush x:Key="ToolBarButtonHoverBackgroundBrush" Color="#3E3E40"/>
+    <SolidColorBrush x:Key="ToolBarSeparatorBrush" Color="#46464A"/>
+
+    <!-- ScrollBar Brushes -->
+    <SolidColorBrush x:Key="ScrollBarBackgroundBrush" Color="{StaticResource GreyColor15}"/>
+    <SolidColorBrush x:Key="ScrollBarBrush" Color="{StaticResource GreyColor40}"/>
+    <SolidColorBrush x:Key="ScrollBarHoverBrush" Color="{StaticResource GreyColor60}"/>
+    <SolidColorBrush x:Key="ScrollBarDisabledBrush" Color="{StaticResource GreyColor20}"/>
+    <SolidColorBrush x:Key="ScrollBarPressedBrush" Color="{DynamicResource AccentL60}"/>
+
+    <!-- Slider Brushes -->
+    <SolidColorBrush x:Key="SliderBackgroundBrush" Color="{StaticResource GreyColor20}"/>
+    <SolidColorBrush x:Key="SliderTrackBrush" Color="{StaticResource GreyColor40}"/>
+    <SolidColorBrush x:Key="SliderTrackValueBrush" Color="{DynamicResource AccentL60}"/>
+    <SolidColorBrush x:Key="SliderThumbBorderBrush" Color="{StaticResource GreyColor20}"/>
+    <SolidColorBrush x:Key="SliderThumbBrush" Color="{StaticResource GreyColor60}"/>
+    <SolidColorBrush x:Key="SliderHoverBrush" Color="{StaticResource GreyColor60}"/>
+    <SolidColorBrush x:Key="SliderDisabledBrush" Color="{StaticResource GreyColor20}"/>
+
+
+</ResourceDictionary>

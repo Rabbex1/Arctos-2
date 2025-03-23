@@ -1,0 +1,147 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:Arctos.Wpf.Controls"
+                    xmlns:vc="clr-namespace:Arctos.Wpf.ValueConverters">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Brushes.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <vc:BoolToVisibilityConverter x:Key="Bool2Vis"/>
+    <vc:NotNullToTrueConverter x:Key="NotNull2True"/>
+
+    <ControlTemplate x:Key="WindowTemplateKey" TargetType="{x:Type controls:MetroWindow}">
+        <Grid LayoutTransform="{Binding LayoutTransform, RelativeSource={RelativeSource TemplatedParent}}"  
+          RenderTransform="{Binding RenderTransform, RelativeSource={RelativeSource TemplatedParent}}">
+            <AdornerDecorator>
+            </AdornerDecorator>
+            <Border Name="PART_Border"              
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              Background="{x:Null}"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              UseLayoutRounding="True">
+                <Grid Background="{TemplateBinding Background}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid Name="PART_TitleBar"
+                Grid.Row="0"
+                Background="{TemplateBinding TitleBackgroundBrush}"
+                Height="{TemplateBinding TitleBarHeight}"
+                VerticalAlignment="Top">
+                        <Grid.ColumnDefinitions>
+                            <!--  icon  -->
+                            <ColumnDefinition Width="Auto" />
+                            <!--  title  -->
+                            <ColumnDefinition Width="*" />
+                            <!--  window buttons  -->
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <!--  icon  -->
+                        <ContentControl x:Name="PART_Icon"
+                            Grid.Column="0"
+                            Height="{Binding TitleBarHeight, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}"
+                            MinWidth="{Binding TitleBarHeight, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            Panel.ZIndex="1"
+                            Content="{TemplateBinding Icon}"
+                            ContentTemplate="{TemplateBinding IconTemplate}"
+                            Focusable="False"
+                            Visibility="{TemplateBinding ShowIconOnTitleBar, Converter={StaticResource Bool2Vis}}" />
+                        <!-- The Caption -->
+                        <TextBlock x:Name="PART_WindowCaptionText"
+                      Grid.Column="1"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="{TemplateBinding TitleAlignment}"
+                      FontSize="14"
+                      Foreground="{TemplateBinding TitleForeground}"
+                      Text="{TemplateBinding Title}"
+                      Margin="8,4"/>
+
+                        <!--  the window buttons  -->
+                        <ContentPresenter x:Name="PART_WindowButtons"
+                              Grid.Column="2"
+                              Height="{Binding TitleBarHeight, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}"
+                              VerticalAlignment="Top"
+                              Content="{Binding WindowButtons, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}"
+                              Focusable="False"
+                              UseLayoutRounding="True" />
+                    </Grid>
+
+                    <!-- The content -->
+                    <Grid Grid.Row="1">
+                        <ContentPresenter Name="PART_Content"/>
+                    </Grid>
+
+                </Grid>
+            </Border>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="ShowTitleBar" Value="False">
+                <Setter TargetName="PART_TitleBar" Property="Visibility" Value="Collapsed"/>
+            </Trigger>
+            <!--  handle active/inactive state  -->
+            <Trigger Property="IsActive" Value="False">
+                <Setter TargetName="PART_Border" Property="BorderBrush" Value="{Binding Path=NonActiveBorderBrush, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                <Setter TargetName="PART_TitleBar" Property="Background" Value="{Binding Path=NonActiveTitleBackgroundBrush, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                <Setter TargetName="PART_WindowCaptionText" Property="Foreground" Value="{Binding Path=NonActiveTitleForegroundBrush, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" />
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsActive" Value="False"/>
+                    <Condition Property="TitleBackgroundBrush" Value="Transparent"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.Setters>
+                    <Setter TargetName="PART_TitleBar" Property="Background" Value="Transparent" />
+                </MultiTrigger.Setters>
+            </MultiTrigger>
+        </ControlTemplate.Triggers>
+
+    </ControlTemplate>
+
+    <Style x:Key="MetroStyle" TargetType="{x:Type controls:MetroWindow}">
+        <Setter Property="Background" Value="#FF2D2D30" />
+        <Setter Property="TitleBarHeight" Value="32"/>
+        <Setter Property="TitleBackgroundBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="TitleForeground" Value="{DynamicResource ForegroundBrush}"/>
+        <Setter Property="TitleAlignment" Value="Center"/>
+        <Setter Property="WindowChrome.WindowChrome">
+            <Setter.Value>
+                <!--CaptionHeight="{Binding Path=TitleBarHeight, RelativeSource={RelativeSource AncestorType=controls:MetroWindow}}"-->
+                <WindowChrome CaptionHeight="32"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      NonClientFrameEdges="None"
+                      ResizeBorderThickness="4"
+                      UseAeroCaptionButtons="False"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template" Value="{StaticResource WindowTemplateKey}" />
+
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Icon, Mode=OneWay, Converter={StaticResource NotNull2True}}" Value="True">
+                <Setter Property="IconTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <Image Width="{TemplateBinding Width}"
+                                 Height="{TemplateBinding Height}"
+                                 Source="{TemplateBinding Content}" 
+                                 Margin="10,4,0,4"/>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <!--<Trigger Property="TitleAlignment" Value="Center">
+              <Setter Property="Template" Value="{StaticResource CenterWindowTemplateKey}" />
+          </Trigger>-->
+        </Style.Triggers>
+
+    </Style>
+
+</ResourceDictionary>
