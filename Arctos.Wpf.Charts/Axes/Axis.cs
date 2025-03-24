@@ -568,7 +568,7 @@ namespace Arctos.Wpf.Charts
             VisualRange?.SetVisualScale(length);
         }
 
-        protected virtual void AutoScaleHatching(double length, TickSet hatching)
+        protected virtual void AutoScaleTickSet(double length, TickSet hatching)
         {
             throw new NotImplementedException();
         }
@@ -587,7 +587,7 @@ namespace Arctos.Wpf.Charts
             foreach (var tickSet in TickSets)
             {
                 if (tickSet.IsAuto)
-                    AutoScaleHatching(Orientation == PartOrientation.Horizontal ? availableSize.Width : availableSize.Height, tickSet);
+                    AutoScaleTickSet(Orientation == PartOrientation.Horizontal ? availableSize.Width : availableSize.Height, tickSet);
                 Children.Add(tickSet);
                 tickSet.Measure(availableSize);
                 if (tickSet.IsLabeled)
@@ -681,8 +681,6 @@ namespace Arctos.Wpf.Charts
                 _capturedDevice = null;
         }
 
-        #endregion Protected Methods
-
         protected virtual void SetTickLabels(TickSet tickSet, List<TickLabel> labels)
         {
             tickSet.Ticks.ForEach(tick =>
@@ -701,6 +699,8 @@ namespace Arctos.Wpf.Charts
             });
 
         }
+
+        #endregion Protected Methods
 
         //---------------------------------------------------------------------
         #region Private Methods

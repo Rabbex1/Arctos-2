@@ -6,17 +6,18 @@ namespace Arctos.Wpf.Charts
     {
         protected override Size MeasureOverride(Size availableSize)
         {
+            Children.Clear();
+            Ticks.Reset();
+
             if (Math.Abs(availableSize.Width) < 0.001 && Math.Abs(availableSize.Height) < 0.001)
                 return availableSize;
             if (Owner?.VisualRange is not { } visualRange)
                 return new Size();
             if (!visualRange.IsValid())
                 return new Size();
-            if(visualRange.VisualDistanceAtRank(Rank) < MinimumSpacing)
+            if(!IsAuto && visualRange.VisualDistanceAtRank(Rank) < MinimumSpacing)
                 return new Size();
 
-            Ticks.Reset();
-            Children.Clear();
 
             var tick = Ticks.Next();
             tick.Measure(availableSize);

@@ -48,7 +48,7 @@ namespace Arctos.Wpf.Charts
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Methods
 
-        protected override void AutoScaleHatching(double length, TickSet hatching)
+        protected override void AutoScaleTickSet(double length, TickSet hatching)
         {
             if (VisualRange == null)
                 return;

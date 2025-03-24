@@ -4,6 +4,7 @@
     {
         private readonly long[] _ticksPerRank =
         [
+            10,                         //uS
             10000,                      //mS
             10000000,                   //S          
             600000000,                  //m

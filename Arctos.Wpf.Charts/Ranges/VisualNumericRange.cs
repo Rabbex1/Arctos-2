@@ -173,7 +173,8 @@ namespace Arctos.Wpf.Charts
         {
             var first = Minimum;
             var second = NextAtRank(first, rank);
-            var result = ValueToVisual(second) - ValueToVisual(first);
+            var third = NextAtRank(second, rank);
+            var result = ValueToVisual(third) - ValueToVisual(second);
             return result;
         }
 

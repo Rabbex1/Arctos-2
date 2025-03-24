@@ -10,7 +10,7 @@ namespace Arctos.Wpf.Charts
             DataRange = new Range<DateTime>();
         }
 
-        protected override void AutoScaleHatching(double length, TickSet tickSet)
+        protected override void AutoScaleTickSet(double length, TickSet tickSet)
         {
             if (VisualRange == null)
                 return;

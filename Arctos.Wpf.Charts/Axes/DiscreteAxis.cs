@@ -46,7 +46,7 @@ namespace Arctos.Wpf.Charts
             DataRange = null;
         }
 
-        protected override void AutoScaleHatching(double length, TickSet hatching)
+        protected override void AutoScaleTickSet(double length, TickSet hatching)
         {
             return;
         }
