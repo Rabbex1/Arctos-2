@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
-using Arctos.Utils;
 using Arctos.Wpf.Helpers;
 
 namespace Arctos.Wpf.Charts
@@ -19,6 +18,8 @@ namespace Arctos.Wpf.Charts
     public double CurrentFrequency { get; set; }
 
     public string CurrentLabelFormat { get; set; } = string.Empty;
+
+    public bool Shown { get; set; }
 
     #region Owner
     private Axis? _owner;

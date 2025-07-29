@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Arctos.Messenger;
 
 namespace Arctos.Shell.Documents
 {
@@ -23,16 +22,6 @@ namespace Arctos.Shell.Documents
         #endregion
 
         #endregion Properties
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Constructors
-
-        protected FileDocumentVM(IDocumentService documentService)
-            : base(documentService)
-        {
-        }
-
-        #endregion Constructors
 
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Methods

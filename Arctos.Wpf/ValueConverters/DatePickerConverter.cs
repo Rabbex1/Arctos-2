@@ -10,7 +10,7 @@ namespace Arctos.Wpf.ValueConverters
 {
     public class DatePickerConverter : IValueConverter
     {
-        public object? Convert(object value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
         {
             if (value is DateTime dt && parameter != null)
             {
@@ -20,7 +20,7 @@ namespace Arctos.Wpf.ValueConverters
 
         }
 
-        public object? ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
         {
             if (value is string dt && parameter is string p)
             {

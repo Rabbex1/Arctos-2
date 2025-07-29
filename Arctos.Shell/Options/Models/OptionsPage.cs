@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Xml.Serialization;
 using Arctos.Shell.Messages;
-using Arctos.Utils;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Arctos.Shell.Options

@@ -1,5 +1,4 @@
 ﻿using Arctos.Shell.Options.Selectors;
-using Arctos.Utils;
 using System.Collections.ObjectModel;
 using Arctos.Wpf.Dialogs;
 

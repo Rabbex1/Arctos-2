@@ -1,10 +1,8 @@
-﻿using System.Windows.Input;
-using CommunityToolkit.Mvvm.Input;
-using Arctos.Wpf.AvalonDock;
+﻿using CommunityToolkit.Mvvm.Input;
 
 namespace Arctos.Wpf.AvalonDock
 {
-    public abstract partial class AnchorablePaneVM : DockingPaneVM, IAnchorablePaneVM
+    public abstract partial class AnchorablePaneVM(string title) : DockingPaneVM(title), IAnchorablePaneVM
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
@@ -19,15 +17,6 @@ namespace Arctos.Wpf.AvalonDock
         #endregion
 
         #endregion Properties
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Consrtuctors
-
-        protected AnchorablePaneVM(string title)
-            : base(title)
-        { }
-
-        #endregion Consrtuctors
 
         public event EventHandler<EventArgs>? Hiding;
 

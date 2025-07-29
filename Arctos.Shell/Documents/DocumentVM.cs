@@ -1,30 +1,13 @@
-﻿using System.Windows.Input;
+﻿using Arctos.Shell.Messages;
 using Arctos.Wpf.AvalonDock;
-using Arctos.Wpf.Utilities;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Arctos.Shell.Documents
 {
-    public abstract partial class DocumentVM : DocumentPaneVM, IDisposable
+    public abstract partial class DocumentVM()
+        : DocumentPaneVM("New Document"), IDocumentVM
     {
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Fields
-
-        protected readonly IDocumentService DocumentService;
-
-        #endregion Fields
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Constructors
-
-        protected DocumentVM(IDocumentService documentService)
-          : base("New Document")
-        {
-            DocumentService = documentService;
-        }
-
-        #endregion Constructors
-
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Methods
 
@@ -40,25 +23,22 @@ namespace Arctos.Shell.Documents
         [RelayCommand]
         public void Close()
         {
-            DocumentService.CloseDocument(this);
+            WeakReferenceMessenger.Default.Send(new DocumentMessage(this, DocumentAction.Close, [this]));
         }
 
         [RelayCommand]
         public void CloseAll()
         {
-            DocumentService.CloseAllDocuments(null);
+            WeakReferenceMessenger.Default.Send(new DocumentMessage(this, DocumentAction.CloseAll));
         }
 
         [RelayCommand]
         public void CloseAllButThis()
         {
-            DocumentService.CloseAllDocuments(this);
+            WeakReferenceMessenger.Default.Send(new DocumentMessage(this, DocumentAction.CloseAllButThis, [this]));
         }
 
         #endregion Commands
 
-        public virtual void Dispose()
-        {
-        }
     }
 }

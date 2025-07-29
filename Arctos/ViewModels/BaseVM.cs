@@ -2,14 +2,14 @@
 
 namespace Arctos
 {
-    public class BaseVM : ObservableObject 
+    public class BaseVM : ObservableObject, IBaseVM
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
         #region DisplayName
         private string? _displayName;
-        public virtual string? DisplayName
+        public string? DisplayName
         {
             get => _displayName;
             set => SetProperty(ref _displayName, value);

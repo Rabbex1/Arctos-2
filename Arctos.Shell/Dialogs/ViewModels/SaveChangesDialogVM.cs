@@ -16,7 +16,7 @@ namespace Arctos.Shell.Dialogs
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Properties
 
-    public List<PersistentDocumentVM?>? Documents { get; set; }
+    public List<IPersistentDocumentVM>? Documents { get; set; }
     public CloseDocument CloseIfSaved { get; set; }
     public CloseDocument CloseIfNotSaved { get; set; }
 

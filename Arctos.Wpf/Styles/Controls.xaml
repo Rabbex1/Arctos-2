@@ -25,5 +25,7 @@
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ScrollViewer.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/SliderStyle.xaml" />
 
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ToggleSwitchStyle.xaml" />
+
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

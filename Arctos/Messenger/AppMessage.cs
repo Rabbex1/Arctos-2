@@ -13,11 +13,6 @@
         SelectFolder,
     }
 
-    public class AppMessage : ActionMessage<AppAction>
-    {
-        public AppMessage(object sender, AppAction action, object[]? parameters = null)
-            : base(sender, action, parameters)
-        {
-        }
-    }
+    public class AppMessage(object sender, AppAction action, object[]? parameters = null)
+        : ActionMessage<AppAction>(sender, action, parameters);
 }

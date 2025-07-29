@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 
 namespace Arctos.Wpf.Charts
 {
@@ -67,10 +68,10 @@ namespace Arctos.Wpf.Charts
 
         public static readonly DependencyProperty PresentersProperty = DependencyProperty.Register
         (
-          "Presenters",
+          nameof(Presenters),
           typeof(ObservableCollection<IPresenter>),
           typeof(Chart),
-          new PropertyMetadata(default(ObservableCollection<IPresenter>), OnPresentersChanged)
+          new PropertyMetadata(null, OnPresentersChanged)
         );
 
         public ObservableCollection<IPresenter> Presenters
@@ -93,10 +94,10 @@ namespace Arctos.Wpf.Charts
         #region Axes
         public static readonly DependencyProperty AxesProperty = DependencyProperty.Register
         (
-          "Axes",
+          nameof(Axes),
           typeof(ObservableCollection<Axis>),
           typeof(Chart),
-          new PropertyMetadata(default(ObservableCollection<Axis>), OnAxesChanged)
+          new PropertyMetadata(null, OnAxesChanged)
         );
 
         public ObservableCollection<Axis> Axes
@@ -119,10 +120,10 @@ namespace Arctos.Wpf.Charts
 
         public static readonly DependencyProperty MarkersProperty = DependencyProperty.Register
         (
-          "Markers",
+          nameof(Markers),
           typeof(ObservableCollection<AxisMarker>),
-          typeof(SharedAxisChart),
-          new PropertyMetadata(default(AxisMarker), OnMarkerChanged)
+          typeof(Chart),
+          new PropertyMetadata(null, OnMarkerChanged)
         );
 
         public ObservableCollection<AxisMarker> Markers
@@ -133,6 +134,11 @@ namespace Arctos.Wpf.Charts
 
         private static void OnMarkerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            if (d is not Chart chart)
+                return;
+            var newCollection = (ObservableCollection<AxisMarker>)e.NewValue;
+            var oldCollection = (ObservableCollection<AxisMarker>)e.OldValue;
+            chart.MarkersChanged(newCollection, oldCollection);
         }
 
         #endregion SharedMarker
@@ -162,8 +168,11 @@ namespace Arctos.Wpf.Charts
                     if (!axis.IsShared)
                         ChartArea.Children.Add(axis);
 
+                foreach(var marker in Markers)
+                    AddMarker(marker);
+
                 foreach (var presenter in Presenters)
-                    ChartArea?.Children.Add(presenter as UIElement 
+                    ChartArea.Children.Add(presenter as UIElement 
                                             ?? throw new InvalidOperationException("presenter must be UIElement"));
             }
         }
@@ -216,6 +225,35 @@ namespace Arctos.Wpf.Charts
             }
         }
 
+        private void MarkersChanged(ObservableCollection<AxisMarker>? newMarkers, ObservableCollection<AxisMarker>? oldMarkers)
+        {
+            if (oldMarkers != null)
+            {
+                foreach (var marker in oldMarkers)
+                    ChartArea?.Children.Remove(marker);
+                oldMarkers.CollectionChanged -= OnMarkersChanged;
+            }
+
+            if (newMarkers != null)
+            {
+                foreach (var marker in newMarkers)
+                    AddMarker(marker);
+                newMarkers.CollectionChanged += OnMarkersChanged;
+            }
+        }
+
+        private void AddMarker(AxisMarker marker)
+        {
+            var line = new Rectangle()
+            {
+                Style = marker.LineStyle,
+            };
+            ChartArea?.Children.Add(marker);
+            ChartArea?.Children.Add(line);
+        }
+
+
+
         #endregion Private Methods
 
         #endregion Methods
@@ -262,6 +300,22 @@ namespace Arctos.Wpf.Charts
                     ChartArea?.Children.Add(axis);
             }
         }
+
+        private void OnMarkersChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (AxisMarker marker in e.OldItems)
+                    ChartArea?.Children.Remove(marker);
+            }
+
+            if (e.NewItems != null)
+            {
+                foreach (AxisMarker marker in e.NewItems)
+                    AddMarker(marker);
+            }
+        }
+
 
         #endregion Event Handlers
     }

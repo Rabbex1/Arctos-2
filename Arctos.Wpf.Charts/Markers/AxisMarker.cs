@@ -15,6 +15,7 @@ namespace Arctos.Wpf.Charts
         private PropertyInfo? _propertyInfo;
 
         #endregion Fields
+ 
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
@@ -130,10 +131,10 @@ namespace Arctos.Wpf.Charts
 
         public static readonly DependencyProperty FocalDataPropertyProperty = DependencyProperty.Register
         (
-          "FocalDataProperty",
+          nameof(FocalDataProperty),
           typeof(string),
           typeof(AxisMarker),
-          new PropertyMetadata(default(string), OnFocalDataPropertyChanged)
+          new PropertyMetadata(null, OnFocalDataPropertyChanged)
         );
 
         public string FocalDataProperty

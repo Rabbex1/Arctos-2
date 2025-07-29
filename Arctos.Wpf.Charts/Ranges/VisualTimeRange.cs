@@ -1,4 +1,6 @@
-﻿namespace Arctos.Wpf.Charts
+﻿using System.Windows.Forms.VisualStyles;
+
+namespace Arctos.Wpf.Charts
 {
     public class VisualTimeRange : VisualRange<DateTime>
     {
@@ -17,12 +19,12 @@
         #region Constructors
 
         public VisualTimeRange(DateTime minimum, DateTime maximum)
-          : base(minimum, maximum, 0, 7)
+          : base(minimum, maximum, 0, 10)
         {
         }
 
         public VisualTimeRange()
-          : base(0, 7)
+          : base(0, 10)
         {
         }
 
@@ -43,9 +45,25 @@
 
         public override DateTime NextAtRank(DateTime value, int rank)
         {
+            if (value == DateTime.MaxValue)
+                return value;
             ValidateRank(rank);
-            var nearest = Round(value, rank);
-            return nearest <= value ? AdjustByRank(nearest, rank, 1) : nearest;
+            switch (rank)
+            {
+                case TimeRank.Century:
+                    return value.AddYears(100);
+                case TimeRank.Decade:
+                    return value.AddYears(10);
+                case TimeRank.Year:
+                    return value.AddYears(1);
+                case TimeRank.Month:
+                    return value.AddMonths(1);
+                case TimeRank.Week:
+                    return value.AddDays(7);
+                default:
+                    var nearest = Round(value, rank);
+                    return nearest <= value ? AdjustByRank(nearest, rank, 1) : nearest;
+            }
         }
 
         public override DateTime PreviousAtRank(DateTime value, int rank)
@@ -53,32 +71,57 @@
             if (value == DateTime.MinValue)
                 return value;
             ValidateRank(rank);
-            var nearest = Round(value, rank);
-            return nearest >= value ? AdjustByRank(nearest, rank, -1) : nearest;
+            switch (rank)
+            {
+                case TimeRank.Century:
+                    return value.AddYears(-100);
+                case TimeRank.Decade:
+                    return value.AddYears(-10);
+                case TimeRank.Year:
+                    return value.AddYears(-1);
+                case TimeRank.Month:
+                    return value.AddMonths(-1);
+                case TimeRank.Week:
+                    return value.AddDays(-7);
+                default:
+                    var nearest = Round(value, rank);
+                    return nearest >= value ? AdjustByRank(nearest, rank, -1) : nearest;
+            }
+
         }
 
         public override DateTime PreviousAtRankAndFrequency(DateTime value, int rank, double frequency)
         {
-            //return PreviousAtRank(value, rank);
+            if (value == DateTime.MinValue)
+                return value;
             ValidateRank(rank);
+            int mod = 0;
             switch (rank)
             {
-                case 10:
-                    break;
-                case 9:
-                    break;
-                case 8:
-                    break;
-                case 7:
-                    break;
-                case 6:
-                    break;
+                case TimeRank.Century:
+                    var startOfCentury = value.FirstDayOfCentury();
+                    return frequency > 1 ? startOfCentury.AddYears((int)-frequency * 100) : startOfCentury;
+                case TimeRank.Decade:
+                    var startOfDecade = value.FirstDayOfDecade();
+                    return frequency > 1 ? startOfDecade.AddYears((int)-frequency * 10) : startOfDecade;
+                case TimeRank.Year:
+                    var startOfYear = value.FirstDayOfYear();
+                    return frequency > 1 ? startOfYear.AddYears((int)-frequency) : startOfYear;
+                case TimeRank.Month:
+                    var startOfMonth = value.FirstDayOfMonth();
+                    mod = (startOfMonth.Month - 1) % (int)frequency;
+                    return frequency > 1 ? startOfMonth.AddMonths(-mod) : startOfMonth;
+                case TimeRank.Week:
+                    var startOfWeek = value.FirstDayOfOfWeek();
+                    return frequency > 1 ? startOfWeek.AddDays(-7 * (int)frequency) : startOfWeek;
+                case TimeRank.Day:
+                    mod = frequency > 1 ? (value.Day - 1) % (int)frequency : 1;
+                    return new DateTime(value.Year, value.Month, value.Day).AddDays(-mod);
+
                 default:
                     var trueFreq = _ticksPerRank[rank] * frequency;
                     return new DateTime((long)(Math.Floor(value.Ticks / trueFreq) * trueFreq));
- //                   return PreviousAtRank(value, rank);
             }
-            return value; //dummy code
         }
 
         public override DateTime Round(DateTime value, int rank)
@@ -101,12 +144,33 @@
             return value; //dummy code
         }
 
-        public override DateTime AdjustByRank(DateTime value, int rank, double quantity)
+        public override DateTime AdjustByRank(DateTime value, int rank, double frequency)
         {
 
-            if (rank > 5)
-                throw new ArgumentOutOfRangeException(nameof(rank), @"The rank must be <= 5");
-            return value.AddTicks((long)(RankValue(rank).Ticks * quantity));
+            if (value == DateTime.MinValue)
+                return value;
+            ValidateRank(rank);
+            switch (rank)
+            {
+                case TimeRank.Century:
+                    return value.AddYears((int)frequency * 100);
+                case TimeRank.Decade:
+                    return value.AddYears((int)frequency * 10);
+                case TimeRank.Year:
+                    return value.AddYears((int)frequency);
+                case TimeRank.Month:
+                    return value.AddMonths((int)frequency);
+                case TimeRank.Week:
+                    return value.AddDays(7 * (int)frequency);
+                case TimeRank.Day:
+                    var day = value.AddDays((int) frequency);
+                    if (day.Day < (int) frequency)
+                        day = day.FirstDayOfMonth();
+                    return day;
+
+                default:
+                    return value.AddTicks((long)(RankValue(rank).Ticks * frequency));
+            }
         }
 
         public override DateTime RankValue(int rank)
@@ -164,7 +228,7 @@
                         continue;
                     result += value.ToString(fmts[i]) + Environment.NewLine;
                 }
-                result += value.ToString(fmts[i]);
+                result += string.IsNullOrEmpty(fmts[i]) ? "" : value.ToString(fmts[i]);
                 return result;
             }
             return value.ToString(format);
@@ -227,6 +291,8 @@
 
         public override double VisualDistanceAtRank(int rank)
         {
+            if (double.IsInfinity(VisualScale))
+                return double.NaN;
             var first = Minimum;
             var second = NextAtRank(first, rank);
             var third = NextAtRank(second, rank);

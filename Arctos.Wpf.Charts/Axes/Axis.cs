@@ -590,29 +590,15 @@ namespace Arctos.Wpf.Charts
                     AutoScaleTickSet(Orientation == PartOrientation.Horizontal ? availableSize.Width : availableSize.Height, tickSet);
                 Children.Add(tickSet);
                 tickSet.Measure(availableSize);
-                if (tickSet.IsLabeled)
-                    SetTickLabels(tickSet, labels);
-
-                if (tickSet.HasIcons)
-                {
-                    tickSet.Ticks.ForEach(h =>
-                    {
-                        if (icons.Any(i => i.Center == h.Center))
-                            return;
-                        var icon = (TickIcon?)tickSet.IconConverter.Convert(h.Value, typeof(TickIcon), null, null);
-                        if (icon != null)
-                        {
-                            icon.Center = h.Center;
-                            icons.Add(icon);
-                        }
-                    });
-                }
 
                 if (tickSet.DesiredSize.Width > maxWidth) maxWidth = tickSet.DesiredSize.Width;
                 if (tickSet.DesiredSize.Height > maxHeight) maxHeight = tickSet.DesiredSize.Height;
             }
             MaxTickSetWidth = maxWidth;
             MaxTickSetHeight = maxHeight;
+
+            SetTickLabels(labels);
+            SetTickIcons(icons);
 
             if (labels.Count > 0)
             {
@@ -681,22 +667,62 @@ namespace Arctos.Wpf.Charts
                 _capturedDevice = null;
         }
 
-        protected virtual void SetTickLabels(TickSet tickSet, List<TickLabel> labels)
+        protected virtual void SetTickLabels(List<TickLabel> labels)
         {
-            tickSet.Ticks.ForEach(tick =>
+            var shownSets = TickSets.Where(ts => ts.Shown == true).ToArray();
+            var visibleSets = shownSets.Count();
+            int visualRank = 0;
+
+            foreach (var tickSet in shownSets)
             {
-                if (labels.Any(l => l.Center == tick.Center))
-                    return;
-                labels.Add(new TickLabel
+                var rank = visualRank;
+                tickSet.Ticks.ForEach(tick =>
                 {
-                    Text = VisualRange?.ParseValue(tick.Value, tickSet.CurrentLabelFormat),
-                    Center = tick.Center,
-                    Foreground = tickSet.LabelForeground,
-                    FontSize = tickSet.LabelFontSize,
-                    TextAlignment = TextAlignment.Center,
-                    Margin = new Thickness(4, 1, 4, 2),
+                    if(tickSet.IsLabeled)
+                    {
+                        if (labels.Any(l => PointDistance(l.Center, tick.Center) < 10e-2))
+                            return;
+                        var formats = tickSet.CurrentLabelFormat.Split('%');
+                        var selectedFormat = "";
+                        if(formats.Length == 1)
+                            selectedFormat = formats[0];
+                        else
+                            selectedFormat = visibleSets == 1 ? formats[0] : rank == 0 ? formats[1] : formats[2];
+                        labels.Add(new TickLabel
+                        {
+                            Text = VisualRange?.ParseValue(tick.Value, selectedFormat),
+                            Center = tick.Center,
+                            Foreground = tickSet.LabelForeground,
+                            FontSize = tickSet.LabelFontSize,
+                            TextAlignment = TextAlignment.Center,
+                            Margin = new Thickness(4, 1, 4, 2),
+                        });
+                    }
                 });
-            });
+                visualRank++;
+            }
+
+        }
+
+        protected virtual void SetTickIcons(List<TickIcon> icons)
+        {
+            foreach (var tickSet in TickSets)
+            {
+                if (tickSet.HasIcons)
+                {
+                    tickSet.Ticks.ForEach(h =>
+                    {
+                        if (icons.Any(i => i.Center == h.Center))
+                            return;
+                        var icon = (TickIcon?)tickSet.IconConverter.Convert(h.Value, typeof(TickIcon), null, null);
+                        if (icon != null)
+                        {
+                            icon.Center = h.Center;
+                            icons.Add(icon);
+                        }
+                    });
+                }
+            }
 
         }
 
@@ -812,6 +838,11 @@ namespace Arctos.Wpf.Charts
             newLocation = _targetLocation;
             _currentVelocity = 0;
             return false;
+        }
+
+        private double PointDistance(Point p1, Point p2)
+        {
+            return Math.Sqrt((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y));
         }
 
         #endregion Private Methods

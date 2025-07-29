@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75 d17.13
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos", "Arctos\Arctos.csproj", "{FA740EDF-DC0F-4AA2-6FAA-F78ED574E68B}"
 EndProject
@@ -14,6 +14,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Wpf.OpenTk", "Arctos.Wpf.OpenTk\Arctos.Wpf.OpenTk.csproj", "{FCB1EFBE-93E1-E9AC-A68F-4CDA05A025F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Wpf.Charts", "Arctos.Wpf.Charts\Arctos.Wpf.Charts.csproj", "{4A196515-0EF5-5F0C-6513-566C708C48C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Core", "Arctos.Core\Arctos.Core.csproj", "{E7D6262D-9543-41AE-B226-245AD7B94BAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Wpf.Inputs", "Arctos.Wpf.Inputs\Arctos.Wpf.Inputs.csproj", "{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.ConfigXml", "Arctos.ConfigXml\Arctos.ConfigXml.csproj", "{BEFB5BAE-78B7-401F-B92F-19FC6A1679AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +51,18 @@ Global
 		{4A196515-0EF5-5F0C-6513-566C708C48C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A196515-0EF5-5F0C-6513-566C708C48C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A196515-0EF5-5F0C-6513-566C708C48C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7D6262D-9543-41AE-B226-245AD7B94BAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7D6262D-9543-41AE-B226-245AD7B94BAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7D6262D-9543-41AE-B226-245AD7B94BAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7D6262D-9543-41AE-B226-245AD7B94BAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEFB5BAE-78B7-401F-B92F-19FC6A1679AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEFB5BAE-78B7-401F-B92F-19FC6A1679AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEFB5BAE-78B7-401F-B92F-19FC6A1679AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEFB5BAE-78B7-401F-B92F-19FC6A1679AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

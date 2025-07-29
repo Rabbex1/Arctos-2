@@ -8,6 +8,7 @@ namespace Arctos.Shell.Messages
         Open,
         Close,
         CloseAll,
+        CloseAllButThis,
         CloseAllButActive,
         RequestCreation,
         DocumentAdded,
@@ -16,11 +17,6 @@ namespace Arctos.Shell.Messages
         ActiveDocumentNameChanged
     }
 
-    public class DocumentMessage : ActionMessage<DocumentAction>
-    {
-        public DocumentMessage(object sender, DocumentAction action, object?[]? parameters = null)
-            : base(sender, action, parameters)
-        {
-        }
-    }
+    public class DocumentMessage(object sender, DocumentAction action, object?[]? parameters = null)
+        : ActionMessage<DocumentAction>(sender, action, parameters);
 }

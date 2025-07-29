@@ -1,6 +1,4 @@
-﻿using Arctos.Wpf.ViewModels;
-
-namespace Arctos.Wpf.Dialogs
+﻿namespace Arctos.Wpf.Dialogs
 {
   public class DialogBaseVM : BaseVM, IDialogBaseVM
   {

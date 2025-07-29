@@ -4,7 +4,6 @@ using AvalonDock.Layout;
 using AvalonDock.Layout.Serialization;
 using Arctos.Shell.Messages;
 using Arctos.Wpf.AvalonDock;
-using Arctos.Wpf.ViewModels;
 using Arctos.Messenger;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;

@@ -1,6 +1,4 @@
-﻿using Arctos.Wpf.ViewModels;
-
-namespace Arctos.Shell.Options
+﻿namespace Arctos.Shell.Options
 {
   public class ParentChildPair
   {

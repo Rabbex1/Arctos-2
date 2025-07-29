@@ -1,4 +1,4 @@
-﻿namespace Arctos.Utils
+﻿namespace Arctos
 {
   public class ObjectPool<T>
   {

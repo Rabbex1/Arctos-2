@@ -1,16 +1,13 @@
-﻿using System.Windows.Input;
-using Arctos.Wpf.Utilities;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
+﻿using CommunityToolkit.Mvvm.Input;
 
 namespace Arctos.Shell.Documents
 {
-    public abstract partial class PersistentDocumentVM : DocumentVM
+    public abstract partial class PersistentDocumentVM : DocumentVM, IPersistentDocumentVM
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
-        public Action<DocumentVM>? SaveCommandOverride { get; set; } = null;
+        public Action<IDocumentVM>? SaveCommandOverride { get; set; } = null;
 
         public bool CloseOnExitIfUnsaved { get; protected set; } = false;
 
@@ -24,16 +21,6 @@ namespace Arctos.Shell.Documents
         #endregion
 
         #endregion Properties
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Constructors
-
-        protected PersistentDocumentVM(IDocumentService documentService)
-            : base(documentService)
-        {
-        }
-
-        #endregion Constructors
 
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Methods

@@ -3,7 +3,6 @@ using System.Windows.Controls;
 using Arctos.Shell.Options;
 using Arctos;
 using Arctos.Shell.Options.Selectors;
-using Arctos.Utils;
 using Arctos.Wpf.Dialogs;
 using CommunityToolkit.Mvvm.Input;
 

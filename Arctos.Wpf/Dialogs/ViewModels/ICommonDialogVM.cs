@@ -3,5 +3,6 @@
   public interface ICommonDialogVM : IDialogBaseVM
   {
     bool Show(IList<IDialogBaseVM> collection);
+
   }
 }

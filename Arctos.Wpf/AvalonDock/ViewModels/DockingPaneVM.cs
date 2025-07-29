@@ -1,9 +1,8 @@
 ﻿using System.Windows.Media;
-using Arctos.Wpf.ViewModels;
 
 namespace Arctos.Wpf.AvalonDock
 {
-    public abstract class DockingPaneVM : BaseVM
+    public abstract class DockingPaneVM : BaseVM, IDockingPaneVM
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Fields
@@ -103,10 +102,10 @@ namespace Arctos.Wpf.AvalonDock
         {
             var components = new Dictionary<string, string>();
 
-            var componentStrings = contentId.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var componentStrings = contentId.Split([';'], StringSplitOptions.RemoveEmptyEntries);
             foreach (var @string in componentStrings)
             {
-                var componentParts = @string.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                var componentParts = @string.Split(['='], StringSplitOptions.RemoveEmptyEntries);
                 if (componentParts.Length != 2)
                     continue;
                 components.Add(componentParts[0], componentParts[1]);

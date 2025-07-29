@@ -1,17 +1,7 @@
 ﻿namespace Arctos.Shell.Menu
 {
-  public class MenuGroupVM : MenuVM
+  public class MenuGroupVM(MenuVM parent) : MenuVM(parent)
   {
-    //------------------------------------------------------------------------------------------------------------------------------------------
-    #region Constructor
-
-    public MenuGroupVM(MenuVM parent)
-      : base(parent)
-    {
-    }
-
-    #endregion Constructor
-
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Methods
 

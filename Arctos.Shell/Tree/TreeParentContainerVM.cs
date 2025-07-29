@@ -6,7 +6,7 @@
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
-        public override string? DisplayName => Content?.DisplayName;
+        public new string? DisplayName => Content?.DisplayName;
         public T? Content { get; set; }
 
         #endregion Properties

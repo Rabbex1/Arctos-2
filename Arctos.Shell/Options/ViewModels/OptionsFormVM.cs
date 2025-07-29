@@ -1,5 +1,4 @@
 ﻿using Arctos.Wpf.Dialogs;
-using Arctos.Wpf.ViewModels;
 
 namespace Arctos.Shell.Options
 {

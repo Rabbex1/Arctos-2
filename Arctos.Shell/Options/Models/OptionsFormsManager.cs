@@ -1,6 +1,5 @@
 ﻿using System.Windows.Controls;
 using Arctos.Shell.Options.Selectors;
-using Arctos.Utils;
 
 namespace Arctos.Shell.Options
 {

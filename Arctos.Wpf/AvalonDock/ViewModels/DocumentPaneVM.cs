@@ -2,17 +2,9 @@
 
 namespace Arctos.Wpf.AvalonDock
 {
-    public abstract class DocumentPaneVM : DockingPaneVM, IDocumentPaneVM
+    public abstract class DocumentPaneVM(string title) 
+        : DockingPaneVM(title), IDocumentPaneVM
     {
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Consrtuctors
-
-        protected DocumentPaneVM(string title)
-          : base(title)
-        { }
-
-        #endregion Consrtuctors
-
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Commands
 

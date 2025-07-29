@@ -4,15 +4,19 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Forms.VisualStyles;
+using Arctos.Shell.Dialogs;
 
 namespace Arctos.Shell.Commands
 {
-    public class CommandService : ICommandService
+    public class CommandService(IDialogService dialogService) : ICommandService
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Fields
 
         private readonly Dictionary<string, Dictionary<string, Command>> _commands = new();
+        private readonly IDialogService _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
         #endregion Fields
 
@@ -50,8 +54,9 @@ namespace Arctos.Shell.Commands
         {
             var parts = fullCommand.Split(".");
             if(parts.Length != 2)
-                throw new CommandServiceException($"invalid command: {fullCommand}");
-            Execute(parts[0], parts[1], args);
+                _dialogService.ShowMessageBox($"Cannot execute command {fullCommand}.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            else
+                Execute(parts[0], parts[1], args);
         }
     }
 }

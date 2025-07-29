@@ -47,7 +47,7 @@ namespace Arctos.Shell.Menu
 
             if (parentId == id)
             {
-                node = (T?)Activator.CreateInstance(typeof(T), new object?[] { null }) ??
+                node = (T?)Activator.CreateInstance(typeof(T), [null]) ??
                        throw new MenuServiceException($"Could not create object of type {typeof(T)}");
             }
             else
@@ -78,7 +78,7 @@ namespace Arctos.Shell.Menu
 
         private IMenuNodeVM? GetNode(Dictionary<string, IMenuNodeVM> menu, string id)
         {
-            return menu.TryGetValue(id, out var node) ? node : null;
+            return menu.GetValueOrDefault(id);
         }
 
         private void AddNode(Dictionary<string, IMenuNodeVM> menu, MenuVM? parent, IMenuNodeVM node)

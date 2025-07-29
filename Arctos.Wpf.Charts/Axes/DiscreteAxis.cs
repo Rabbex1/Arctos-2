@@ -58,25 +58,31 @@ namespace Arctos.Wpf.Charts
             throw new NotImplementedException();
         }
 
-        protected override void SetTickLabels(TickSet tickSet, List<TickLabel> labels)
+        protected override void SetTickLabels(List<TickLabel> labels)
         {
-            if(tickSet.Ticks.Count == 0)
-                return;
-            tickSet.Ticks.ForEach(tick =>
+            foreach (var tickSet in TickSets)
             {
-                if (labels.Any(l => l.Center == tick.Center))
+                if (tickSet.Ticks.Count == 0)
                     return;
-                var index = (int)tick.Value;
-                labels.Add(new TickLabel
+                tickSet.Ticks.ForEach(tick =>
                 {
-                    Text = Elements != null ? Elements[index] : "Unknown",
-                    Center = tick.Center,
-                    Foreground = tickSet.LabelForeground,
-                    FontSize = tickSet.LabelFontSize,
-                    TextAlignment = TextAlignment.Center,
-                    Margin = new Thickness(4, 1, 4, 2),
+                    if (tickSet.IsLabeled)
+                    {
+                        if (labels.Any(l => l.Center == tick.Center))
+                            return;
+                        var index = (int)tick.Value;
+                        labels.Add(new TickLabel
+                        {
+                            Text = Elements != null ? Elements[index] : "Unknown",
+                            Center = tick.Center,
+                            Foreground = tickSet.LabelForeground,
+                            FontSize = tickSet.LabelFontSize,
+                            TextAlignment = TextAlignment.Center,
+                            Margin = new Thickness(4, 1, 4, 2),
+                        });
+                    }
                 });
-            });
+            }
 
         }
 

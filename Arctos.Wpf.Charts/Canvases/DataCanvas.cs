@@ -1,5 +1,4 @@
-﻿using Arctos.Utils;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Arctos.Wpf.Charts
 {

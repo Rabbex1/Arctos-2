@@ -9,15 +9,21 @@ namespace Arctos.Wpf.Charts
             Children.Clear();
             Ticks.Reset();
 
+            Shown = false;
+
             if (Math.Abs(availableSize.Width) < 0.001 && Math.Abs(availableSize.Height) < 0.001)
                 return availableSize;
             if (Owner?.VisualRange is not { } visualRange)
                 return new Size();
             if (!visualRange.IsValid())
                 return new Size();
-            if(!IsAuto && visualRange.VisualDistanceAtRank(Rank) < MinimumSpacing)
+            var visualDistance = visualRange.VisualDistanceAtRank(Rank);
+            if(double.IsNaN(visualDistance))
                 return new Size();
-
+            if (!IsAuto && (visualDistance * Frequency < MinimumSpacing || visualDistance * Frequency > availableSize.Width))
+                return new Size();
+            
+            Shown = true;
 
             var tick = Ticks.Next();
             tick.Measure(availableSize);
