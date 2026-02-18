@@ -438,7 +438,7 @@ namespace Arctos.Wpf.Charts
 
         public void OnFocalDataChanged(object? sender, FocalDataEventArgs args)
         {
-            throw new NotImplementedException();
+            RaiseFocalDataChanged(args);
         }
 
         private void OnProviderDataChanged(object? sender, EventArgs args)

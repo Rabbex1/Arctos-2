@@ -10,6 +10,8 @@ using GiveFeedbackEventArgs = System.Windows.GiveFeedbackEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using QueryContinueDragEventArgs = System.Windows.QueryContinueDragEventArgs;
 
+#nullable disable
+
 namespace Arctos.Wpf.DragDrop
 {
   public class DragBehavior : Behavior<FrameworkElement>

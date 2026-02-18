@@ -34,19 +34,23 @@
         public override void SetVisualScale(double length)
         {
             VisualLength = length;
-            VisualScale = length / (ElementCount * 2);
+            VisualScale = ElementCount <= 0 ? 0 : length / (ElementCount * 2.0);
         }
 
         public override int FractionalToValue(double fraction)
         {
-            throw new NotImplementedException();
-            //return (int)(Maximum - (Maximum - Minimum) * fraction);
+            if (ElementCount <= 0)
+                return 0;
+            var clamped = Math.Max(0.0, Math.Min(1.0, fraction));
+            return Math.Min(ElementCount - 1, (int)Math.Floor(clamped * ElementCount));
         }
 
         public override double ValueToFractional(int value)
         {
-            throw new NotImplementedException();
-            //return Math.Abs(Maximum - value) / Math.Abs(Maximum - Minimum);
+            if (ElementCount <= 0)
+                return 0;
+            var clamped = Math.Max(0, Math.Min(ElementCount - 1, value));
+            return ElementCount == 1 ? 0 : (double)clamped / (ElementCount - 1);
         }
 
 

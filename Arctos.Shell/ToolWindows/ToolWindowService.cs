@@ -1,21 +1,22 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using AvalonDock.Layout;
 using AvalonDock.Layout.Serialization;
 using Arctos.Shell.Messages;
 using Arctos.Wpf.AvalonDock;
-using Arctos.Messenger;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Arctos.Shell.ToolWindows
 {
-    public class ToolWindowService : ObservableObject, IToolWindowService, IRecipient<AvalonDockMessage>
+    public class ToolWindowService : ObservableObject, IToolWindowService, IRecipient<AvalonDockMessage>, IDisposable
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Fields
 
         private readonly Dictionary<string, ToolWindowVM> _availableToolWindows = new();
+        private readonly IMessenger _messenger;
 
         #endregion Fields
 
@@ -36,9 +37,10 @@ namespace Arctos.Shell.ToolWindows
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Constructors
 
-        public ToolWindowService()
+        public ToolWindowService(IMessenger messenger)
         {
-            WeakReferenceMessenger.Default.Register<AvalonDockMessage>(this);
+            _messenger = messenger;
+            _messenger.Register<AvalonDockMessage>(this);
         }
 
         #endregion Constructors
@@ -51,7 +53,10 @@ namespace Arctos.Shell.ToolWindows
             var vmName = toolWindow.GetType().FullName;
             if (string.IsNullOrWhiteSpace(vmName))
                 return;
-            _availableToolWindows.Add(vmName, toolWindow);
+
+            if (!_availableToolWindows.TryAdd(vmName, toolWindow))
+                return;
+
             toolWindow.PropertyChanged += ToolWindowPropertyChanged;
         }
 
@@ -62,22 +67,35 @@ namespace Arctos.Shell.ToolWindows
 
         public void ShowToolWindow(string? contentId)
         {
-            if(contentId == null) 
+            if (string.IsNullOrWhiteSpace(contentId))
                 return;
 
-            var toolWindow = ToolWindows.FirstOrDefault(tb => tb.ContentId.Contains("Class=" + contentId));
-            if (toolWindow != null)
+            var matches = ToolWindows
+                .Where(tb => tb?.GetType().FullName == contentId)
+                .ToList();
+
+            if (matches.Count > 0)
             {
-                toolWindow.IsVisible = true;
-                toolWindow.IsActive = true;
+                var primary = matches[0];
+                for (int i = matches.Count - 1; i >= 1; i--)
+                    ToolWindows.Remove(matches[i]);
+
+                primary.IsVisible = true;
+                primary.IsActive = true;
                 return;
             }
-            if (!_availableToolWindows.ContainsKey(contentId))
+
+            if (!_availableToolWindows.TryGetValue(contentId, out var toolWindow))
                 return;
-            toolWindow = _availableToolWindows[contentId];
+
             toolWindow.IsVisible = true;
             toolWindow.IsActive = true;
             ToolWindows.Add(toolWindow);
+        }
+
+        public void Dispose()
+        {
+            _messenger.Unregister<AvalonDockMessage>(this);
         }
 
         #endregion Methods
@@ -89,11 +107,15 @@ namespace Arctos.Shell.ToolWindows
         {
             if (sender is not ToolWindowVM toolWindow)
                 return;
-            if (e.PropertyName == "IsActive" || e.PropertyName == "IsSelected" && !toolWindow.IsActive)
-                WeakReferenceMessenger.Default.Send(new ToolWindowMessage(this, ToolWindowAction.ActiveToolWindowChanged, new object[] { toolWindow } ));
+
+            if (e.PropertyName == nameof(ToolWindowVM.IsActive) ||
+                (e.PropertyName == nameof(ToolWindowVM.IsSelected) && !toolWindow.IsActive))
+            {
+                _messenger.Send(new ToolWindowMessage(this, ToolWindowAction.ActiveToolWindowChanged, [toolWindow]));
+            }
         }
 
-        #endregion Constructors
+        #endregion Event Handlers
 
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Message Handler
@@ -107,24 +129,29 @@ namespace Arctos.Shell.ToolWindows
                 return;
 
             var content = DockingPaneVM.GetContentComponents(loadEventArgs.Model.ContentId);
-            if (!content.ContainsKey("Class"))
+            if (!content.TryGetValue("Class", out var toolWindowClassName))
                 return;
-            var toolWindowClassName = content["Class"];
 
-            if (!_availableToolWindows.ContainsKey(toolWindowClassName))
+            if (!_availableToolWindows.TryGetValue(toolWindowClassName, out var toolWindow))
             {
                 msg.Cancel = true;
                 return;
             }
-            var toolWindow = _availableToolWindows[toolWindowClassName];
-            ToolWindows.Add(toolWindow);
+
+            if (ToolWindows.Contains(toolWindow))
+                loadEventArgs.Cancel = true;
+            else
+                ToolWindows.Add(toolWindow);
+
             loadEventArgs.Content = toolWindow;
             if (loadEventArgs.Model is LayoutAnchorable layoutAnchorable)
+            {
                 toolWindow.IsVisible = layoutAnchorable.IsVisible;
+                toolWindow.IsSelected = layoutAnchorable.IsSelected;
+                toolWindow.IsActive = layoutAnchorable.IsActive;
+            }
         }
 
         #endregion Message Handler
-
-
     }
 }

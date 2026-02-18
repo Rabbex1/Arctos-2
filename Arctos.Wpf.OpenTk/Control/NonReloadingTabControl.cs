@@ -79,7 +79,19 @@ namespace Arctos.Wpf.OpenTk.Control
                     break;
 
                 case NotifyCollectionChangedAction.Replace:
-                    throw new NotImplementedException("Replace not implemented yet");
+                    if (e.OldItems != null)
+                    {
+                        foreach (object? item in e.OldItems)
+                        {
+                            ContentPresenter? cp = FindChildContentPresenter(item);
+                            if (cp != null)
+                                _itemsHolderPanel.Children.Remove(cp);
+                        }
+                    }
+
+                    // New items are generated lazily when selected.
+                    UpdateSelectedItem();
+                    break;
             }
         }
 

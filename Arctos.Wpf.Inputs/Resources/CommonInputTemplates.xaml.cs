@@ -13,6 +13,6 @@ namespace Arctos.Wpf.Inputs.Resources
         }
 
         public Uri ResourceUri =>
-            new Uri("/Arctos.Wpf.Input;component/Resources/CommonInputTemplates.xaml", UriKind.RelativeOrAbsolute);
+            new Uri("/Arctos.Wpf.Inputs;component/Resources/CommonInputTemplates.xaml", UriKind.RelativeOrAbsolute);
     }
 }

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Arctos.Wpf.AvalonDock
 {
@@ -12,7 +12,16 @@ namespace Arctos.Wpf.AvalonDock
         public bool IsVisible
         {
             get => _isVisible;
-            set => SetProperty(ref _isVisible, value);
+            set
+            {
+                if (!SetProperty(ref _isVisible, value))
+                    return;
+
+                if (value)
+                    OnShowing();
+                else
+                    OnHiding();
+            }
         }
         #endregion
 
@@ -23,6 +32,14 @@ namespace Arctos.Wpf.AvalonDock
         private void RaiseHiding()
         {
             Hiding?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnShowing()
+        {
+        }
+
+        protected virtual void OnHiding()
+        {
         }
 
         #region Commands

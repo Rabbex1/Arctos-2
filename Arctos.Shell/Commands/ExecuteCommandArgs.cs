@@ -1,23 +1,13 @@
 ﻿namespace Arctos.Shell.Commands
 {
-    public class ExecuteCommandArgs : EventArgs
+    public class ExecuteCommandArgs(object? context, object? param) : EventArgs
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
-        public object? Param { get; }
+        public object? Context { get; } = context;
+        public object? Parameters { get; } = param;
 
         #endregion Properties
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Constructors
-
-        public ExecuteCommandArgs(object? param)
-        {
-            Param = param;
-        }
-
-        #endregion Constructors
-
     }
 }

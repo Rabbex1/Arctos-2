@@ -1,4 +1,8 @@
-﻿using System.IO;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.Input;
@@ -28,54 +32,116 @@ namespace Arctos.Wpf.Inputs
         }
         #endregion
 
+        #region Id
+        private string _id = string.Empty;
+        public string Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+        #endregion
+
+        #region IsEnabled
+        private bool _isEnabled = true;
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set => SetProperty(ref _isEnabled, value);
+        }
+        #endregion
+
+        private static readonly List<Func<string, object?, Action<object>?, DataInputWrapperVM?>> _extensions = [];
+
         public int ValueColumnSpan => Icon != null ? 1 : 2;
 
         #endregion Properties
 
-        public static DataInputWrapperVM? CreateTypeWrapper<T>(string description, T value, Action<object> action)
+        public static void RegisterExtension(Func<string, object?, Action<object>?, DataInputWrapperVM?> factory)
         {
-            return value switch
-            {
-                bool b => new InputBoolVM(description, b, v => action.Invoke(v)),
-                Color c => new InputColorVM(description, c, v => action.Invoke(v)),
-                double d => new InputDoubleVM(description, d, v => action.Invoke(v)),
-                Enum e => new InputEnumVM(description, e, v => action.Invoke(v)),
-                float f => new InputFloatVM(description, f, v => action.Invoke(v)),
-                int i => new InputIntegerVM(description, i, v => action.Invoke(v)),
-                uint u => new InputUnsignedIntegerVM(description, u, v => action.Invoke(v)),
-                string s => new InputStringVM(description, s, v => action.Invoke(v)),
-                DateTime dt => new InputDateTimeVM(description, dt, v => action.Invoke(v)),
-                TimeSpan ts => new InputTimeSpanVM(description, ts, v => action.Invoke(v)),
-                FloatRangeInput fr => new InputFloatRangeVM(description, fr, v => action.Invoke(v)),
-                StringSelection ss => new InputStringComboVM(description, ss.Value, ss.List, v => ss.Action?.Invoke(v)),
-                DirectoryInfo di => new InputFolderVM(description, di, v => action.Invoke(v)),
-                _ => null
-            };
+            ArgumentNullException.ThrowIfNull(factory);
+            _extensions.Add(factory);
         }
 
+        public static DataInputWrapperVM? CreateTypeWrapper<T>(string description, T value, Action<object?>? action = null)
+        {
+            DataInputWrapperVM? wrapper = value switch
+            {
+                bool b => new InputBoolVM(description, b, v => action?.Invoke(v)),
+                Color c => new InputColorVM(description, c, v => action?.Invoke(v)),
+                double d => new InputDoubleVM(description, d, v => action?.Invoke(v)),
+                Enum e => new InputEnumVM(description, e, v => action?.Invoke(v)),
+                float f => new InputFloatVM(description, f, v => action?.Invoke(v)),
+                int i => new InputIntegerVM(description, i, v => action?.Invoke(v)),
+                uint u => new InputUnsignedIntegerVM(description, u, v => action?.Invoke(v)),
+                string s => new InputStringVM(description, s, v => action?.Invoke(v)),
+                DateTime dt => new InputDateTimeVM(description, dt, dt.Kind, v => action?.Invoke(v)),
+                TimeSpan ts => new InputTimeSpanVM(description, ts, v => action?.Invoke(v)),
+                FloatRangeInput fr => new InputFloatRangeVM(description, fr, v => action?.Invoke(v)),
+                StringSelection ss => new InputStringComboVM(description, ss.Value, ss.Options, v =>
+                {
+                    ss.Value = v ?? string.Empty;
+                    action?.Invoke(ss);
+                }),
+                DirectoryInfo di => new InputFolderVM(description, di, v => action?.Invoke(v)),
+                _ => null
+            };
 
-        //------------------------------------------------------------------------------------------------------------------------------------------
+            if (wrapper != null)
+                return wrapper;
+
+            return _extensions
+                .Select(ext => ext(description, value, action))
+                .FirstOrDefault(result => result != null);
+        }
+
     }
 
-    public class DataInputWrapperVM<T> : DataInputWrapperVM
+    public interface IDataInputWrapperVM
+    {
+        object? UntypedValue { get; set; }
+    }
+
+    public class DataInputWrapperVM<T> : DataInputWrapperVM, IDataInputWrapperVM
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
-        public Action<T>? OnChange { get; set; }
+        public Action<T?>? OnChange { get; set; }
 
         #region Value
-        private T _value;
-        public T Value
+        // ReSharper disable once InconsistentNaming
+        protected T? _value;
+        public virtual T? Value
         {
             get => _value;
             set
             {
                 SetProperty(ref _value, value);
-                OnChange.Invoke(value);
+                OnChange?.Invoke(value);
             }
         }
         #endregion
+
+        public object? UntypedValue
+        {
+            get => Value;
+            set
+            {
+                if (value is null)
+                {
+                    Value = default!;
+                    return;
+                }
+
+                if (value is T t)
+                {
+                    Value = t;
+                    return;
+                }
+
+                Value = (T)Convert.ChangeType(value, typeof(T));
+            }
+        }
 
         #region Hide
         private bool _hide;
@@ -93,7 +159,12 @@ namespace Arctos.Wpf.Inputs
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Constructor
 
-        public DataInputWrapperVM(string description, T value, Action<T>? onChange)
+        public DataInputWrapperVM()
+        {
+            _value = default!;
+        }
+
+        public DataInputWrapperVM(string description, T? value, Action<T?>? onChange)
         {
             Description = description;
             OnChange = onChange;

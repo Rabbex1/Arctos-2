@@ -97,8 +97,6 @@ namespace Arctos.Shell.Options
             Argument.MustBeSubClassOf("vmType", viewType, typeof(UserControl));
 
             vmType ??= typeof(OptionsFormVM);
-            if (viewType == null)
-                throw new NotImplementedException("Auto view not Implemented");
 
             var view = (UserControl?) Activator.CreateInstance(viewType) 
                        ?? throw new ArctosOptionsException($"Cannot create view {viewType}");

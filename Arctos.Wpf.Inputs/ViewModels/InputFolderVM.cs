@@ -1,8 +1,9 @@
-﻿using System.IO;
+using System.IO;
+using Arctos.Wpf.Dialogs;
 
 namespace Arctos.Wpf.Inputs
 {
-    internal class InputFolderVM : DataInputWrapperVM<DirectoryInfo>
+    public class InputFolderVM : DataInputWrapperVM<DirectoryInfo>
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -29,11 +30,11 @@ namespace Arctos.Wpf.Inputs
 
         #region Constructor
 
-        public InputFolderVM(string description, DirectoryInfo value, Action<DirectoryInfo> onChange)
+        public InputFolderVM(string description, DirectoryInfo value, Action<DirectoryInfo?> onChange)
             : base(description, value, onChange)
         {
             OnButtonClicked = OpenDialog;
-            Icon = "UrsaWpf:MeatballMenu";
+            Icon = "ArctosWpf:MeatballMenu";
             FolderName = value.Name;
         }
 
@@ -42,17 +43,24 @@ namespace Arctos.Wpf.Inputs
 
         protected void OpenDialog(DataInputWrapperVM<DirectoryInfo> wrapper)
         {
-            throw new NotImplementedException();
-            //var initialDirectory = string.IsNullOrEmpty(Value.FullName)
-            //    ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-            //    : Value.FullName;
+            var initialDirectory = string.IsNullOrEmpty(Value?.FullName)
+                ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                : Value.FullName;
 
-            //var folder = FileHelper.SelectFolderDialog(Title, initialDirectory, RootFolder);
+            var dialog = new SelectFolderDialogVM
+            {
+                Title = Title,
+                InitialDirectory = initialDirectory,
+                FolderName = initialDirectory
+            };
 
-            //if (folder == null)
-            //    return;
-            //Value = new DirectoryInfo(folder);
-            //FolderName = Value.Name;
+            new SelectFolderDialogPresenter().Show(dialog);
+
+            if (!dialog.Result || string.IsNullOrWhiteSpace(dialog.FolderName))
+                return;
+
+            Value = new DirectoryInfo(dialog.FolderName);
+            FolderName = Value.Name;
         }
     }
 }

@@ -424,9 +424,9 @@
     </Style>
 
     <ContextMenu x:Key="Ursa.TextBox.ContextMenu">
-        <MenuItem Header="Cut" InputGestureText="Ctrl+X" Icon="{StaticResource UrsaWpf:CutIcon}" />
-        <MenuItem Header="Copy" InputGestureText="Ctrl+C"  Command="ApplicationCommands.Copy" Icon="{StaticResource UrsaWpf:CopyIcon}"/>
-        <MenuItem Header="Paste" InputGestureText="Ctrl+V"  Command="ApplicationCommands.Paste" Icon="{StaticResource UrsaWpf:PasteIcon}"/>
+        <MenuItem Header="Cut" InputGestureText="Ctrl+X" Icon="{StaticResource ArctosWpf:CutIcon}" />
+        <MenuItem Header="Copy" InputGestureText="Ctrl+C"  Command="ApplicationCommands.Copy" Icon="{StaticResource ArctosWpf:CopyIcon}"/>
+        <MenuItem Header="Paste" InputGestureText="Ctrl+V"  Command="ApplicationCommands.Paste" Icon="{StaticResource ArctosWpf:PasteIcon}"/>
     </ContextMenu>
 
 </ResourceDictionary>

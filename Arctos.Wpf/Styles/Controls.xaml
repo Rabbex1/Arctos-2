@@ -5,6 +5,7 @@
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/Brushes.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/WindowButtons.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/MetroWindow.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Dialogs/DialogDictionary.xaml" />
 
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/MenuStyle.xaml" />
 

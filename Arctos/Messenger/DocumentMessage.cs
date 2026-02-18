@@ -1,6 +1,4 @@
-﻿using Arctos.Messenger;
-
-namespace Arctos.Shell.Messages
+namespace Arctos.Messenger
 {
     public enum DocumentAction
     {

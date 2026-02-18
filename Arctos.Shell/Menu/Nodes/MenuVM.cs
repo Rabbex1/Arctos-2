@@ -2,7 +2,7 @@
 
 namespace Arctos.Shell.Menu
 {
-    public class MenuVM : ParentVM<IMenuNodeVM, MenuVM>, IMenuNodeVM
+    public class MenuVM(MenuVM? parent) : ParentVM<IMenuNodeVM, MenuVM>(parent), IMenuNodeVM
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
@@ -26,16 +26,6 @@ namespace Arctos.Shell.Menu
         #endregion
 
         #endregion Properties
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Constructor
-
-        public MenuVM(MenuVM parent)
-          : base(parent)
-        {
-        }
-
-        #endregion Constructor
 
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Methods

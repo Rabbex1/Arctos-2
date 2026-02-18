@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Arctos
 {
@@ -36,6 +37,10 @@ namespace Arctos
 
         #endregion Properties
 
+        // Compatibility shim for legacy Ursa-based VMs during migration.
+        protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            OnPropertyChanged(propertyName);
+        }
     }
-
 }

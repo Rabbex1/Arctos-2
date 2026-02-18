@@ -9,7 +9,7 @@
         bool IsSelected { get; set; }
         bool IsExpanded { get; set; }
         bool IsEnabled { get; set; }
-        object Icon { get; set; }
+        object? Icon { get; set; }
 
         #endregion Properties
 

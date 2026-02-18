@@ -130,7 +130,7 @@
                   ItemsSource="{Binding Options, Mode=OneTime}"
                   SelectedValue="{Binding Value}">
             <ComboBox.ItemContainerStyle>
-                <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource  ArctosComboBoxItemContainerStyle}">
+                <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource  UrsaComboBoxItemContainerStyle}">
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding }" Value="-">
                             <Setter Property="IsEnabled" Value="False"/>

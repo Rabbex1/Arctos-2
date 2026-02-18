@@ -14,7 +14,7 @@ namespace Arctos.Wpf.Inputs
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Constructors
 
-        public InputStringComboVM(string description, string value, IEnumerable<string> options, Action<string> onChange)
+        public InputStringComboVM(string description, string? value, IEnumerable<string> options, Action<string?>? onChange)
             : base(description, value, onChange)
         {
             Options = new ObservableCollection<string>(options);

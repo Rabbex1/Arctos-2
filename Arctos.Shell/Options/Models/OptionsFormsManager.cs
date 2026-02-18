@@ -49,7 +49,7 @@ namespace Arctos.Shell.Options
             vmType ??= typeof(OptionsFormVM);
 
             if (viewType == null)
-                throw new NotImplementedException("Auto view not Implemented");
+                throw new ArgumentNullException(nameof(viewType));
 
             //If the form has already been added simply return it's view model
             var existingFormVM = _forms.FirstOrDefault(f => f.ParentId == parentId && f.FormId == formId);
@@ -65,7 +65,7 @@ namespace Arctos.Shell.Options
             _forms.Add(newFormVM);
 
             //Create a view for the form and add it to the template selector
-            var view = (UserControl?)Activator.CreateInstance(vmType) ?? throw new ArctosOptionsException($"Cannot create View {viewType}");
+            var view = (UserControl?)Activator.CreateInstance(viewType) ?? throw new ArctosOptionsException($"Cannot create View {viewType}");
             OptionsFormDataTemplateSelector.AddOptionsFormView(formId, view);
 
             return newFormVM;

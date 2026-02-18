@@ -1,4 +1,7 @@
-﻿using System.IO;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Arctos.Wpf.Dialogs;
 
 namespace Arctos.Wpf.Inputs
 {
@@ -28,7 +31,7 @@ namespace Arctos.Wpf.Inputs
         #region Constructor
 
         public InputFilePathVM(string description, string value, Action<string?> onChange)
-            :base(description, value, onChange)
+            : base(description, value, onChange)
         {
             FileName = Path.GetFileName(value);
             OnButtonClicked = OpenDialog;
@@ -38,44 +41,86 @@ namespace Arctos.Wpf.Inputs
 
         protected void OpenDialog(DataInputWrapperVM<string> wrapper)
         {
-            throw new NotImplementedException();
-        //    var directory = string.IsNullOrEmpty(InitialDirectory) 
-        //        ? string.IsNullOrEmpty(Path.GetDirectoryName(Value)) 
-        //            ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-        //            : Path.GetDirectoryName(Value)
-        //        : InitialDirectory;
+            var directory = string.IsNullOrEmpty(InitialDirectory)
+                ? string.IsNullOrEmpty(Path.GetDirectoryName(Value))
+                    ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                    : Path.GetDirectoryName(Value)
+                : InitialDirectory;
 
-        //    string filePath;
+            var filter = BuildFilter(FileGroup, FileExtensions);
+            string? filePath = null;
 
-        //    if (SaveAs)
-        //    {
-        //        filePath = FileHelper.SaveFileAsDialog
-        //        (
-        //            DialogTitle,
-        //            FileName,
-        //            directory,
-        //            FileGroup,
-        //            FileExtensions,
-        //            AllowSpaces
-        //        );
-        //    }
-        //    else
-        //    {
-        //        filePath = FileHelper.OpenFileDialog
-        //        (
-        //            DialogTitle,
-        //            FileName,
-        //            directory,
-        //            FileGroup,
-        //            FileExtensions
-        //        );
-        //    }
+            if (SaveAs)
+            {
+                var dialog = new SaveFileDialogVM
+                {
+                    FileName = AllowSpaces ? FileName : FileName?.Replace(' ', '_'),
+                    InitialDirectory = directory,
+                    Filter = filter,
+                    Title = DialogTitle,
+                };
 
-        //    if (filePath == null) 
-        //        return;
-        //    Value = filePath;
-        //    FileName = Path.GetFileName(filePath);
-        //
+                new SaveFileDialogPresenter().Show(dialog);
+                if (dialog.Result)
+                    filePath = dialog.FileName;
+
+                if (!AllowSpaces && !string.IsNullOrWhiteSpace(filePath))
+                    filePath = filePath.Replace(' ', '_');
+            }
+            else
+            {
+                var dialog = new OpenFileDialogVM
+                {
+                    FileName = FileName,
+                    InitialDirectory = directory,
+                    Filter = filter,
+                    Title = DialogTitle,
+                };
+
+                new OpenFileDialogPresenter().Show(dialog);
+                if (dialog.Result)
+                    filePath = dialog.FileName;
+            }
+
+            if (string.IsNullOrWhiteSpace(filePath))
+                return;
+
+            Value = filePath;
+            FileName = Path.GetFileName(filePath);
+        }
+
+        private static string BuildFilter(string fileGroup, IEnumerable<string> extensions)
+        {
+            var patterns = extensions
+                .Select(NormalizePattern)
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            if (patterns.Length == 0)
+                return "All Files (*.*)|*.*";
+
+            var groupName = string.IsNullOrWhiteSpace(fileGroup) ? "Files" : fileGroup;
+            return string.Join("|", patterns.Select(p => $"{groupName} ({p})|{p}"));
+        }
+
+        private static string NormalizePattern(string? extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension))
+                return string.Empty;
+
+            var value = extension.Trim();
+
+            if (value == "*")
+                return "*.*";
+
+            if (value.StartsWith('.'))
+                return $"*{value}";
+
+            if (value.Contains('*') || value.Contains('?'))
+                return value;
+
+            return $"*.{value}";
         }
     }
 }

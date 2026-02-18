@@ -88,7 +88,6 @@ namespace Arctos.Wpf.OpenTk.Control
         /// It is not safe to call <see cref="IGraphicsContext.MakeCurrent"/> on this context on any other thread
         /// than the one the <see cref="GLWpfControl"/> is running on.
         /// </summary>
-        [CLSCompliant(false)]
         public IGraphicsContext? Context => _renderer?.GLContext;
 
         /// <summary>

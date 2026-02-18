@@ -6,7 +6,7 @@ namespace Arctos.Wpf.Inputs
     {
         public override ValidationResult Validate(object? value, System.Globalization.CultureInfo cultureInfo)
         {
-            var val = value != null && uint.TryParse(GetBoundValue(value).ToString(), out _) 
+            var val = value != null && uint.TryParse(GetBoundValue(value)?.ToString(), out _) 
                 ? new ValidationResult(true, null) 
                 : new ValidationResult(false, "Please enter a valid integer.");
             return val;

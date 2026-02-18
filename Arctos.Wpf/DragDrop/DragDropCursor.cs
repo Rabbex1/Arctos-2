@@ -14,6 +14,8 @@ using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 
+#nullable disable
+
 namespace Arctos.Wpf.DragDrop
 {
   public class DragDropCursor
@@ -24,7 +26,7 @@ namespace Arctos.Wpf.DragDrop
     private readonly int _dpix;
     private readonly int _dpiy;
     private CustomCursor _customCursor;
-    private readonly Dictionary<DragDropEffects, Cursor> _cursors = new();
+    private readonly Dictionary<DragDropEffects, Cursor> _cursors = [];
     private Image _noneIcon;
     private Image _linkIcon;
     private Image _copyIcon;
@@ -103,12 +105,12 @@ namespace Arctos.Wpf.DragDrop
     //---------------------------------------------------------------------
     #region Public Methods
 
-    public CustomPopupPlacement[] PlacePopup(Size popupSize, Size targetSize, Point offset)
+    public CustomPopupPlacement[] PlacePopup(Size __, Size _, Point offset)
     {
       var placement1 = new CustomPopupPlacement(new Point(0, 0), PopupPrimaryAxis.Vertical);
       var placement2 = new CustomPopupPlacement(new Point(0, 0), PopupPrimaryAxis.Horizontal);
-      CustomPopupPlacement[] ttplaces = { placement1, placement2 };
-      return ttplaces;
+      CustomPopupPlacement[] ttPlaces = [placement1, placement2];
+      return ttPlaces;
     }
 
     public void Open()
@@ -134,8 +136,8 @@ namespace Arctos.Wpf.DragDrop
     {
       if (_customCursor == null)
         return;
-      if (_cursors.ContainsKey(e.Effects))
-        Mouse.SetCursor(_cursors[e.Effects]);
+      if (_cursors.TryGetValue(e.Effects, out var cursor))
+        Mouse.SetCursor(cursor);
     }
 
     #endregion Public Methods
@@ -197,21 +199,22 @@ namespace Arctos.Wpf.DragDrop
 
       // write cursor header info
       var cursorStream = new MemoryStream();
-      cursorStream.Write(new byte[] { 0x00, 0x00 }, 0, 2);                               // ICONDIR: Reserved. Must always be 0.
-      cursorStream.Write(new byte[] { 0x02, 0x00 }, 0, 2);                               // ICONDIR: Specifies image type: 1 for icon (.ICO) image, 2 for cursor (.CUR) image. Other values are invalid
-      cursorStream.Write(new byte[] { 0x01, 0x00 }, 0, 2);                               // ICONDIR: Specifies number of images in the file.
-      cursorStream.Write(new[] { (byte)control.DesiredSize.Width }, 0, 1);               // ICONDIRENTRY: Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
-      cursorStream.Write(new[] { (byte)control.DesiredSize.Height }, 0, 1);              // ICONDIRENTRY: Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
-      cursorStream.Write(new byte[] { 0x00 }, 0, 1);                                     // ICONDIRENTRY: Specifies number of colors in the color palette. Should be 0 if the image does not use a color palette.
-      cursorStream.Write(new byte[] { 0x00 }, 0, 1);                                     // ICONDIRENTRY: Reserved. Should be 0.
-      cursorStream.Write(new byte[] { (byte)hotSpot.X, 0x00 }, 0, 2);                    // ICONDIRENTRY: Specifies the horizontal coordinates of the hotspot in number of pixels from the left.
-      cursorStream.Write(new byte[] { (byte)hotSpot.Y, 0x00 }, 0, 2);                    // ICONDIRENTRY: Specifies the vertical coordinates of the hotspot in number of pixels from the top.
-      cursorStream.Write(new[] {(byte)(pngStream.Length & 0x000000FF),
+      cursorStream.Write([0x00, 0x00], 0, 2);                               // ICONDIR: Reserved. Must always be 0.
+      cursorStream.Write([0x02, 0x00], 0, 2);                               // ICONDIR: Specifies image type: 1 for icon (.ICO) image, 2 for cursor (.CUR) image. Other values are invalid
+      cursorStream.Write([0x01, 0x00], 0, 2);                               // ICONDIR: Specifies number of images in the file.
+      cursorStream.Write([(byte)control.DesiredSize.Width], 0, 1);               // ICONDIRENTRY: Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
+      cursorStream.Write([(byte)control.DesiredSize.Height], 0, 1);              // ICONDIRENTRY: Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
+      cursorStream.Write([0x00], 0, 1);                                     // ICONDIRENTRY: Specifies number of colors in the color palette. Should be 0 if the image does not use a color palette.
+      cursorStream.Write([0x00], 0, 1);                                     // ICONDIRENTRY: Reserved. Should be 0.
+      cursorStream.Write([(byte)hotSpot.X, 0x00], 0, 2);                    // ICONDIRENTRY: Specifies the horizontal coordinates of the hotspot in number of pixels from the left.
+      cursorStream.Write([(byte)hotSpot.Y, 0x00], 0, 2);                    // ICONDIRENTRY: Specifies the vertical coordinates of the hotspot in number of pixels from the top.
+      cursorStream.Write([
+          (byte)(pngStream.Length & 0x000000FF),
         (byte)((pngStream.Length & 0x0000FF00) >> 0x08),
         (byte)((pngStream.Length & 0x00FF0000) >> 0x10),
         (byte)((pngStream.Length & 0xFF000000) >> 0x18)
-      }, 0, 4);
-      cursorStream.Write(new byte[] { 0x16, 0x00, 0x00, 0x00 }, 0, 4);
+      ], 0, 4);
+      cursorStream.Write([0x16, 0x00, 0x00, 0x00], 0, 4);
 
       // copy PNG stream to cursor stream
       pngStream.Seek(0, SeekOrigin.Begin);

@@ -1,24 +1,23 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.IO;
 using System.Windows.Data;
 
-namespace Ursa.Wpf.ValueConverters
+namespace Arctos.Wpf.ValueConverters
 {
   public class PathToNameConverter : IValueConverter
   {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-      if (!(value is string path))
-        return value;
-
-      return Path.GetFileName(path);
+        return value is not string path ? value : Path.GetFileName(path);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-      throw new NotImplementedException();
+      return System.Windows.Data.Binding.DoNothing;
     }
   }
 }
+
+
 
 

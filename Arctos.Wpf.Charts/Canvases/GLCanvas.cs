@@ -1,11 +1,10 @@
-﻿using Arctos.Wpf.Helpers;
+using Arctos.Messenger;
+using Arctos.Wpf.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using Arctos.Shell.Messages;
-using AvalonDock.Layout;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Arctos.Wpf.Charts
@@ -168,3 +167,5 @@ namespace Arctos.Wpf.Charts
         }
     }
 }
+
+

@@ -86,12 +86,14 @@ namespace Arctos
 
         public static DateTime FirstDayOfDecade(this DateTime dateTime)
         {
-            throw new NotImplementedException();
+            var year = dateTime.Year - (dateTime.Year % 10);
+            return new DateTime(year, 1, 1, 0, 0, 0, dateTime.Kind);
         }
 
         public static DateTime FirstDayOfCentury(this DateTime dateTime)
         {
-            throw new NotImplementedException();
+            var year = dateTime.Year - ((dateTime.Year - 1) % 100);
+            return new DateTime(year, 1, 1, 0, 0, 0, dateTime.Kind);
         }
 
         public static long ToJsTimeStamp(this DateTime dateTime)

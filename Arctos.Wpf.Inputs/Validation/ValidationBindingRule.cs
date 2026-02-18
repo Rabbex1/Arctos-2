@@ -8,7 +8,7 @@ namespace Arctos.Wpf.Inputs
     {
         public override ValidationResult Validate(object? value, CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ValidationResult.ValidResult;
         }
 
         protected object? GetBoundValue(object value)

@@ -84,7 +84,7 @@ void main()
 
         public override void Render(TimeSpan timeDelta)
         {
-            throw new NotImplementedException();
+            // Derived graphics perform actual drawing. Base class intentionally no-ops.
         }
 
         private void CreateProgram()

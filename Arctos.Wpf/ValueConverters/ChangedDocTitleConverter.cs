@@ -1,4 +1,4 @@
-﻿using System.Windows.Data;
+using System.Windows.Data;
 
 namespace Arctos.Wpf.ValueConverters
 {
@@ -13,8 +13,9 @@ namespace Arctos.Wpf.ValueConverters
 
         public object[] ConvertBack(object value, Type[] targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return targetType.Select(_ => System.Windows.Data.Binding.DoNothing).ToArray();
         }
 
     }
 }
+

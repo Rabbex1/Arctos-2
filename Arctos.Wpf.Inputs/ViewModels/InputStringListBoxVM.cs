@@ -13,7 +13,7 @@
 
         #region Constructors
 
-        public InputStringListBoxVM(string description, string value, IEnumerable<string> options, Action<string?> onChange)
+        public InputStringListBoxVM(string description, string? value, IEnumerable<string> options, Action<string?>? onChange)
             : base(description, value, onChange)
         {
             Options = options;

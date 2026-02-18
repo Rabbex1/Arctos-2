@@ -361,7 +361,7 @@ namespace Arctos.Wpf.Charts
 
     protected virtual double ToVisualUnits(object source)
     {
-      throw new NotImplementedException();
+      return Owner?.VisualRange?.ValueToVisual(source) ?? 0.0;
     }
 
     private Tick GlyphCreator()

@@ -1,4 +1,4 @@
-﻿namespace Arctos.Wpf.Charts
+namespace Arctos.Wpf.Charts
 {
     public abstract class VisualRange<T> : Range<T>, IVisualRange where T : IComparable
     {
@@ -74,92 +74,114 @@
 
         public virtual bool IsValid()
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(IsValid));
+            return Minimum is not null && Maximum is not null;
         }
 
         public virtual T NextAtRank(T value, int rank)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(NextAtRank));
+            return value;
         }
 
         public virtual T PreviousAtRank(T value, int rank)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(PreviousAtRank));
+            return value;
         }
 
         public virtual T PreviousAtRankAndFrequency(T value, int rank, double frequency)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(PreviousAtRankAndFrequency));
+            return value;
         }
 
         public virtual T Round(T value, int rank)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(Round));
+            return value;
         }
 
         public virtual T AdjustByRank(T value, int rank, double quantity)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(AdjustByRank));
+            return value;
         }
 
         public virtual T RankValue(int rank)
         {
-            throw new NotImplementedException();
+            ValidateRank(rank);
+            LogFallbackUsage(nameof(RankValue));
+            return Minimum is not null ? Minimum : default!;
         }
 
         public virtual void SetVisualScale(double length)
         {
-            throw new NotImplementedException();
+            VisualLength = length;
+            VisualScale = 0;
+            LogFallbackUsage(nameof(SetVisualScale));
         }
 
         public virtual void Move(double distance)
         {
-            throw new NotImplementedException();
+            // Base range has no movement behavior.
+            LogFallbackUsage(nameof(Move));
         }
 
         public virtual void GetMovedMinMax(double distance, out T newMin, out T newMax)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(GetMovedMinMax));
+            newMin = Minimum is not null ? Minimum : default!;
+            newMax = Maximum is not null ? Maximum : default!;
         }
 
         public virtual void Zoom(double value)
         {
-            throw new NotImplementedException();
+            // Base range has no zoom behavior.
+            LogFallbackUsage(nameof(Zoom));
         }
 
         public virtual void GetZoomedMinMax(double value, out T newMin, out T newMax)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(GetZoomedMinMax));
+            newMin = Minimum is not null ? Minimum : default!;
+            newMax = Maximum is not null ? Maximum : default!;
         }
 
         public virtual string ParseValue(T value, string format)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(ParseValue));
+            return string.IsNullOrEmpty(format) ? value?.ToString() ?? string.Empty : string.Format("{0:" + format + "}", value);
         }
 
         public virtual double ValueToVisualNormal(T value)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(ValueToVisualNormal));
+            return ValueToFractional(value);
         }
 
         public virtual double ValueToVisual(T value)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(ValueToVisual));
+            return FractionalToVisual(ValueToFractional(value));
         }
 
         public virtual double ValueToVisualSpan(T value)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(ValueToVisualSpan));
+            return Math.Abs(ValueToVisual(value) - ValueToVisual(default!));
         }
 
         public virtual T VisualToValue(double visualUnits)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(VisualToValue));
+            return FractionalToValue(VisualToFractional(visualUnits));
         }
 
         public virtual double VisualDistanceAtRank(int rank)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(VisualDistanceAtRank));
+            return 0;
         }
 
         public override int GetHashCode()
@@ -418,3 +440,5 @@
 
     }
 }
+
+

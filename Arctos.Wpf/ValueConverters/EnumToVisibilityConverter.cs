@@ -1,4 +1,4 @@
-﻿using System.DirectoryServices.ActiveDirectory;
+using System.DirectoryServices.ActiveDirectory;
 using System.Windows;
 using System.Windows.Data;
 
@@ -34,7 +34,9 @@ namespace Arctos.Wpf.ValueConverters
 
     public object? ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
-      throw new NotImplementedException();
+      return System.Windows.Data.Binding.DoNothing;
     }
   }
 }
+
+

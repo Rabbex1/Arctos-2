@@ -33,7 +33,7 @@ namespace Arctos.Wpf.AvalonDock
         #endregion
 
         #region ContentId
-        public string ContentId
+        public virtual string ContentId
         {
             get
             {

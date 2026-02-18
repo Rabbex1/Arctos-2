@@ -5,6 +5,8 @@ using DragDropEffects = System.Windows.DragDropEffects;
 using DragEventArgs = System.Windows.DragEventArgs;
 using Point = System.Windows.Point;
 
+#nullable disable
+
 namespace Arctos.Wpf.DragDrop
 {
   public enum AcceptDrop

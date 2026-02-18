@@ -20,7 +20,7 @@
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Constructors
 
-        public DisplayObjectVM(string description, object value, string displayMember, Action<object> onChange)
+        public DisplayObjectVM(string description, object value, string displayMember, Action<object?> onChange)
             : base(description, value, onChange)
         {
             DisplayMember = displayMember;

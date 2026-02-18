@@ -21,9 +21,7 @@ namespace Arctos.Wpf.OpenTk.Graphics
             {
                 if (Geometries.Count == 0)
                     return;
-                uint restart = 50000;
                 var indices = new uint[Geometries.Count * 6];
-                uint index = 0;
                 for (uint i = 0; i < Geometries.Count; i++)
                 {
                     var iOffset = i * 6;

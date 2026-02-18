@@ -1,12 +1,17 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Arctos.Messenger;
 using Arctos.Shell.Dialogs;
 using Arctos.Shell.Messages;
 using Arctos.Wpf.AvalonDock;
 using Arctos.Wpf.Dialogs;
+using Arctos.Wpf.Helpers;
 using AvalonDock.Layout.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -16,12 +21,27 @@ namespace Arctos.Shell.Documents
     public partial class DocumentService : ObservableObject, IDocumentService,
         IRecipient<DocumentMessage>, IRecipient<AvalonDockMessage>, IRecipient<AppMessage>
     {
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        #region Fields
+
         private readonly DocumentFactoryRegistry _factoryRegistry = null!;
         private readonly IDialogService _dialogService = null!;
+        private readonly SemaphoreSlim _openFromMetadataGate = new(1, 1);
+        private readonly ConcurrentDictionary<string, byte> _sourcesOpening = new(StringComparer.OrdinalIgnoreCase);
+
+        #endregion Fields
 
         private IDocumentVM? _activeDocument;
 
-         //------------------------------------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        #region Properties
+
+        public ObservableCollection<IDocumentVM> Documents { get; } = [];
+
+        #endregion Properties
+
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
 
         #region Constructor
 
@@ -51,7 +71,6 @@ namespace Arctos.Shell.Documents
             }
         }
 
-        public ObservableCollection<IDocumentVM> Documents { get; } = [];
 
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Constructors
@@ -68,8 +87,16 @@ namespace Arctos.Shell.Documents
 
         #endregion Constructors
 
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        #region Methods
+
+        //---------------------------------------------------------------------
+        #region Public Methods
+
         public void AddDocument(IDocumentVM document, bool makeCurrent = true)
         {
+            EnsureDocumentMetadata(document);
             if (!Documents.Contains(document))
                 Documents.Add(document);
             if (makeCurrent)
@@ -147,18 +174,38 @@ namespace Arctos.Shell.Documents
 
         public IDocumentVM? OpenFromMetadata(DocumentMetadata metadata)
         {
+            string? sourceKey = null;
+            if (!string.IsNullOrWhiteSpace(metadata.Source))
+            {
+                sourceKey = Path.GetFullPath(metadata.Source);
+                if (!_sourcesOpening.TryAdd(sourceKey, 0))
+                {
+                    Debug.WriteLine($"Skipping duplicate open request for '{metadata.Source}'.");
+                    return null;
+                }
+            }
+
             var factory = _factoryRegistry.GetMatchingFactories(metadata).FirstOrDefault();
             if(factory == null)
+            {
+                if (sourceKey != null)
+                    _sourcesOpening.TryRemove(sourceKey, out _);
                 throw new FileNotFoundException($"\nNo document factory found for file: {metadata.Source}");
+            }
             var document = factory?.Create(metadata);
             if (document is not IFileDocumentVM fileDoc)
+            {
+                if (sourceKey != null)
+                    _sourcesOpening.TryRemove(sourceKey, out _);
                 return null;
+            }
 
-            AddDocument(document); // Add immediately — even before load
+            document.Metadata = metadata;
 
             // Background async load
             _ = Task.Run(async () =>
             {
+                await _openFromMetadataGate.WaitAsync();
                 try
                 {
                     // ReSharper disable once MethodHasAsyncOverload
@@ -169,13 +216,22 @@ namespace Arctos.Shell.Documents
                     if (!loaded)
                     {
                         Debug.WriteLine("Document failed to load: " + metadata.Source);
-                        RemoveDocument(document); // Optionally remove failed doc
+                        await UiHelper.ThreadAsync(() => RemoveDocument(document));
+                        return;
                     }
+
+                    await UiHelper.ThreadAsync(() => AddDocument(document)); 
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Error loading document '{metadata.Source}': {ex.Message}");
-                    RemoveDocument(document);
+                    await UiHelper.ThreadAsync(() => RemoveDocument(document));
+                }
+                finally
+                {
+                    if (sourceKey != null)
+                        _sourcesOpening.TryRemove(sourceKey, out _);
+                    _openFromMetadataGate.Release();
                 }
             });
 
@@ -202,6 +258,11 @@ namespace Arctos.Shell.Documents
 
         public void SaveDocument(IPersistentDocumentVM? doc)
         {
+            if (doc is FileDocumentVM fileDocument)
+                fileDocument.Metadata = fileDocument.CreateContentMetadata();
+            else if (doc is IDocumentVM document)
+                EnsureDocumentMetadata(document);
+
             doc?.Save();
             _ = doc?.SaveAsync();
         }
@@ -236,43 +297,12 @@ namespace Arctos.Shell.Documents
             return dialog.WasCanceled;
         }
 
-        public void Receive(DocumentMessage message)
-        {
-            if (message.Action == DocumentAction.Add && message.Params?[0] is IDocumentVM doc)
-                AddDocument(doc);
-        }
+        #endregion Public Methods
 
-        public void Receive(AvalonDockMessage message)
-        {
-            if (message.Action != AvalonDockAction.DocumentPaneLoaded) return;
-
-            if (message.Params?[0] is not LayoutSerializationCallbackEventArgs args)
-                return;
-
-            var metadata = DocumentMetadataSerializer.Decode(args.Model.ContentId);
-            if (metadata == null)
-            {
-                message.Cancel = true;
-                return;
-            }
-
-            var doc = OpenFromMetadata(metadata);
-            if (doc == null)
-            {
-                message.Cancel = true;
-                return;
-            }
-
-            args.Content = doc;
-        }
-
-        public void Receive(AppMessage message)
-        {
-            if (message.Action == AppAction.RequestCloseApp)
-                message.Cancel = SaveDocumentsOnExit();
-        }
-
-        private void DocumentPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        //---------------------------------------------------------------------
+        #region Private Methods
+        
+        private void DocumentPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender is not IDocumentVM doc) return;
             if (e.PropertyName != nameof(IDocumentVM.IsActive) || !doc.IsActive || ActiveDocument == doc)
@@ -280,7 +310,7 @@ namespace Arctos.Shell.Documents
             ActiveDocument = doc;
         }
 
-        private void OnActiveDocumentPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnActiveDocumentPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IDocumentVM.DisplayName))
                 WeakReferenceMessenger.Default.Send(new DocumentMessage(this, DocumentAction.ActiveDocumentNameChanged,
@@ -311,5 +341,77 @@ namespace Arctos.Shell.Documents
                     break;
             }
         }
+
+        private static void EnsureDocumentMetadata(IDocumentVM document)
+        {
+            document.Metadata ??= document switch
+            {
+                FileDocumentVM fileDocument => fileDocument.CreateContentMetadata(),
+                _ => new DocumentMetadata
+                {
+                    DocumentType = "Document",
+                    Title = document.DisplayName ?? string.Empty,
+                    Source = string.Empty,
+                    Properties =
+                    {
+                        ["class"] = document.GetType().FullName ?? string.Empty
+                    }
+                }
+            };
+        }
+
+        #endregion Private Methods
+
+        #endregion Methods
+       
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        #region Message Handlers
+
+        public void Receive(DocumentMessage message)
+        {
+            if (message.Action == DocumentAction.Add && message.Params?[0] is IDocumentVM addDoc)
+                AddDocument(addDoc);
+            else if (message.Action == DocumentAction.Close && message.Params?[0] is IDocumentVM closeDoc)
+                CloseDocument(closeDoc);
+            else if (message.Action == DocumentAction.CloseAll)
+                CloseAllDocuments();
+            else if (message.Action == DocumentAction.CloseAllButThis && message.Params?[0] is IDocumentVM butDoc)
+                CloseAllDocuments(butDoc);
+        }
+
+        public void Receive(AvalonDockMessage message)
+        {
+            if (message.Action != AvalonDockAction.DocumentPaneLoaded) return;
+
+            if (message.Params?[0] is not LayoutSerializationCallbackEventArgs args)
+                return;
+
+            var metadata = DocumentMetadataSerializer.Decode(args.Model.ContentId);
+            if (metadata == null)
+            {
+                message.Cancel = true;
+                return;
+            }
+
+            var doc = OpenFromMetadata(metadata);
+            if (doc == null)
+            {
+                message.Cancel = true;
+                return;
+            }
+            // Document panes are driven by DocumentsSource. Prevent AvalonDock from
+            // creating an extra pane from callback content while OpenFromMetadata
+            // asynchronously loads and then adds the document to the collection.
+            message.Cancel = true;
+        }
+
+        public void Receive(AppMessage message)
+        {
+            if (message.Action == AppAction.RequestCloseApp)
+                message.Cancel = SaveDocumentsOnExit();
+        }
+
+        #endregion Message Handlers
+
     }
 }

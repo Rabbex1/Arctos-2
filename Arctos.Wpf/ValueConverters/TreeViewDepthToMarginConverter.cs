@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -30,7 +30,7 @@ namespace Arctos.Wpf.ValueConverters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new System.NotImplementedException();
+            return System.Windows.Data.Binding.DoNothing;
         }
 
         private int GetDepth(TreeViewItem item)
@@ -57,3 +57,4 @@ namespace Arctos.Wpf.ValueConverters
     }
 
 }
+

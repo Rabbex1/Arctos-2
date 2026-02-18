@@ -9,20 +9,12 @@ namespace Arctos.Wpf.Inputs
             bool isValid;
             if (value != null)
             {
-                var stringValue = GetBoundValue(value).ToString();
-                switch (stringValue)
+                var stringValue = GetBoundValue(value)?.ToString();
+                isValid = stringValue switch
                 {
-                    case "i":
-                    case "+i":
-                    case "-i":
-                    case "+\u221E":
-                    case "-\u221E":
-                        isValid = true;
-                        break;
-                    default:
-                        isValid = long.TryParse(stringValue, out var v);
-                        break;
-                }
+                    "i" or "+i" or "-i" or "+\u221E" or "-\u221E" => true,
+                    _ => long.TryParse(stringValue, out var v)
+                };
             }
             else 
                 isValid = false;

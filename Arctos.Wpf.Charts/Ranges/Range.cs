@@ -1,4 +1,6 @@
-﻿namespace Arctos.Wpf.Charts
+using System.Diagnostics;
+
+namespace Arctos.Wpf.Charts
 {
     public class Range<T> : IRange
     {
@@ -19,17 +21,20 @@
 
         public virtual T FractionalToValue(double fractional)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(FractionalToValue));
+            return Minimum is not null ? Minimum : default!;
         }
 
         public virtual double ValueToFractional(T? value)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(ValueToFractional));
+            return 0;
         }
 
         public virtual int Closest(T value, T a, T b)
         {
-            throw new NotImplementedException();
+            LogFallbackUsage(nameof(Closest));
+            return 0;
         }
 
         #endregion Methods
@@ -100,5 +105,10 @@
 
         #endregion IRange Members
 
+        [Conditional("DEBUG")]
+        protected void LogFallbackUsage(string methodName)
+        {
+            Debug.WriteLine($"{GetType().Name}: using base fallback for {methodName}.");
+        }
     }
 }

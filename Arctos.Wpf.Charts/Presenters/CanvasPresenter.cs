@@ -114,7 +114,7 @@ namespace Arctos.Wpf.Charts
 
         public override void SetFocalData(object obj)
         {
-            throw new NotImplementedException();
+            RaiseFocalDataChanged(new FocalDataEventArgs(obj));
         }
 
         #endregion Public Methods

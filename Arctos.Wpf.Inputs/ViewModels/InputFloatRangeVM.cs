@@ -5,7 +5,7 @@
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Constructors
 
-        public InputFloatRangeVM(string description, FloatRangeInput value, Action<FloatRangeInput> onChange)
+        public InputFloatRangeVM(string description, FloatRangeInput value, Action<FloatRangeInput?> onChange)
             : base(description, value, onChange)
         {
             value.Wrapper = this;

@@ -17,11 +17,8 @@ namespace Arctos.Shell.Dialogs
         {
             if (dialog is ICommonDialogVM common)
                 return common.Show(Dialogs);
-            else
-            {
-                Dialogs.Add(dialog);
-                return true;
-            }
+            Dialogs.Add(dialog);
+            return true;
         }
 
         public void ShowMessageBox(string text, string caption, MessageBoxButton buttons, MessageBoxImage icon)

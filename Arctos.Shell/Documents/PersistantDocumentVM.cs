@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using System.Windows;
 
 namespace Arctos.Shell.Documents
 {
@@ -80,6 +81,30 @@ namespace Arctos.Shell.Documents
             //Do nothing if not overloaded
             return Task.FromResult<bool>(false);
         }
+
+        private void CloseDocument()
+        {
+            if(IsChanged)
+            {
+                var displayName = DisplayName ?? "Untitled";
+                var result = MessageBox.Show(
+                    $"Save changes to '{displayName}' before closing?",
+                    "Unsaved Changes",
+                    MessageBoxButton.YesNoCancel,
+                    MessageBoxImage.Warning);
+
+                switch (result)
+                {
+                    case MessageBoxResult.Cancel:
+                        return;
+                    case MessageBoxResult.Yes:
+                        Save();
+                        break;
+                }
+            }
+        }
+
+
 
         #endregion Protected Methods
 

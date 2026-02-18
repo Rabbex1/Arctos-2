@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+using System;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace Arctos.Wpf.Inputs
@@ -24,6 +25,15 @@ namespace Arctos.Wpf.Inputs
         }
         #endregion
 
+        #region Collapsable
+        private bool _collapsable;
+        public bool Collapsable
+        {
+            get => _collapsable;
+            set => SetProperty(ref _collapsable, value);
+        }
+        #endregion
+
         public InputFormVM PropertiesForm { get; set; } = new();
 
         #endregion Properties
@@ -31,15 +41,22 @@ namespace Arctos.Wpf.Inputs
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         #region Constructors
-        public InputGroupVM(string description, (string header, List<DataInputWrapperVM> wrappers) value, Action? extraAction)
+
+        public InputGroupVM(string description, (string header, List<DataInputWrapperVM> wrappers) value, bool collapsable = false, Action? extraAction = null)
             : base(description, value, null)
         {
             Header = value.header;
+            Collapsable = collapsable;
             _extraAction = extraAction;
 
             PropertiesForm.Inputs = new ObservableCollection<DataInputWrapperVM>(value.wrappers);
 
             //GetProperties();
+        }
+
+        public InputGroupVM(string description, (string header, List<DataInputWrapperVM> wrappers) value, Action? extraAction)
+            : this(description, value, false, extraAction)
+        {
         }
 
         #endregion Constructors
@@ -50,15 +67,24 @@ namespace Arctos.Wpf.Inputs
 
         public void GetProperties()
         {
-            SortedList<int, PropertyInfo> publicProperties = new();
+            SortedList<int, PropertyInfo> publicProperties = [];
 
             var propInfos = Value.GetType().GetProperties();
             foreach (var propInfo in propInfos)
             {
-                var attr = (ArctosInputAttribute[])propInfo.GetCustomAttributes(typeof(ArctosInputAttribute), false);
+                if (propInfo.SetMethod == null || propInfo.GetMethod == null)
+                    continue;
 
-                if (propInfo.SetMethod != null && propInfo.GetMethod != null && attr.Length != 0)
-                    publicProperties.Add(attr[0].Position, propInfo);
+                var arctosInputAttr = (ArctosInputAttribute[])propInfo.GetCustomAttributes(typeof(ArctosInputAttribute), false);
+                if (arctosInputAttr.Length != 0)
+                {
+                    publicProperties.Add(arctosInputAttr[0].Position, propInfo);
+                    continue;
+                }
+
+                var arctosSettingAttr = (ArctosSettingAttribute[])propInfo.GetCustomAttributes(typeof(ArctosSettingAttribute), false);
+                if (arctosSettingAttr.Length != 0)
+                    publicProperties.Add(arctosSettingAttr[0].Order, propInfo);
             }
 
             foreach (var property in publicProperties.Values)
@@ -66,10 +92,11 @@ namespace Arctos.Wpf.Inputs
                 var wrapper = CreateTypeWrapper(property.Name.SplitCamelCase(), property.GetValue(Value), o =>
                 {
                     property.SetValue(Value, o);
-                    _extraAction.Invoke();
+                    _extraAction?.Invoke();
                 });
                 if (wrapper == null)
                     continue;
+
                 wrapper.Description = property.Name.SplitCamelCase() + ":";
                 if (wrapper.Description == "Name:")
                     wrapper.IsReadOnly = true;

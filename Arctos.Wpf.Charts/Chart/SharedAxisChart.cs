@@ -1,6 +1,7 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
@@ -115,7 +116,8 @@ namespace Arctos.Wpf.Charts
                     }
                     break;
                 default:
-                    throw new NotImplementedException();
+                    Debug.WriteLine("Shared axis/marker edge is not yet implemented.");
+                        break;
             }
 
             sac.CreateLayout();
@@ -168,7 +170,8 @@ namespace Arctos.Wpf.Charts
                         ChartPanel.SetVerticalPosition(sac.SharedAxis, VerticalPosition.Bottom);
                         break;
                     default:
-                        throw new NotImplementedException();
+                        Debug.WriteLine("Shared axis/marker edge is not yet implemented.");
+                        break;
                 }
             }
             sac.CreateLayout();
@@ -206,7 +209,8 @@ namespace Arctos.Wpf.Charts
                         sac.SharedMarker.Orientation = Orientation.Horizontal;
                     break;
                 default:
-                    throw new NotImplementedException();
+                    Debug.WriteLine("Shared axis/marker edge is not yet implemented.");
+                        break;
             }
 
             sac.CreateLayout();
@@ -259,7 +263,8 @@ namespace Arctos.Wpf.Charts
                         sac.SharedMarker.Orientation = Orientation.Horizontal;
                         break;
                     default:
-                        throw new NotImplementedException();
+                        Debug.WriteLine("Shared axis/marker edge is not yet implemented.");
+                        break;
                 }
             }
 
@@ -568,3 +573,7 @@ namespace Arctos.Wpf.Charts
         #endregion Event Handlers
     }
 }
+
+
+
+

@@ -570,7 +570,8 @@ namespace Arctos.Wpf.Charts
 
         protected virtual void AutoScaleTickSet(double length, TickSet hatching)
         {
-            throw new NotImplementedException();
+            // Base axis has no auto-scaling strategy; derived axis types may override.
+            hatching.CurrentFrequency = hatching.Frequency <= 0 ? 1 : hatching.Frequency;
         }
 
         protected override Size MeasureOverride(Size availableSize)

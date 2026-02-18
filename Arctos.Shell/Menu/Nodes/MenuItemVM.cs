@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Arctos.Shell.Menu
 {
-    public partial class MenuItemVM : ChildVM<MenuVM>, IMenuNodeVM
+    public partial class MenuItemVM(MenuVM parent) : ChildVM<MenuVM>(parent), IMenuNodeVM
     {
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
@@ -62,28 +62,30 @@ namespace Arctos.Shell.Menu
         }
         #endregion
 
+        #region Params
+
+        private object? _parameters;
+
+        public object? Parameters
+        {
+            get => _parameters;
+            set => SetProperty(ref _parameters, value);
+        }
+
+        #endregion
+
         public ICommandService? CommandService { get; set; }
 
         #endregion Properties
 
         //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Constructor
-
-        public MenuItemVM(MenuVM parent)
-            : base(parent)
-        {
-        }
-
-        #endregion Constructor
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
         #region Commands
 
         [RelayCommand]
-        public void Execute(object param)
+        public void Execute(object context)
         {
             
-            CommandService?.Execute(Command, new ExecuteCommandArgs(param));
+            CommandService?.Execute(Command, new ExecuteCommandArgs(context, _parameters));
         }
 
         #endregion Commands

@@ -151,17 +151,14 @@ namespace Arctos.Wpf.Charts
 
         public override double VisualToValue(double visual)
         {
-            switch (Orientation)
+            return Orientation switch
             {
-                case PartOrientation.None:
-                    throw new InvalidOperationException("The Orientation must be set for visual conversions.");
-                case PartOrientation.Horizontal:
-                    throw new NotImplementedException();
-                case PartOrientation.Vertical:
-                    throw new NotImplementedException();
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                PartOrientation.None => throw new InvalidOperationException(
+                    "The Orientation must be set for visual conversions."),
+                PartOrientation.Horizontal => Minimum + visual / VisualScale,
+                PartOrientation.Vertical => Minimum + (VisualLength - visual) / VisualScale,
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         public override double ValueToVisualNormal(double value)

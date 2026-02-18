@@ -55,7 +55,8 @@ namespace Arctos.Wpf.Charts
 
         protected override void SetMode(AxisMode mode)
         {
-            throw new NotImplementedException();
+            // Discrete axis follows the same primary/auxiliary constraints as the base axis.
+            base.SetMode(mode);
         }
 
         protected override void SetTickLabels(List<TickLabel> labels)

@@ -31,45 +31,38 @@ namespace Arctos.Wpf.OpenTk.Control
         /// The management of the context sent to the <see cref="GLWpfControl"/> becomes the responsibility of the <see cref="GLWpfControl"/>.
         /// Trying to call <see cref="IGraphicsContext.MakeCurrent"/> on this context on some other thread might lead to uninteded consequences.
         /// </summary>
-        [CLSCompliant(false)]
         public IGraphicsContext? ContextToUse { get; set; }
 
         /// <summary>
         /// A optional context for context sharing.
         /// </summary>
-        [CLSCompliant(false)]
         public IGLFWGraphicsContext? SharedContext { get; set; }
 
         /// <summary>
         /// May be null. If so, default bindings context will be used.
         /// </summary>
-        [CLSCompliant(false)]
         public IBindingsContext? BindingsContext { get; set; }
 
         /// <summary>
         /// The OpenGL context flags to use. Same as <see cref="ContextFlags"/>.
         /// </summary>
-        [CLSCompliant(false)]
         [Obsolete("Use ContextFlags instead.")]
         public ContextFlags GraphicsContextFlags { get => ContextFlags; set => ContextFlags = value; }
 
         /// <summary>
         /// The OpenGL context flags to use. <see cref="ContextFlags.Offscreen"/> will always be set for DirectX interop purposes.
         /// </summary>
-        [CLSCompliant(false)]
         public ContextFlags ContextFlags { get; set; } = ContextFlags.Default;
 
         /// <summary>
         /// The OpenGL profile to use. Same as <see cref="Profile"/>.
         /// </summary>
-        [CLSCompliant(false)]
         [Obsolete("Use Profile instead.")]
         public ContextProfile GraphicsProfile { get => Profile; set => Profile = value; }
 
         /// <summary>
         /// The OpenGL profile to use.
         /// </summary>
-        [CLSCompliant(false)]
         public ContextProfile Profile { get; set; } = ContextProfile.Any;
 
         /// <summary>The major OpenGL version number.</summary>

@@ -174,7 +174,7 @@ namespace Arctos.Wpf.OpenTk.Util
             {
                 Array.Copy(Items, index + 1, Items, index, _size - index);
             }
-            Items[_size] = default(T);
+            Items[_size] = default!;
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -242,7 +242,7 @@ namespace Arctos.Wpf.OpenTk.Util
             return BinarySearch(0, Count, item, comparer);
         }
 
-        public int BinarySearch(int index, int count, T item, IComparer<T> comparer)
+        public int BinarySearch(int index, int count, T item, IComparer<T>? comparer)
         {
             return Array.BinarySearch(Items, index, count, item, comparer);
         }
@@ -284,7 +284,7 @@ namespace Arctos.Wpf.OpenTk.Util
                     return Items[i];
                 }
             }
-            return default(T);
+            return default!;
         }
 
 
@@ -333,7 +333,7 @@ namespace Arctos.Wpf.OpenTk.Util
                     return Items[i];
                 }
             }
-            return default(T);
+            return default!;
         }
 
         public int FindLastIndex(Predicate<T> match)
@@ -583,7 +583,7 @@ namespace Arctos.Wpf.OpenTk.Util
             {
                 this.list = list;
                 index = 0;
-                current = default(T);
+                current = default!;
             }
 
             public void Dispose()
@@ -605,18 +605,18 @@ namespace Arctos.Wpf.OpenTk.Util
             private bool MoveNextRare()
             {
                 index = list._size + 1;
-                current = default(T);
+                current = default!;
                 return false;
             }
 
             public T Current => current;
 
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current => Current!;
 
             void IEnumerator.Reset()
             {
                 index = 0;
-                current = default(T);
+                current = default!;
             }
         }
         #endregion

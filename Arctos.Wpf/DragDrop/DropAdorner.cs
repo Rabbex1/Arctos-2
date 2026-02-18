@@ -2,6 +2,8 @@
 using System.Windows.Documents;
 using Color = System.Windows.Media.Color;
 
+#nullable disable
+
 namespace Arctos.Wpf.DragDrop
 {
   public abstract class DropAdorner : Adorner

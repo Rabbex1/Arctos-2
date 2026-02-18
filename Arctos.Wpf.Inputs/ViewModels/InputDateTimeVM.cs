@@ -1,34 +1,68 @@
-﻿namespace Arctos.Wpf.Inputs
+using System.Globalization;
+
+namespace Arctos.Wpf.Inputs
 {
     public class InputDateTimeVM : DataInputWrapperVM<DateTime>
     {
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        #region Constructor
+        private readonly string[] _formats =
+        [
+            "d/M/yyyy h:mm tt",
+            "dd/M/yyyy h:mm tt",
+            "d/MM/yyyy h:mm tt",
+            "dd/MM/yyyy h:mm tt",
+            "d/M/yyyy h:mm:ss tt",
+            "dd/M/yyyy h:mm:ss tt",
+            "d/MM/yyyy h:mm:ss tt",
+            "dd/MM/yyyy h:mm:ss tt"
+        ];
 
-        #region DateTimeString
-
+        private readonly DateTimeKind _kind;
         private string _dateTimeString = string.Empty;
 
         public string DateTimeString
         {
             get => _dateTimeString;
-            set 
+            set
             {
-                if (_dateTimeString == value) return;
-                _dateTimeString = value;
-                Value = DateTime.Parse(value);
-                SetProperty(ref _dateTimeString, value);
+                if (_dateTimeString == value)
+                    return;
+
+                var str = value.Replace(":00:00 ", ":00 ");
+                SetProperty(ref _dateTimeString, str);
+
+                if (!DateTime.TryParseExact(
+                        str,
+                        _formats,
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.AllowWhiteSpaces,
+                        out var dt))
+                {
+                    return;
+                }
+
+                Value = DateTime.SpecifyKind(dt, _kind);
             }
         }
 
-        #endregion
-
-        public InputDateTimeVM(string description, DateTime value, Action<DateTime> onChange)
-            : base(description, value, onChange)
+        public override DateTime Value
         {
-            DateTimeString = value.ToString("dd/MM/yyyy hh:mm tt");
+            get => _value;
+            set
+            {
+                _value = value;
+                var formatted = value.ToString("dd/MM/yyyy hh:mm tt");
+                SetProperty(ref _dateTimeString, formatted, nameof(DateTimeString));
+                OnPropertyChanged();
+                OnChange?.Invoke(value);
+            }
         }
 
-        #endregion Constructor
+        public InputDateTimeVM(string description, DateTime value, DateTimeKind kind, Action<DateTime> onChange)
+            : base(description, value, onChange)
+        {
+            _kind = kind;
+            _value = DateTime.SpecifyKind(value, _kind);
+            _dateTimeString = _value.ToString("dd/MM/yyyy hh:mm tt");
+        }
     }
 }

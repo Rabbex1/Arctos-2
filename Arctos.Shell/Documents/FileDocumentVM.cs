@@ -2,8 +2,9 @@
 
 namespace Arctos.Shell.Documents
 {
-    public abstract class FileDocumentVM : PersistentDocumentVM
+    public abstract class FileDocumentVM : PersistentDocumentVM, IFileDocumentVM
     {
+
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Properties
 
@@ -15,8 +16,7 @@ namespace Arctos.Shell.Documents
             set
             {
                 SetProperty(ref _filePath, value); 
-                DisplayName = Path.GetFileName(value);
-                SetContentComponent("FilePath", _filePath);
+                FilePathChanged(value);
             }
         }
         #endregion
@@ -45,7 +45,38 @@ namespace Arctos.Shell.Documents
             return loaded;
         }
 
+
         #endregion Public Methods
+
+        //---------------------------------------------------------------------
+        #region Protected Methods
+
+        protected internal override DocumentMetadata CreateContentMetadata()
+        {
+            var metadata = base.CreateContentMetadata();
+            metadata.DocumentType = "File";
+            metadata.Source = FilePath;
+            metadata.Title = Path.GetFileName(FilePath);
+
+            if (!string.IsNullOrWhiteSpace(FilePath))
+            {
+                var extension = Path.GetExtension(FilePath).TrimStart('.');
+                if (!string.IsNullOrWhiteSpace(extension))
+                    metadata.Properties["extension"] = extension;
+            }
+
+            return metadata;
+        }
+
+        protected virtual void FilePathChanged(string value)
+        {
+            DisplayName = Path.GetFileName(value);
+            Metadata = CreateContentMetadata();
+            SetContentComponent("FilePath", _filePath);
+        }
+
+        #endregion Protected Methods
+
 
         #endregion Methods
 

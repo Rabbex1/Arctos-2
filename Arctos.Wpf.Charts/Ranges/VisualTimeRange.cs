@@ -35,7 +35,10 @@ namespace Arctos.Wpf.Charts
 
         public override double ValueToVisualNormal(DateTime value)
         {
-            throw new NotImplementedException();
+            var span = Maximum.Ticks - Minimum.Ticks;
+            if (span == 0)
+                return 0;
+            return (double)(value.Ticks - Minimum.Ticks) / span;
         }
 
         public override bool IsValid()
@@ -249,7 +252,10 @@ namespace Arctos.Wpf.Charts
 
         public override double ValueToFractional(DateTime value)
         {
-            throw new NotImplementedException();
+            var span = Maximum.Ticks - Minimum.Ticks;
+            if (span == 0)
+                return 0;
+            return (double)(value.Ticks - Minimum.Ticks) / span;
         }
 
         public override double ValueToVisual(DateTime value)
@@ -270,7 +276,7 @@ namespace Arctos.Wpf.Charts
 
         public override double ValueToVisualSpan(DateTime value)
         {
-            throw new NotImplementedException();
+            return (value.Ticks - DateTime.MinValue.Ticks) * VisualScale;
         }
 
 

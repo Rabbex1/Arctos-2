@@ -13,7 +13,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Arctos.Shell\Arctos.Shell.csproj" />
 	  <ProjectReference Include="..\Arctos.Wpf.OpenTk\Arctos.Wpf.OpenTk.csproj" />
 	  <ProjectReference Include="..\Arctos.Wpf\Arctos.Wpf.csproj" />
 	  <ProjectReference Include="..\Arctos\Arctos.csproj" />
