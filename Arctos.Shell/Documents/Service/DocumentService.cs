@@ -216,7 +216,16 @@ namespace Arctos.Shell.Documents
                     if (!loaded)
                     {
                         Debug.WriteLine("Document failed to load: " + metadata.Source);
-                        await UiHelper.ThreadAsync(() => RemoveDocument(document));
+                        await UiHelper.ThreadAsync(() =>
+                        {
+                            _dialogService.ShowMessageBox(
+                                $"Failed to load document: {metadata.Source}",
+                                "Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                            CleanupFailedDocument(document);
+                            RemoveDocument(document);
+                        });
                         return;
                     }
 
@@ -225,7 +234,16 @@ namespace Arctos.Shell.Documents
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Error loading document '{metadata.Source}': {ex.Message}");
-                    await UiHelper.ThreadAsync(() => RemoveDocument(document));
+                    await UiHelper.ThreadAsync(() =>
+                    {
+                        _dialogService.ShowMessageBox(
+                            $"Failed to load document: {metadata.Source}\n\n{ex.Message}",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        CleanupFailedDocument(document);
+                        RemoveDocument(document);
+                    });
                 }
                 finally
                 {
@@ -358,6 +376,29 @@ namespace Arctos.Shell.Documents
                     }
                 }
             };
+        }
+
+        private static void CleanupFailedDocument(IDocumentVM document)
+        {
+            try
+            {
+                if (document is DocumentVM documentVm)
+                    documentVm.Closing();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Document cleanup (Closing) failed: {ex.Message}");
+            }
+
+            try
+            {
+                if (document is IDisposable disposable)
+                    disposable.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Document cleanup (Dispose) failed: {ex.Message}");
+            }
         }
 
         #endregion Private Methods
