@@ -230,6 +230,17 @@
         </Canvas>
     </Viewbox>
 
+    <Viewbox x:Key="ArctosWpf:FolderIcon" x:Shared="False" Stretch="Uniform"  Width="22" Height="22">
+        <Canvas Width="22" Height="22">
+            <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconFolderGoldBrush}" StrokeThickness="0">
+                <Path.Data>
+                    <PathGeometry Figures="m 5 6 -0.75 0.25 -0.25 0.75 V 11 H 2 l 4 5 H 18 V 7 l -0.25 -0.75 -0.75 -0.25 h -2 v 1 h 2 V 14.75 L 14 11 H 5 V 7 h 2 v -1 z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+
     <Viewbox x:Key="ArctosWpf:OpenFolderIcon" x:Shared="False" Stretch="Uniform"  Width="22" Height="22">
         <Canvas Width="22" Height="22">
             <Path Style="{StaticResource PathDisabledStyle}" Fill="{StaticResource MenuIconFolderGoldBrush}" StrokeThickness="0">

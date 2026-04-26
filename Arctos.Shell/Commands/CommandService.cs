@@ -10,7 +10,7 @@ namespace Arctos.Shell.Commands
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Fields
 
-        private readonly Dictionary<string, Dictionary<string, Command>> _commands = new();
+        private readonly Dictionary<string, Dictionary<string, Command>> _commands = [];
         private readonly IDialogService _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
         #endregion Fields
@@ -31,12 +31,11 @@ namespace Arctos.Shell.Commands
 
         public CommandAddResult TryAddCommand(Command command)
         {
-            if (command == null)
-                throw new ArgumentNullException(nameof(command));
+            ArgumentNullException.ThrowIfNull(command);
 
             if (!_commands.TryGetValue(command.CommandSpace, out var commandSpace))
             {
-                commandSpace = new Dictionary<string, Command>();
+                commandSpace = [];
                 _commands.Add(command.CommandSpace, commandSpace);
             }
 
@@ -47,6 +46,24 @@ namespace Arctos.Shell.Commands
             return HaveSameHandler(existing.OnExecute, command.OnExecute)
                 ? CommandAddResult.AlreadyExists
                 : CommandAddResult.Conflict;
+        }
+
+        public bool TryRemoveCommand(string commandSpace, string commandName)
+        {
+            if (string.IsNullOrWhiteSpace(commandSpace) || string.IsNullOrWhiteSpace(commandName))
+                return false;
+
+            if (!_commands.TryGetValue(commandSpace, out var commandMap))
+                return false;
+
+            var removed = commandMap.Remove(commandName);
+            if (!removed)
+                return false;
+
+            if (commandMap.Count == 0)
+                _commands.Remove(commandSpace);
+
+            return true;
         }
 
         public void Execute(string commandSpace, string command, ExecuteCommandArgs args)
@@ -66,11 +83,22 @@ namespace Arctos.Shell.Commands
 
         public void Execute(string fullCommand, ExecuteCommandArgs args)
         {
-            var parts = fullCommand.Split('.');
-            if (parts.Length != 2)
+            if (string.IsNullOrWhiteSpace(fullCommand))
+            {
                 _dialogService.ShowMessageBox($"Cannot execute command {fullCommand}.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            else
-                Execute(parts[0], parts[1], args);
+                return;
+            }
+
+            var separatorIndex = fullCommand.IndexOf('.');
+            if (separatorIndex <= 0 || separatorIndex >= fullCommand.Length - 1)
+            {
+                _dialogService.ShowMessageBox($"Cannot execute command {fullCommand}.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var commandSpace = fullCommand[..separatorIndex];
+            var commandName = fullCommand[(separatorIndex + 1)..];
+            Execute(commandSpace, commandName, args);
         }
 
         private static bool HaveSameHandler(Action<Command, ExecuteCommandArgs> left, Action<Command, ExecuteCommandArgs> right)

@@ -25,6 +25,8 @@
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ScrollBarStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ScrollViewer.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/SliderStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/GroupBoxStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ProgressBarStyle.xaml" />
 
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ToggleSwitchStyle.xaml" />
 

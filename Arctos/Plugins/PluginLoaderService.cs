@@ -7,19 +7,42 @@ namespace Arctos.Plugins;
 
 public sealed class PluginLoaderService
 {
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    #region Fields
+
     private readonly List<PluginHandle> _loaded = [];
 
+    #endregion Fields
+
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    #region Properties
+
     public IReadOnlyList<PluginHandle> LoadedPlugins => _loaded;
+
     public Action<string>? LogMessage { get; set; }
 
-    public IEnumerable<PluginDescriptor> DiscoverPlugins<TAppSignature>(string[] folders)
+    #endregion Properties
+
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    #region Methods
+
+    //---------------------------------------------------------------------
+    #region Public Methods
+
+    public IEnumerable<PluginDescriptor> DiscoverPlugins<TAppSignature>(string[] folders, params string[]? assemblyPrefixes)
     {
         var descriptors = new List<PluginDescriptor>();
+        var requiredPrefixes = (assemblyPrefixes ?? [])
+            .Append("ArctosPlugin.")
+            .Where(prefix => !string.IsNullOrWhiteSpace(prefix))
+            .Select(prefix => prefix.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-        foreach(var folder in folders)
+        foreach (var folder in folders)
         {
             if (!Directory.Exists(folder))
-                return descriptors;
+                continue;
 
             var dlls = Directory.GetFiles(folder, "*.dll", SearchOption.AllDirectories);
             var loadedTypeNames = _loaded.Select(p => p.Descriptor.TypeName).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -29,7 +52,7 @@ public sealed class PluginLoaderService
                 Assembly? assembly = null;
                 var fileName = Path.GetFileNameWithoutExtension(path);
 
-                if (!fileName.StartsWith("ArctosPlugin.", StringComparison.OrdinalIgnoreCase))
+                if (!requiredPrefixes.Any(prefix => fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
                 {
                     Debug.WriteLine($"[PluginLoader] Skipping non-plugin assembly: {fileName}");
                     continue;
@@ -150,6 +173,11 @@ public sealed class PluginLoaderService
         LogMessage?.Invoke("All plugins unloaded.");
     }
 
+    #endregion Public Methods
+
+    //---------------------------------------------------------------------
+    #region Private Methods
+
     private static bool IsSystemAssembly(string name)
     {
         return name.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase)
@@ -157,4 +185,8 @@ public sealed class PluginLoaderService
                || name.StartsWith("Windows.", StringComparison.OrdinalIgnoreCase)
                || name.Equals("mscorlib", StringComparison.OrdinalIgnoreCase);
     }
+
+    #endregion Private Methods
+
+    #endregion Methods
 }

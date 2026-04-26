@@ -237,7 +237,7 @@ namespace Arctos.Shell.Documents
                     await UiHelper.ThreadAsync(() =>
                     {
                         _dialogService.ShowMessageBox(
-                            $"Failed to load document: {metadata.Source}\n\n{ex.Message}",
+                            $"Failed to load document: {metadata.Source}\n\n{ex.GetAllMessages()}",
                             "Error",
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);

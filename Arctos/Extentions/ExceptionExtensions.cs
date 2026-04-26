@@ -41,7 +41,7 @@ namespace Arctos
                 }
             }
 
-            return string.Join(separator, messages);
+            return string.Join(Environment.NewLine + separator, messages);
         }
     }
 }
