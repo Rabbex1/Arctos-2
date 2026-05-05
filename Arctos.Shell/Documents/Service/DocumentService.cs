@@ -434,11 +434,14 @@ namespace Arctos.Shell.Documents
                 return;
             }
 
-            var doc = OpenFromMetadata(metadata);
-            if (doc == null)
+            if(metadata.Source != "")
             {
-                message.Cancel = true;
-                return;
+                var doc = OpenFromMetadata(metadata);
+                if (doc == null)
+                {
+                    message.Cancel = true;
+                    return;
+                }
             }
             // Document panes are driven by DocumentsSource. Prevent AvalonDock from
             // creating an extra pane from callback content while OpenFromMetadata

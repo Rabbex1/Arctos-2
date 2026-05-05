@@ -398,9 +398,57 @@
     </DataTemplate>
 
     <DataTemplate x:Key="ParameterGroupInput">
-        <Grid >
+        <Grid>
+            <Border Padding="0, 8, 0, 0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Collapsable}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <StackPanel>
+                    <TextBlock Text="{Binding Header}"
+                               Background="#FF3F3F46"
+                               Padding="8 4"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8" />
+                    <ContentPresenter Content="{Binding}"
+                                      HorizontalAlignment="Stretch"
+                                      ContentTemplateSelector="{StaticResource InputSelector}" />
+                </StackPanel>
+            </Border>
+
             <Expander Header="{Binding Header}"
                       IsExpanded="True"
+                      Padding="0, 8, 0, 0">
+                <Expander.Style>
+                    <Style TargetType="Expander">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Collapsable}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Expander.Style>
+
+                <ContentPresenter Content="{Binding}"
+                                  HorizontalAlignment="Stretch"
+                                  ContentTemplateSelector="{StaticResource InputSelector}" />
+            </Expander>
+        </Grid>
+    </DataTemplate>
+
+
+    <!--<DataTemplate x:Key="ParameterGroupInput">
+        <Grid>
+            <Expander Header="{Binding Header}"
+                      IsExpanded= "true"
                       Padding ="0, 8, 0, 0">
                 <ContentPresenter Content="{Binding }"
                                   HorizontalAlignment="Stretch"
@@ -408,7 +456,7 @@
                 </ContentPresenter>
             </Expander>
         </Grid>
-    </DataTemplate>
+    </DataTemplate>-->
 
 
 

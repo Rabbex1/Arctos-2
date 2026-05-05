@@ -2,7 +2,7 @@
 
 namespace Arctos.Wpf.Inputs
 {
-    internal class StringToDoubleValidationRule : ValidationBindingRule
+    public class StringToDoubleValidationRule : ValidationBindingRule
     {
         public override ValidationResult Validate(object? value, System.Globalization.CultureInfo cultureInfo)
         {
