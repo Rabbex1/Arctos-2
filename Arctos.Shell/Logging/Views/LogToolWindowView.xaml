@@ -1,0 +1,224 @@
+<UserControl x:Class="Arctos.Shell.Logging.LogToolWindowView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:logging="clr-namespace:Arctos.Shell.Logging"
+             xmlns:attachedProperties="clr-namespace:Arctos.Wpf.AttachedProperties;assembly=Arctos.Wpf"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=logging:LogToolWindowVM}"
+             d:DesignHeight="500"
+             d:DesignWidth="1100">
+    <DockPanel>
+        <Border DockPanel.Dock="Top"
+                Padding="8"
+                Background="{DynamicResource BackgroundBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <CheckBox Grid.Column="0"
+                              Margin="0,0,6,0"
+                              Content="Trc"
+                              IsChecked="{Binding CurrentContext.ShowTrace}" />
+                    <CheckBox Grid.Column="1"
+                              Margin="0,0,6,0"
+                              Content="Dbg"
+                              IsChecked="{Binding CurrentContext.ShowDebug}" />
+                    <CheckBox Grid.Column="2"
+                              Margin="0,0,6,0"
+                              Content="Inf"
+                              IsChecked="{Binding CurrentContext.ShowInformation}" />
+                    <CheckBox Grid.Column="3"
+                              Margin="0,0,6,0"
+                              Content="Wrn"
+                              IsChecked="{Binding CurrentContext.ShowWarning}" />
+                    <CheckBox Grid.Column="4"
+                              Margin="0,0,6,0"
+                              Content="Err"
+                              IsChecked="{Binding CurrentContext.ShowError}" />
+                    <CheckBox Grid.Column="5"
+                              Margin="0,0,6,0"
+                              Content="Crt"
+                              IsChecked="{Binding CurrentContext.ShowCritical}" />
+
+                    <TextBox Grid.Column="7"
+                             VerticalAlignment="Center"
+                             ToolTip="Scope filter"
+                             Text="{Binding CurrentContext.ScopeFilter, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBox Grid.Column="9"
+                             VerticalAlignment="Center"
+                             ToolTip="Event filter"
+                             Text="{Binding CurrentContext.EventFilter, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBox Grid.Column="11"
+                             VerticalAlignment="Center"
+                             ToolTip="Category filter"
+                             Text="{Binding CurrentContext.CategoryFilter, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBox Grid.Column="13"
+                             VerticalAlignment="Center"
+                             ToolTip="Text filter"
+                             Text="{Binding CurrentContext.TextFilter, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+
+                <Grid Grid.Row="1"
+                      Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <CheckBox Grid.Column="0"
+                              Margin="0,0,6,0"
+                              Content="Time"
+                              IsChecked="{Binding CurrentContext.ShowTimestamp}" />
+                    <CheckBox Grid.Column="1"
+                              Margin="0,0,6,0"
+                              Content="Level"
+                              IsChecked="{Binding CurrentContext.ShowLevel}" />
+                    <CheckBox Grid.Column="2"
+                              Margin="0,0,6,0"
+                              Content="Scope"
+                              IsChecked="{Binding CurrentContext.ShowScope}" />
+                    <CheckBox Grid.Column="3"
+                              Margin="0,0,6,0"
+                              Content="Event"
+                              IsChecked="{Binding CurrentContext.ShowEvent}" />
+                    <CheckBox Grid.Column="4"
+                              Margin="0,0,6,0"
+                              Content="Category"
+                              IsChecked="{Binding CurrentContext.ShowCategory}" />
+                    <CheckBox Grid.Column="5"
+                              Margin="0,0,6,0"
+                              Content="Message"
+                              IsChecked="{Binding CurrentContext.ShowMessage}" />
+                    <CheckBox Grid.Column="6"
+                              Margin="0,0,6,0"
+                              Content="Auto"
+                              IsChecked="{Binding CurrentContext.AutoScroll}" />
+
+                    <Button Grid.Column="10"
+                            Margin="0,0,8,0"
+                            Padding="8,2"
+                            Command="{Binding CopySelectedCommand}"
+                            Content="Copy" />
+
+                    <Button Grid.Column="11"
+                            Margin="0,0,8,0"
+                            Padding="8,2"
+                            Command="{Binding CopyVisibleCommand}"
+                            Content="Copy All" />
+
+                    <Button Grid.Column="12"
+                            Padding="8,2"
+                            Command="{Binding ClearCommand}"
+                            Content="Clear" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ListView x:Name="LogList"
+                       Grid.Row="0"
+                       ItemsSource="{Binding LogsView}"
+                       SelectedItem="{Binding SelectedEntry}"
+                       attachedProperties:SelectedItem.Highlight="Outline"
+                       AlternationCount="2">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Style.Triggers>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="{DynamicResource ListBoxAlternateBackgroundBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn x:Name="TimestampColumn"
+                                        Width="95"
+                                        Header="Time">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Timestamp, StringFormat=HH:mm:ss.fff}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn x:Name="LevelColumn"
+                                        Width="90"
+                                        Header="Level"
+                                        DisplayMemberBinding="{Binding Level}" />
+                        <GridViewColumn x:Name="ScopeColumn"
+                                        Width="150"
+                                        Header="Scope"
+                                        DisplayMemberBinding="{Binding Scope}" />
+                        <GridViewColumn x:Name="EventColumn"
+                                        Width="130"
+                                        Header="Event"
+                                        DisplayMemberBinding="{Binding Event}" />
+                        <GridViewColumn x:Name="CategoryColumn"
+                                        Width="240"
+                                        Header="Category"
+                                        DisplayMemberBinding="{Binding Category}" />
+                        <GridViewColumn x:Name="MessageColumn"
+                                        Width="520"
+                                        Header="Message"
+                                        DisplayMemberBinding="{Binding Message}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <Expander Grid.Row="1"
+                      Margin="0,6,0,0"
+                      Header="Selected Details"
+                      IsExpanded="False">
+                <TextBox MinHeight="120"
+                         Padding="8"
+                         Background="Transparent"
+                         IsReadOnly="True"
+                         Text="{Binding SelectedEntry.ExceptionText}"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto" />
+            </Expander>
+        </Grid>
+    </DockPanel>
+</UserControl>

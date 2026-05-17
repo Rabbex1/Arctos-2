@@ -1,6 +1,7 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:helpers="clr-namespace:Arctos.Wpf.Helpers">
+                    xmlns:helpers="clr-namespace:Arctos.Wpf.Helpers"
+                    xmlns:attached="clr-namespace:Arctos.Wpf.AttachedProperties">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Brushes.xaml"/>
         <ResourceDictionary Source="ComboBoxStyle.xaml"/>
@@ -118,7 +119,7 @@
         <Setter Property="RowBackground" Value="{StaticResource DataGridBackgroundBrush}"/>
         <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource DataGridLineBrush}"/>
         <Setter Property="VerticalGridLinesBrush" Value="{StaticResource DataGridLineBrush}"/>
-        <Setter Property="Tag" Value="Solid"/>
+        <Setter Property="attached:SelectedItem.Highlight" Value="Solid"/>
         <Style.Resources>
             <Style x:Key="ColumnHeaderGripperStyle" TargetType="{x:Type Thumb}">
                 <Setter Property="Width" Value="8"/>
@@ -218,6 +219,68 @@
         </Style.Resources>
     </Style>
 
+    <Style TargetType="{x:Type DataGridRow}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="attached:SelectedItem.Highlight"
+                Value="{Binding Path=(attached:SelectedItem.Highlight), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGrid}}}" />
+        <Style.Triggers>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Outline"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="BorderBrush" Value="{DynamicResource DatGridHeaderHoverBackgroundBrush}"/>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Both"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="BorderBrush" Value="{DynamicResource DatGridHeaderHoverBackgroundBrush}"/>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Outline"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Selector.IsSelectionActive)}" Value="False"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="BorderBrush" Value="{DynamicResource SelectedUnfocusedBrush}"/>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Both"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Selector.IsSelectionActive)}" Value="False"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="BorderBrush" Value="{DynamicResource SelectedUnfocusedBrush}"/>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Outline"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Selector.IsSelectionActive)}" Value="True"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="BorderBrush" Value="{DynamicResource SelectedBorderBrush}"/>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Both"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Selector.IsSelectionActive)}" Value="True"/>
+                </MultiDataTrigger.Conditions>
+                <Setter Property="BorderBrush" Value="{DynamicResource SelectedBorderBrush}"/>
+            </MultiDataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style TargetType="{x:Type DataGridCell}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Background" Value="Transparent" />
@@ -227,7 +290,8 @@
         <Setter Property="MinHeight" Value="20" />
         <Setter Property="Margin" Value="0,1,0,0"/>
         <Setter Property="Padding" Value="4 2"></Setter>
-        <Setter Property="Tag" Value="Solid" />
+        <Setter Property="attached:SelectedItem.Highlight"
+                Value="{Binding Path=(attached:SelectedItem.Highlight), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGrid}}}" />
 
         <Setter Property="Template">
             <Setter.Value>
@@ -243,31 +307,109 @@
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True"/>
-                                <Condition Property="Tag" Value="Solid"></Condition>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Solid"></Condition>
                             </MultiTrigger.Conditions>
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource DatGridHeaderHoverBackgroundBrush}"/>
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True"/>
-                                <Condition Property="Tag" Value="Outline"></Condition>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Both"></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource DatGridHeaderHoverBackgroundBrush}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Outline"></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource DatGridHeaderHoverBackgroundBrush}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Both"></Condition>
                             </MultiTrigger.Conditions>
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource DatGridHeaderHoverBackgroundBrush}"/>
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="True"/>
-                                <Condition Property="Tag" Value="Solid"></Condition>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Solid"></Condition>
                             </MultiTrigger.Conditions>
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="True"/>
-                                <Condition Property="Tag" Value="Outline"></Condition>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Both"></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Outline"></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource SelectedUnfocusedBrush}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Outline"></Condition>
                             </MultiTrigger.Conditions>
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource SelectedBorderBrush}"/>
                         </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Both"></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource SelectedUnfocusedBrush}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                <Condition Property="attached:SelectedItem.Highlight" Value="Both"></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource SelectedBorderBrush}"/>
+                        </MultiTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Outline"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Both"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Outline"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectionUnit}" Value="FullRow"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(attached:SelectedItem.Highlight)}" Value="Both"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
+                        </MultiDataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
