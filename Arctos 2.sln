@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11819.183
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos", "Arctos\Arctos.csproj", "{FA740EDF-DC0F-4AA2-6FAA-F78ED574E68B}"
 EndProject
@@ -16,6 +16,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Wpf.Charts", "Arctos.Wpf.Charts\Arctos.Wpf.Charts.csproj", "{4A196515-0EF5-5F0C-6513-566C708C48C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Wpf.Inputs", "Arctos.Wpf.Inputs\Arctos.Wpf.Inputs.csproj", "{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Nodes.Wpf", "Arctos.Nodes.Wpf\Arctos.Nodes.Wpf.csproj", "{06443386-8475-4F68-A106-F6194169839B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Nodes", "Arctos.Nodes\Arctos.Nodes.csproj", "{8FD6CB77-6512-4026-B37F-72A548E8B459}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Nodes.Testing", "Arctos.Nodes.Testing\Arctos.Nodes.Testing.csproj", "{DD30F0BF-FF1C-4409-9C3C-7D3AD7BDD4F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nodes", "Nodes", "{32B4BF5E-DC64-4951-B9E7-EB91614BDE47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arctos.Nodes.Blazor", "Arctos.Nodes.Blazor\Arctos.Nodes.Blazor.csproj", "{DCD8093C-C872-4BC9-8A44-F4EB8B6ECF3A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{0425C755-6D64-494D-A74D-425C7EBD3AFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,9 +63,32 @@ Global
 		{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC7CA610-28DE-48E5-A9A5-D6D9240C0FDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06443386-8475-4F68-A106-F6194169839B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06443386-8475-4F68-A106-F6194169839B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06443386-8475-4F68-A106-F6194169839B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06443386-8475-4F68-A106-F6194169839B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FD6CB77-6512-4026-B37F-72A548E8B459}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FD6CB77-6512-4026-B37F-72A548E8B459}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FD6CB77-6512-4026-B37F-72A548E8B459}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FD6CB77-6512-4026-B37F-72A548E8B459}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD30F0BF-FF1C-4409-9C3C-7D3AD7BDD4F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD30F0BF-FF1C-4409-9C3C-7D3AD7BDD4F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD30F0BF-FF1C-4409-9C3C-7D3AD7BDD4F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD30F0BF-FF1C-4409-9C3C-7D3AD7BDD4F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD8093C-C872-4BC9-8A44-F4EB8B6ECF3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD8093C-C872-4BC9-8A44-F4EB8B6ECF3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD8093C-C872-4BC9-8A44-F4EB8B6ECF3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD8093C-C872-4BC9-8A44-F4EB8B6ECF3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{06443386-8475-4F68-A106-F6194169839B} = {32B4BF5E-DC64-4951-B9E7-EB91614BDE47}
+		{8FD6CB77-6512-4026-B37F-72A548E8B459} = {32B4BF5E-DC64-4951-B9E7-EB91614BDE47}
+		{DD30F0BF-FF1C-4409-9C3C-7D3AD7BDD4F6} = {0425C755-6D64-494D-A74D-425C7EBD3AFF}
+		{DCD8093C-C872-4BC9-8A44-F4EB8B6ECF3A} = {32B4BF5E-DC64-4951-B9E7-EB91614BDE47}
+		{0425C755-6D64-494D-A74D-425C7EBD3AFF} = {32B4BF5E-DC64-4951-B9E7-EB91614BDE47}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7912AB52-CECE-4F55-8E1E-05186DD50F08}

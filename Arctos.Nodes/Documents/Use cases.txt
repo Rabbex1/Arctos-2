@@ -1,0 +1,390 @@
+﻿
+JanusCMT Use Case
+=================
+
+Arctos.Nodes can be used inside JanusCMT.Studio as the primary graphical editor for:
+
+- `.cmtp` device profiles
+- `.cmtr` routine packages
+- higher-level orchestration built from routines and devices
+
+The important architectural point is that the node editor should not deal with Janus files directly.
+Instead, JanusCMT should:
+
+- load `.cmtp` / `.cmtr` files into domain objects such as `Profile`, `RoutinePackage`, and `Routine`
+- project those domain objects into node graph view models for editing
+- map the edited graph back into the Janus domain objects
+- save the updated domain objects back to `.cmtp` / `.cmtr`
+
+This keeps Arctos.Nodes generic while still making it useful as a Janus authoring surface.
+
+
+1. Graphical `.cmtp` Editing
+----------------------------
+
+For profiles, the node editor can provide a visual way to define and inspect:
+
+- profile identity
+- transport and protocol selection
+- transport/protocol settings
+- operations
+- operation parameters
+- step sequences within operations
+- translators
+- unsolicited message listeners/receivers later on
+
+Typical visual approach:
+
+- one node per operation
+- ports representing parameters and outputs
+- expandable detail panels for step definitions
+- grouped regions for identity, transport, protocol, and listener definitions
+
+This would make `.cmtp` authoring easier for non-coders while still preserving the underlying file format as the source of truth.
+
+
+2. Graphical `.cmtr` Editing
+----------------------------
+
+For routine packages, the node editor can be used as a visual editor for:
+
+- routines
+- inputs
+- `invoke`
+- `if / else`
+- `switch`
+- `wait`
+- `until`
+- `return`
+- `error`
+- lifecycle blocks such as `on start` and `on stop`
+
+The current `cmtr` language remains the persisted format, but the node graph becomes the primary authoring surface in Studio.
+
+This means Janus users do not need a separate language server or a VS Code-first workflow in order to build and debug routines.
+
+
+3. Higher-Level Orchestration
+-----------------------------
+
+Above `.cmtr`, Arctos.Nodes can also be used for higher-level orchestration, where the graph is not editing a single routine package but instead coordinating:
+
+- devices
+- default routine packages
+- standalone routine packages
+- event/listener flows
+- timed execution
+- future `ForLoop`, `TimedLoop`, `Event`, and `Cancel` execution modes
+
+In this mode, the graph becomes a visual orchestration surface that sits above `cmtr v1.0` without forcing `cmtr` itself to become a full scripting language.
+
+
+4. Run vs Design/Debug in Studio
+--------------------------------
+
+JanusCMT.Studio is likely to operate in at least two distinct modes:
+
+- Run
+- Design/Debug
+
+Arctos.Nodes is mainly a Design/Debug tool in Janus.
+
+In Run mode:
+
+- operator panels and runtime tools are primary
+- editing tools may be hidden
+
+In Design/Debug mode:
+
+- profile editing tools
+- routine editing tools
+- orchestration tools
+- validation panels
+- step/routine testing tools
+
+become the primary workspace
+
+This makes the node editor part of a broader authoring/debugging experience rather than just a standalone canvas.
+
+
+5. Why This Fits JanusCMT
+-------------------------
+
+Using Arctos.Nodes this way gives JanusCMT several advantages:
+
+- no need to invent a second graphical DSL
+- no need to build a VS Code language server just to get a usable editor
+- visual editing remains possible for non-coders
+- raw `.cmtp` / `.cmtr` files still remain portable and editable outside Studio
+- AI-assisted authoring is still possible because the underlying files and objects remain explicit
+
+In short, Arctos.Nodes can become the visual authoring layer for JanusCMT while Janus itself remains centered on explicit file formats and deterministic runtime behavior.
+
+
+
+Eric Use Case
+=============
+
+Arctos.Nodes can be used inside Erric as the primary graphical authoring surface for Eric package graphs.
+
+That includes:
+
+- agent composition graphs for Input, Validation, and Delivery stages
+- execution graphs that define how Irrec expands and routes JobTasks
+- reusable node libraries and composite nodes
+- future authoring profile visualisation and inspection tooling
+
+The important architectural point is that the node editor should not deal with Eric runtime objects directly.
+Instead, Eric should:
+
+- load `.eric` package data into domain objects such as `EricPackage`, `GraphDefinition`, `NodeDefinition`, and `AgentProfile`
+- project those domain objects into node graph view models for editing
+- map edited node graphs back into package domain objects
+- run compile and validation passes against the package model, not against editor state
+
+This keeps Arctos.Nodes generic while allowing it to serve as the visual graph editor for Erric.
+
+
+1. Agent Graph Authoring
+------------------------
+
+Eric needs authorable graphs for stages that are not worker execution graphs, especially:
+
+- InputAgent flows
+- ValidationAgent flows
+- DeliveryAgent flows
+
+Examples:
+
+- manual order intake
+- Etsy polling and intake
+- webhook intake
+- manual delivery queue handling
+- HTTP callback delivery
+
+The node editor can present these as bounded declarative graphs built from Eric's core node vocabulary rather than ad hoc scripting.
+
+Typical visual approach:
+
+- one node per Eric node kind
+- typed ports for JobCard, JobTask, Artifact, and stage-specific payloads
+- detail panels for node configuration data
+- grouped regions or subgraphs for stage boundaries
+
+This gives Eric a usable authoring surface without turning the runtime into a programming language.
+
+
+2. Execution Graph Authoring
+----------------------------
+
+For Irrec execution graphs, Arctos.Nodes can be used to visually define:
+
+- task expansion
+- routing
+- worker execution
+- joins
+- artifact handling
+- state-related transitions and control nodes
+
+In Eric, the graph is not the runtime itself.
+It is a declarative package artifact that Irrec compiles into deterministic runtime behavior.
+
+That means the editor should support:
+
+- DAG validation feedback
+- typed edge validation
+- visibility of task dependency structure
+- visual distinction between orchestration nodes and worker-backed execution nodes
+
+
+3. Composite and Library Authoring
+----------------------------------
+
+Eric packages will likely contain reusable:
+
+- node libraries
+- composite nodes
+- packaged agent definitions
+
+Arctos.Nodes can be used to author and inspect these in a way that makes composition explicit.
+
+This is especially important for Eric because reusable authoring assets must remain inspectable.
+A composite node should not become a black box that hides orchestration semantics from the user.
+
+Useful editor capabilities here would include:
+
+- collapsing and expanding composite graphs
+- showing port mappings between outer and inner graphs
+- exposing metadata for execution boundaries and library identity
+
+
+4. Compiler and Simulation Integration
+--------------------------------------
+
+Erric is not just a node editor.
+It is a package authoring workbench with:
+
+- compile validation
+- problem lists
+- deterministic simulation
+- activation gates
+
+Arctos.Nodes would sit at the center of that experience as the visual surface, while Eric-specific services provide:
+
+- compile diagnostics
+- graph validation overlays
+- simulation traces
+- navigation from problems back to nodes, ports, and config fields
+
+So the editor should be thought of as one layer in a broader authoring pipeline:
+
+package model -> node editor projection -> edited graph -> compiler/simulator -> validated package
+
+
+5. Why This Fits Eric
+---------------------
+
+Using Arctos.Nodes this way gives Eric several advantages:
+
+- Eric gets a visual graph editor without making the node editor runtime-specific
+- package graphs remain explicit data rather than editor-only state
+- Erric can support both visual authoring and structured AI-assisted draft generation
+- Irrec stays deterministic because the editor is authoring-only and never owns runtime semantics
+- reusable graph assets become easier to inspect, debug, and share
+
+In short, Arctos.Nodes can become the visual authoring layer for Erric while Eric itself remains centered on explicit package definitions, deterministic runtime behavior, and compiler-validated orchestration.
+
+
+Scenix Use Case
+=============
+
+Scenix is a graphics rendering orchastration APP. It currently uses a tree structure to describe the OpenTK render
+Pipeline but we ultamately want to replace that with a Node based version similar in style to the one used in Blender.
+
+
+NetMap Use Case
+===============
+
+Arctos.Nodes can be used inside NetMap as the primary visual surface for authoring, navigating, and launching operational network maps.
+
+The important architectural point is that the node editor should not deal with browser tabs, local helper launch requests, or SQL records directly.
+Instead, NetMap should:
+
+- load map records into domain objects such as `NetworkMap`, `NetworkNode`, `NodeAction`, `CredentialProfileRef`, and `NetworkGroup`
+- project those domain objects into node graph view models for editing and navigation
+- map edited graph state back into the NetMap domain model
+- keep launch behavior, permissions, and helper-service interaction outside the generic node editor
+
+This keeps Arctos.Nodes generic while still making it useful as the visual operational surface for NetMap.
+
+
+1. Multi-Network Authoring and Navigation
+-----------------------------------------
+
+NetMap is likely to be page or tab based, with each network represented as its own graph document.
+
+That allows users to work with:
+
+- multiple customer or lab networks
+- shared operational maps
+- personal or hidden maps
+- local-only maps for isolated work
+
+The node editor becomes the main visual workspace for each map, while NetMap itself handles:
+
+- persistence to SQL or local storage
+- access control and visibility rules
+- import/export of map documents
+- switching between multiple open network tabs
+
+This means the graph editor is authoring and navigation infrastructure, not the storage model.
+
+
+2. Device and Subsystem Mapping
+-------------------------------
+
+In NetMap, a node should not be limited to a single URL.
+A node more naturally represents a device, VM, service, or subsystem that may expose multiple access paths.
+
+Typical examples include:
+
+- web UI
+- SSH
+- RDP
+- WinSCP
+- vendor tools
+- documentation links
+
+Typical visual approach:
+
+- one node per device or subsystem
+- optional ports where relationships or signal paths matter
+- grouped nodes for sites, racks, VLANs, subnets, or logical systems
+- detail panels for hostnames, IPs, notes, tags, and actions
+
+This makes the graph useful as both a topology view and an operational launcher.
+
+
+3. Action and Credential Integration
+------------------------------------
+
+NetMap needs to model more than topology.
+It also needs to represent how an operator actually reaches and manages a device.
+
+That means each node may contain multiple actions such as:
+
+- `OpenUrl`
+- `LaunchSsh`
+- `LaunchRdp`
+- `LaunchWinScp`
+- `CustomTool`
+
+These actions should reference domain objects such as `CredentialProfileRef` rather than embedding secrets directly in the graph.
+
+The node editor should therefore support:
+
+- visual indication that a node has multiple available actions
+- primary/default action selection
+- context or detail views that expose all configured actions
+- mapping between node actions and credential/profile references
+
+The actual credential retrieval and tool launching remains outside Arctos.Nodes and inside NetMap services and the local helper.
+
+
+4. Shared vs Personal Operational Maps
+--------------------------------------
+
+NetMap is likely to support both team-visible maps and user-specific maps.
+That means the node editor must work equally well whether a graph is:
+
+- shared and SQL-backed
+- personal but still server-backed
+- hidden from other users
+- local-only for isolated/private work
+
+The editor should not own those rules, but it should be capable of surfacing them through metadata and overlays.
+
+Useful capabilities here would include:
+
+- map metadata panels
+- visual badges for shared/personal/local status
+- optional lock or hidden indicators
+- import/export support for moving maps between storage modes
+
+This allows NetMap to provide privacy and portability without changing the graph model itself.
+
+
+5. Why This Fits NetMap
+-----------------------
+
+Using Arctos.Nodes this way gives NetMap several advantages:
+
+- NetMap gets a reusable visual graph surface without making the node editor network-tool specific
+- operational maps remain explicit data rather than browser-only state
+- multiple access methods can be modeled cleanly per node
+- local helper integration stays outside the editor, where it belongs
+- shared, personal, and local map modes can all use the same graph surface
+
+In short, Arctos.Nodes can become the visual authoring and navigation layer for NetMap while NetMap itself remains centered on map persistence, access control, credential management, and launch integration.
+
+

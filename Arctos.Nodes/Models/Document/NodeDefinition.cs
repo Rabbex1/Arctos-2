@@ -1,0 +1,48 @@
+using System.Collections.Generic;
+
+namespace Arctos.Nodes.Models;
+
+/// <summary>
+/// Defines a reusable application-facing node available inside a node library.
+/// </summary>
+public sealed class NodeDefinition
+{
+    #region Properties
+
+    /// <summary>
+    /// Gets or sets the stable node type name used by the owning application and toolbox.
+    /// </summary>
+    public required string TypeName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the human-readable node display name.
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the application-defined domain meaning of the node type, such as <c>Server</c> or <c>Routine</c>.
+    /// </summary>
+    public required string DomainType { get; set; }
+
+    /// <summary>
+    /// Gets or sets the primitive editor shape used by the node.
+    /// </summary>
+    public NodeShape NodeShape { get; set; } = NodeShape.RoundedRectangle;
+
+    /// <summary>
+    /// Gets or sets the optional SVG icon used to visually identify the node.
+    /// </summary>
+    public string? IconSvg { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional style override for the node definition. When <see langword="null"/>, the definition inherits the document style.
+    /// </summary>
+    public NodeStyle? Style { get; set; }
+
+    /// <summary>
+    /// Gets the application-defined input components associated with the node definition.
+    /// </summary>
+    public List<NodeComponent> Components { get; set; } = [];
+
+    #endregion Properties
+}

@@ -1,0 +1,169 @@
+You are working in a C# repository for a reusable cross-platform node editor family built around:
+
+- `Arctos.Nodes`
+- `Arctos.Nodes.Wpf`
+- `Arctos.Nodes.Avalonia`
+- `Arctos.Nodes.Blazor`
+
+Your job is to help build the shared node editor cleanly and consistently.
+
+## Project Goal
+
+Arctos.Nodes is a reusable node editor intended to support multiple products and hosts, including future desktop and web tools.
+
+The node editor must not be application specific. It should operate on common graph abstractions and host-neutral view models, with each host/product responsible for mapping its own domain objects into the node graph.
+
+## Architectural Intent
+
+### 1. Shared Core, Thin Hosts
+
+`Arctos.Nodes` should contain the shared logic:
+
+- graph contracts
+- graph view models
+- layout logic
+- interaction logic
+- selection
+- panning / zooming
+- connection routing rules
+- rendering model
+
+Host-specific projects should stay thin:
+
+- `Arctos.Nodes.Wpf`
+  - WPF control integration
+  - input plumbing
+  - WPF-specific hosting concerns
+- `Arctos.Nodes.Avalonia`
+  - Avalonia hosting concerns
+- `Arctos.Nodes.Blazor`
+  - browser/WebAssembly hosting concerns
+
+Do not let host-specific concerns leak back into the shared project.
+
+### 2. Domain Objects, Not Files
+
+The node editor must work with in-memory objects and graph view models, not product-specific files.
+
+Examples:
+
+- a host/product should map its own domain objects into node graph models
+- a different host/product should be able to do the same without changing the shared editor core
+
+The node editor should not know anything about:
+
+- product-specific file formats
+- host-specific document systems
+- domain-specific persistence formats
+
+Persistence of host/product files belongs outside the editor.
+
+The editor may persist and reload its own host-neutral graph data where useful, for example:
+
+- graph layout
+- node positions
+- editor state
+- temporary scene or graph storage used during development
+
+### 3. Generic Graph Contracts
+
+Prefer a small reusable contract surface such as:
+
+- `INodeGraphVM`
+- `INodeVM`
+- `IPortVM`
+- `IConnectionVM`
+- optional grouping/comment abstractions if needed
+
+Keep these generic and product-neutral.
+
+### 4. Rendering Direction
+
+The intended rendering direction is Skia-based rather than raw OpenGL/WebGL.
+
+Design the shared editor so the rendering model is portable across:
+
+- WPF
+- Avalonia
+- Blazor
+
+Avoid assumptions that bind the core editor to one UI stack.
+
+The shared editor should also avoid unnecessary dependencies on:
+
+- dependency injection frameworks
+- shell frameworks
+- document frameworks
+- host-specific messaging systems
+
+### 5. Modes and Tooling
+
+The editor should support both:
+
+- run/operator style host usage
+- design/debug style authoring usage
+
+But mode switching belongs to the host application, not to the shared node editor core.
+
+## Scope Rules
+
+For this phase:
+
+- DO build:
+  - reusable graph contracts
+  - reusable graph view models
+  - shared interaction patterns
+  - shared rendering-oriented abstractions
+  - thin platform adapters
+  - host-neutral graph/layout save and reload support where useful for testing and shared editing
+- DO NOT build:
+  - product-specific file handling in the node editor
+  - product-specific assumptions
+  - a giant visual scripting engine
+  - unnecessary framework abstractions
+
+### Refactoring Rules
+
+- Do not perform large-scale style-only rewrites unless asked.
+- If touching an existing file, improve style only in the area being changed unless a broader cleanup is requested.
+- Preserve behavior unless the task is specifically to change it.
+
+## Collaboration Rules
+
+- If there are multiple valid implementation paths with non-obvious tradeoffs, pause and confirm before committing to one.
+- If something looks unsafe, fragile, or architecturally inconsistent, explain it clearly and suggest the safest path.
+- Keep the editor generic enough that multiple hosts/products can each adapt their own domain objects to it.
+
+## Working Mindset
+
+The default mindset should be:
+
+- generic graph editor first
+- product-specific mapping second
+- host-specific integration last
+
+## Project Structure
+
+- The project will start with 4 Visual Studio library projects, plus 2 test bed apps (TBA)
+  - Arctos.Nodes
+  - Arctos.Nodes.Wpf
+  - Arctos.Nodes.Avalonia
+  - Arctos.Nodes.Blazor
+
+## Work Flow
+
+- DO NOT:
+  - Write any code yet.
+  - Make assumptions regarding the overall architecture.
+- DO
+  - Discuss architecture design.
+  - Assist in developing a Roadmap
+  - Assist in defining milestones.
+
+## Documents
+- All documents will be located in the repository `Documents` folder.
+- All documents should be in .md format.
+- `Roadmap.md` should have an overview of the project and its direction.
+- `Milestones.md` should be a breakdown of the steps required. i.e. `M1`, `M1.1` ... `M2`, `M2.1` ....
+
+The goal is a reusable, cleanly structured node editor family rather than a one-off control built around a single product.
