@@ -78,6 +78,28 @@ Applications remain responsible for:
 - runtime execution semantics
 - mapping between domain objects and editor state
 
+## Current Artifact Direction
+
+The persisted artifact split is now becoming clearer:
+
+- `.nmap`
+  - map file
+  - settings
+  - graph
+  - local library and/or external library references
+- `.nlib`
+  - shared library file
+  - reusable node definitions only
+
+The in-memory resolved model is:
+
+- `NodeMap`
+  - settings
+  - graph
+  - references to loaded in-memory libraries
+
+This direction reduces duplication while still allowing fully self-contained maps where needed.
+
 ## Architectural Principles
 
 ### 1. Generic Editor, App-Specific Nodes
@@ -177,14 +199,20 @@ These should be treated as different UI entry points into the same creation mode
 
 The following terms should be used consistently:
 
+- `Node Map`
+  - the in-memory resolved model used by the Nodes system
+- `Node Map File`
+  - the persisted `.nmap` artifact
+- `Node Library File`
+  - the persisted `.nlib` artifact
 - `Node Definition`
   - the app-defined description of a node built from a `NodeShape` and core-supported capabilities
 - `Node Instance`
   - a placed occurrence of a node inside a graph
 - `Node Library`
-  - the set of node definitions a document exposes to the editor
+  - the set of node definitions a map or shared library exposes to the editor
 - `Node Graph`
-  - the actual placed graph content when the document contains one
+  - the actual placed graph content when the map contains one
 - `Core Capability Catalog`
   - the set of structural and visual primitives Arctos.Nodes supports
 

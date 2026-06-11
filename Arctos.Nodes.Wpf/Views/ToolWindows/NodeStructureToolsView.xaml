@@ -1,0 +1,8 @@
+<UserControl x:Class="Arctos.Nodes.Wpf.Views.ToolWindows.NodeStructureToolsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="12">
+        <ContentPresenter Content="{Binding ActiveNodeDocument}"
+                          ContentTemplateSelector="{StaticResource NodeStructureTemplateSelector}" />
+    </Grid>
+</UserControl>

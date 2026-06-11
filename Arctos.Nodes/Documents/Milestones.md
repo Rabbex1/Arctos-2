@@ -136,8 +136,22 @@ For `V1.0`, inline editing inside the canvas should be deferred in favor of exte
 This milestone item should also confirm the editor operation mode split:
 
 - `LibraryEdit`
-- `TreeEdit`
+- `GraphEdit`
 - `Run`
+
+### M1.13 - Define Map and Library File Artifacts
+
+Confirm and document the persisted artifact split:
+
+- `.nmap`
+- `.nlib`
+
+This milestone item should lock down:
+
+- the persisted `NodeMapFile` shape
+- the persisted `NodeLibraryFile` shape
+- the resolved `NodeMap` in-memory shape
+- the rule that a resolved map uses references to loaded in-memory libraries rather than duplicating them
 
 ### M1.11 - Define Platform Hosting Direction
 

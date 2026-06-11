@@ -54,6 +54,8 @@ namespace Arctos.Wpf.Inputs
 
         public int ValueColumnSpan => Icon != null ? 1 : 2;
 
+        public Action? OnInputChanged { get; set; }
+
         #endregion Properties
 
         public static void RegisterExtension(Func<string, object?, Action<object>?, DataInputWrapperVM?> factory)
@@ -118,6 +120,7 @@ namespace Arctos.Wpf.Inputs
             {
                 SetProperty(ref _value, value);
                 OnChange?.Invoke(value);
+                NotifyInputChanged();
             }
         }
         #endregion
@@ -185,6 +188,11 @@ namespace Arctos.Wpf.Inputs
         #endregion
 
         #endregion Commands
+
+        protected void NotifyInputChanged()
+        {
+            OnInputChanged?.Invoke();
+        }
 
 
     }

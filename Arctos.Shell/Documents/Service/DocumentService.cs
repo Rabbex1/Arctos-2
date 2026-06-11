@@ -136,7 +136,7 @@ namespace Arctos.Shell.Documents
                 CloseIfNotSaved = Dialogs.CloseDocument.Yes
             };
             dialog.DialogClosing += OnSaveChangesClosing;
-            WeakReferenceMessenger.Default.Send(new AppMessage(this, AppAction.ShowDialog, [dialog]));
+            _dialogService.Show(dialog);
         }
 
         public void CloseAllDocuments(IDocumentVM? except = null)
@@ -190,7 +190,8 @@ namespace Arctos.Shell.Documents
             {
                 if (sourceKey != null)
                     _sourcesOpening.TryRemove(sourceKey, out _);
-                throw new FileNotFoundException($"\nNo document factory found for file: {metadata.Source}");
+                return null;
+                //throw new FileNotFoundException($"\nNo document factory found for file: {metadata.Source}");
             }
             var document = factory?.Create(metadata);
             if (document is not IFileDocumentVM fileDoc)
@@ -308,10 +309,10 @@ namespace Arctos.Shell.Documents
             {
                 Documents = changed,
                 CloseIfSaved = Dialogs.CloseDocument.No,
-                CloseIfNotSaved = Dialogs.CloseDocument.No
+                CloseIfNotSaved = Dialogs.CloseDocument.No,
             };
             dialog.DialogClosing += OnSaveChangesClosing;
-            WeakReferenceMessenger.Default.Send(new AppMessage(this, AppAction.ShowDialog, [dialog]));
+            _dialogService.Show(dialog);
             return dialog.WasCanceled;
         }
 

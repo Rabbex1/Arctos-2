@@ -8,12 +8,9 @@
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Dialogs/DialogDictionary.xaml" />
 
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/MenuStyle.xaml" />
-
-        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/MenuStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ButtonStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/TextBoxStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/TextBlockStyle.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ButtonStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ComboBoxStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/CheckBoxStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ListBoxStyle.xaml" />
@@ -27,6 +24,7 @@
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/SliderStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/GroupBoxStyle.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ProgressBarStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ToolBarStyle.xaml" />
 
         <ResourceDictionary Source="pack://application:,,,/Arctos.Wpf;component/Styles/ToggleSwitchStyle.xaml" />
 

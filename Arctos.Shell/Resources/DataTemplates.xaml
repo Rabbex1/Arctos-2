@@ -6,14 +6,14 @@
                     xmlns:menu="clr-namespace:Arctos.Shell.Menu"
                     xmlns:selectors="clr-namespace:Arctos.Shell.Selectors"
                     xmlns:toolbar="clr-namespace:Arctos.Shell.Toolbar"
-                    xmlns:options="clr-namespace:Arctos.Shell.Options">
+                    xmlns:options="clr-namespace:Arctos.Shell.Options"
+                    xmlns:dialogs="clr-namespace:Arctos.Shell.Dialogs">
 
     <valueConverters:StringToResourceConverter x:Key="String2Resource" />
 
     <selectors:MenuNodeTemplateSelector x:Key="MenuNodeTemplateSelector"/>
 
 
-    <!--<dialogs:SaveChangesDialogView x:Key="{x:Type dialogs:SaveChangesDialogVM}" x:Shared="False"/>-->
 
     <HierarchicalDataTemplate DataType="{x:Type menu:MenuVM}" ItemsSource="{Binding Children}">
         <MenuItem Header="{Binding DisplayName}"
@@ -78,13 +78,11 @@
                                              ToolBarTextBoxTemplate="{StaticResource ToolBarTextBoxTemplate}"
                                              ToolBarSeparatorTemplate="{StaticResource ToolBarSeparatorTemplate}"/>-->
 
-    <!--<DataTemplate DataType="{x:Type options:OptionsDialogVM}">
-        <options:OptionsDialogView/>
-    </DataTemplate>-->
-
     <DataTemplate DataType="{x:Type logging:LogToolWindowVM}">
         <logging:LogToolWindowView />
     </DataTemplate>
+
+    <dialogs:SaveChangesDialogView x:Key="{x:Type dialogs:SaveChangesDialogVM}" x:Shared="False"/>
 
     <options:OptionsDialogView x:Key="{x:Type options:OptionsDialogVM}" x:Shared="False"/>
 

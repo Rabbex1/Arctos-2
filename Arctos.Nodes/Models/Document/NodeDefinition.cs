@@ -35,6 +35,11 @@ public sealed class NodeDefinition
     public string? IconSvg { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the node definition supports a dedicated detailed view.
+    /// </summary>
+    public bool HasDetails { get; set; }
+
+    /// <summary>
     /// Gets or sets the optional style override for the node definition. When <see langword="null"/>, the definition inherits the document style.
     /// </summary>
     public NodeStyle? Style { get; set; }

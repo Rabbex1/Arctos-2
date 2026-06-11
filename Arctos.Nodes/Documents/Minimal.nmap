@@ -1,0 +1,326 @@
+{
+  "Id": "5f17b587-c75a-4f28-bca2-db18d143e52f",
+  "Settings": {
+    "FormatVersion": 1,
+    "ContainsGraph": true,
+    "StartupMode": 1,
+    "CanvasColor": {
+      "Red": 33,
+      "Green": 33,
+      "Blue": 33,
+      "Alpha": 255
+    },
+    "Name": "Minimal Test Map",
+    "DocumentType": "Test",
+    "RuntimeLibraryEdit": true,
+    "RuntimeGraphEdit": true
+  },
+  "Style": {
+    "ShapeStyle": {
+      "BackgroundColor": {
+        "Red": 230,
+        "Green": 230,
+        "Blue": 225,
+        "Alpha": 255
+      },
+      "BorderColor": {
+        "Red": 96,
+        "Green": 96,
+        "Blue": 92,
+        "Alpha": 255
+      },
+      "BorderThickness": 1,
+      "FontSize": 12,
+      "FontColor": {
+        "Red": 28,
+        "Green": 28,
+        "Blue": 30,
+        "Alpha": 255
+      },
+      "FontFamily": null,
+      "FontWeight": 400
+    },
+    "HeaderStyle": null,
+    "OverrideRules": {
+      "AllowStyleOverrides": true,
+      "AllowBorderOverrides": true,
+      "AllowFontOverrides": true,
+      "AllowHeaderOverrides": true
+    }
+  },
+  "LocalLibrary": {
+    "Name": null,
+    "Version": null,
+    "definitions": [
+      {
+        "TypeName": "RoundedRectNode",
+        "DisplayName": "Rounded Rectangle",
+        "DomainType": "Primitive",
+        "NodeShape": 0,
+        "IconSvg": null,
+        "HasDetails": true,
+        "Style": {
+          "ShapeStyle": {
+            "BackgroundColor": {
+              "Red": 41,
+              "Green": 76,
+              "Blue": 122,
+              "Alpha": 255
+            },
+            "BorderColor": {
+              "Red": 52,
+              "Green": 152,
+              "Blue": 219,
+              "Alpha": 255
+            },
+            "BorderThickness": 2,
+            "FontSize": 12,
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontFamily": null,
+            "FontWeight": 400
+          },
+          "HeaderStyle": null,
+          "OverrideRules": {
+            "AllowStyleOverrides": false,
+            "AllowBorderOverrides": false,
+            "AllowFontOverrides": false,
+            "AllowHeaderOverrides": false
+          }
+        },
+        "Components": [
+          {
+            "Id": "name",
+            "DisplayName": "Name",
+            "Description": null,
+            "TypeId": "string",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": "Rounded Rectangle"
+          }
+        ]
+      },
+      {
+        "TypeName": "RectNode",
+        "DisplayName": "Rectangle",
+        "DomainType": "Primitive",
+        "NodeShape": 1,
+        "IconSvg": null,
+        "HasDetails": false,
+        "Style": {
+          "ShapeStyle": {
+            "BackgroundColor": {
+              "Red": 26,
+              "Green": 48,
+              "Blue": 77,
+              "Alpha": 255
+            },
+            "BorderColor": {
+              "Red": 25,
+              "Green": 73,
+              "Blue": 105,
+              "Alpha": 255
+            },
+            "BorderThickness": 2,
+            "FontSize": 12,
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontFamily": null,
+            "FontWeight": 400
+          },
+          "HeaderStyle": null,
+          "OverrideRules": {
+            "AllowStyleOverrides": false,
+            "AllowBorderOverrides": false,
+            "AllowFontOverrides": false,
+            "AllowHeaderOverrides": false
+          }
+        },
+        "Components": [
+          {
+            "Id": "name",
+            "DisplayName": "Name",
+            "Description": null,
+            "TypeId": "string",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": "Rectangle"
+          }
+        ]
+      },
+      {
+        "TypeName": "DiamondNode",
+        "DisplayName": "Diamond",
+        "DomainType": "Primitive",
+        "NodeShape": 2,
+        "IconSvg": null,
+        "HasDetails": false,
+        "Style": {
+          "ShapeStyle": {
+            "BackgroundColor": {
+              "Red": 41,
+              "Green": 76,
+              "Blue": 122,
+              "Alpha": 255
+            },
+            "BorderColor": {
+              "Red": 52,
+              "Green": 152,
+              "Blue": 219,
+              "Alpha": 255
+            },
+            "BorderThickness": 2,
+            "FontSize": 12,
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontFamily": null,
+            "FontWeight": 400
+          },
+          "HeaderStyle": null,
+          "OverrideRules": {
+            "AllowStyleOverrides": false,
+            "AllowBorderOverrides": false,
+            "AllowFontOverrides": false,
+            "AllowHeaderOverrides": false
+          }
+        },
+        "Components": [
+          {
+            "Id": "name",
+            "DisplayName": "Name",
+            "Description": null,
+            "TypeId": "string",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": "Diamond"
+          }
+        ]
+      },
+      {
+        "TypeName": "CircleNode",
+        "DisplayName": "Circle",
+        "DomainType": "Primitive",
+        "NodeShape": 3,
+        "IconSvg": null,
+        "HasDetails": false,
+        "Style": {
+          "ShapeStyle": {
+            "BackgroundColor": {
+              "Red": 41,
+              "Green": 76,
+              "Blue": 122,
+              "Alpha": 255
+            },
+            "BorderColor": {
+              "Red": 52,
+              "Green": 152,
+              "Blue": 219,
+              "Alpha": 255
+            },
+            "BorderThickness": 2,
+            "FontSize": 12,
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontFamily": null,
+            "FontWeight": 400
+          },
+          "HeaderStyle": null,
+          "OverrideRules": {
+            "AllowStyleOverrides": false,
+            "AllowBorderOverrides": false,
+            "AllowFontOverrides": false,
+            "AllowHeaderOverrides": false
+          }
+        },
+        "Components": [
+          {
+            "Id": "name",
+            "DisplayName": "Name",
+            "Description": null,
+            "TypeId": "string",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": "Circle"
+          }
+        ]
+      },
+      {
+        "TypeName": "CapsuleNode",
+        "DisplayName": "Capsule",
+        "DomainType": "Primitive",
+        "NodeShape": 4,
+        "IconSvg": null,
+        "HasDetails": false,
+        "Style": {
+          "ShapeStyle": {
+            "BackgroundColor": {
+              "Red": 41,
+              "Green": 76,
+              "Blue": 122,
+              "Alpha": 255
+            },
+            "BorderColor": {
+              "Red": 52,
+              "Green": 152,
+              "Blue": 219,
+              "Alpha": 255
+            },
+            "BorderThickness": 2,
+            "FontSize": 12,
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontFamily": null,
+            "FontWeight": 400
+          },
+          "HeaderStyle": null,
+          "OverrideRules": {
+            "AllowStyleOverrides": false,
+            "AllowBorderOverrides": false,
+            "AllowFontOverrides": false,
+            "AllowHeaderOverrides": false
+          }
+        },
+        "Components": [
+          {
+            "Id": "name",
+            "DisplayName": "Name",
+            "Description": null,
+            "TypeId": "string",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": "Capsule"
+          }
+        ]
+      }
+    ]
+  },
+  "LibraryReferences": [],
+  "Graph": {
+    "Nodes": []
+  }
+}

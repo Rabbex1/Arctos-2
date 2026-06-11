@@ -54,6 +54,7 @@ namespace Arctos.Wpf.Inputs
                 SetProperty(ref _dateTimeString, formatted, nameof(DateTimeString));
                 OnPropertyChanged();
                 OnChange?.Invoke(value);
+                NotifyInputChanged();
             }
         }
 

@@ -9,9 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Arctos.Wpf.Inputs\Arctos.Wpf.Inputs.csproj" />
     <ProjectReference Include="..\\Arctos.Nodes\\Arctos.Nodes.csproj" />
     <ProjectReference Include="..\\Arctos\\Arctos.csproj" />
     <ProjectReference Include="..\\Arctos.Shell\\Arctos.Shell.csproj" />

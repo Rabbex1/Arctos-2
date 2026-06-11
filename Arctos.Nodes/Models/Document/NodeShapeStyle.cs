@@ -10,17 +10,17 @@ public sealed class NodeShapeStyle
     /// <summary>
     /// Gets or sets the node background color.
     /// </summary>
-    public NodeColor BackgroundColor { get; set; } = NodeColor.Transparent;
+    public NodeColor BackgroundColor { get; set; } = NodeColor.Blues.Dark;
 
     /// <summary>
     /// Gets or sets the node border color.
     /// </summary>
-    public NodeColor BorderColor { get; set; } = NodeColor.Black;
+    public NodeColor BorderColor { get; set; } = NodeColor.Blues.Base;
 
     /// <summary>
     /// Gets or sets the node border thickness.
     /// </summary>
-    public float BorderThickness { get; set; } = 1.0f;
+    public float BorderThickness { get; set; } = 2.0f;
 
     /// <summary>
     /// Gets or sets the main node font size.

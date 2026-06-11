@@ -1,0 +1,50 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:documentViewModels="clr-namespace:Arctos.Nodes.Wpf.ViewModels.Documents"
+                    xmlns:documentViews="clr-namespace:Arctos.Nodes.Wpf.Views.Documents"
+                    xmlns:nodeViewModels="clr-namespace:Arctos.Nodes.Wpf.ViewModels"
+                    xmlns:nodeViews="clr-namespace:Arctos.Nodes.Wpf.Views"
+                    xmlns:selectors="clr-namespace:Arctos.Nodes.Wpf.Selectors"
+                    xmlns:skiaViews="clr-namespace:Arctos.Nodes.Wpf.Views"
+                    xmlns:viewModels="clr-namespace:Arctos.Nodes.Wpf.ViewModels.ToolWindows"
+                    xmlns:views="clr-namespace:Arctos.Nodes.Wpf.Views.ToolWindows">
+    <DataTemplate DataType="{x:Type documentViewModels:NodeMapDocumentVM}">
+        <documentViews:NodeDocumentView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type documentViewModels:NodeLibraryDocumentVM}">
+        <documentViews:NodeDocumentView />
+    </DataTemplate>
+
+    <DataTemplate x:Key="NodeMapDocumentTemplate">
+        <ContentPresenter Content="{Binding NodeMap}" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="NodeLibraryDocumentTemplate">
+        <ContentPresenter Content="{Binding NodeLibrary}" />
+    </DataTemplate>
+
+    <selectors:NodeStructureTemplateSelector x:Key="NodeStructureTemplateSelector"
+                                             NodeMapDocumentTemplate="{StaticResource NodeMapDocumentTemplate}"
+                                             NodeLibraryDocumentTemplate="{StaticResource NodeLibraryDocumentTemplate}" />
+
+    <DataTemplate DataType="{x:Type nodeViewModels:NodeMapVM}">
+        <nodeViews:NodeMapView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type nodeViewModels:NodeLibraryVM}">
+        <nodeViews:NodeLibraryView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type nodeViewModels:SkiaHostVM}">
+        <skiaViews:SkiaHostView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:NodeStructureToolsVM}">
+        <views:NodeStructureToolsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:NodeEditToolsVM}">
+        <views:NodeEditToolsView />
+    </DataTemplate>
+</ResourceDictionary>

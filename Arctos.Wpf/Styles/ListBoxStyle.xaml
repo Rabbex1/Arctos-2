@@ -46,7 +46,8 @@
         <Setter Property="Padding" Value="2" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="attached:SelectedItem.Highlight" Value="Solid"/>
+        <Setter Property="attached:SelectedItem.Highlight"
+                Value="{Binding Path=(attached:SelectedItem.Highlight), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">

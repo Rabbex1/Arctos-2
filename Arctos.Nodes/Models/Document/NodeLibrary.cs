@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Arctos.Nodes.Models;
 
 /// <summary>
-/// Represents the node library used by a graph document.
+/// Represents a reusable node library.
 /// </summary>
+[JsonConverter(typeof(NodeLibraryJsonConverter))]
 public sealed class NodeLibrary : IEnumerable<NodeDefinition>
 {
     #region Fields
@@ -17,14 +19,39 @@ public sealed class NodeLibrary : IEnumerable<NodeDefinition>
     #region Properties
 
     /// <summary>
+    /// Gets or sets the logical library name used for shared library resolution.
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// Gets or sets the logical library version used for shared library resolution.
+    /// </summary>
+    public string? Version { get; set; }
+
+    /// <summary>
     /// Gets the number of node definitions in the library.
     /// </summary>
+    [JsonIgnore]
     public int Count => _definitions.Count;
 
     /// <summary>
-    /// Gets the node definitions stored in the library.
+    /// Gets or sets the node definitions stored in the library.
     /// </summary>
-    public IEnumerable<NodeDefinition> Definitions => _definitions.Values;
+    [JsonPropertyName("definitions")]
+    public List<NodeDefinition> Definitions
+    {
+        get => [.. _definitions.Values];
+        set
+        {
+            _definitions.Clear();
+
+            if (value == null)
+                return;
+
+            foreach (var definition in value)
+                Add(definition);
+        }
+    }
 
     /// <summary>
     /// Gets or sets the node definition stored under the provided type name.
