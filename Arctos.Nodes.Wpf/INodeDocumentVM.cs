@@ -1,7 +1,6 @@
 using Arctos.Shell.Documents;
 using Arctos.Nodes.Wpf.ViewModels.Documents;
 using Arctos.Nodes.Wpf.ViewModels;
-using Arctos.Wpf.Inputs;
 using System.Collections.Generic;
 
 namespace Arctos.Nodes.Wpf;
@@ -29,5 +28,7 @@ public interface INodeDocumentVM : IDocumentVM
 
     IModelHost? SelectedHost { get; }
 
-    InputFormVM? PropertiesForm { get; }
+    IReadOnlyList<EditTabVM>? EditTabs { get; }
+
+    EditTabVM? SelectedEditTab { get; set; }
 }

@@ -233,13 +233,13 @@ public sealed class NodeMapTests
             Style = new NodeStyle(),
             Components =
             [
-                new NodeComponent
+                new NodeInput
                 {
                     Id = "displayName",
                     DisplayName = "Display Name",
                     TypeId = InputTypeIds.String,
                 },
-                new NodeComponent
+                new NodeInput
                 {
                     Id = "role",
                     DisplayName = "Role",
@@ -251,9 +251,9 @@ public sealed class NodeMapTests
         definition.Style!.ShapeStyle.BackgroundColor = new NodeColor(7, 7, 255);
         definition.Style.ShapeStyle.BorderColor = new NodeColor(0, 0, 0);
         definition.Style.ShapeStyle.BorderThickness = 2.5f;
-        definition.Style.ShapeStyle.FontSize = 14.0f;
+        definition.Style.FontSize = 14.0f;
         definition.Style.ShapeStyle.FontColor = NodeColor.White;
-        definition.Style.ShapeStyle.FontFamily = null;
+        definition.Style.FontFamily = null;
         definition.Style.ShapeStyle.FontWeight = NodeFontWeight.Bold;
         definition.Style.OverrideRules.AllowStyleOverrides = true;
         definition.Style.OverrideRules.AllowBorderOverrides = true;

@@ -1,0 +1,8 @@
+<UserControl x:Class="Arctos.Nodes.Wpf.Views.EditTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:attachedProperties="clr-namespace:Arctos.Wpf.AttachedProperties;assembly=Arctos.Wpf"
+             Background ="{StaticResource BackgroundBrush}">
+    <ContentPresenter Content="{Binding Form}"
+                      attachedProperties:SelectedItem.Highlight="None" />
+</UserControl>

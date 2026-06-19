@@ -1,7 +1,7 @@
 namespace Arctos.Nodes.Models;
 
 /// <summary>
-/// Describes a node style that can be applied at document, definition, or instance level.
+/// Describes the per-node style overrides that may be applied at definition or instance level.
 /// </summary>
 public sealed class NodeStyle
 {

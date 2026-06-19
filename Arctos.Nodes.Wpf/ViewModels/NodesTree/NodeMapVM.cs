@@ -19,7 +19,7 @@ public sealed class NodeMapVM : NodeTreeParentVM<INodeTreeItemVM, object>
     {
         _map = map ?? throw new ArgumentNullException(nameof(map));
         DisplayName = _map.Settings.Name ?? "Node Map";
-        _settings = new NodeMapSettingsVM(_map.Settings);
+        _settings = new NodeMapSettingsVM(_map.Settings, _map.Style);
         _graph = new NodeGraphVM(_map.Graph, this);
         _references = new NodeReferencesVM(this);
 

@@ -49,6 +49,14 @@
                  IsReadOnly="{Binding IsReadOnly}"/>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type inputs:InputLabelVM}">
+        <TextBlock Text="{Binding Value}"
+                   VerticalAlignment="Center"
+                   TextAlignment="{Binding Justify}"
+                   TextWrapping="Wrap"
+                   Margin="0 2"/>
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type inputs:InputIntegerVM}">
         <TextBox Style="{StaticResource InputTextBox}"
                  IsReadOnly="{Binding IsReadOnly}">
@@ -122,13 +130,32 @@
                   ItemsSource="{Binding Path=Value, Converter={markupExtensions:EnumToCollectionConverter}, Mode=OneTime}"
                   DisplayMemberPath="Description"
                   SelectedValuePath="Value"
-                  SelectedValue="{Binding Value}"/>
+                  SelectedValue="{Binding Value}">
+            <ComboBox.Style>
+                <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsReadOnly}" Value="True">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ComboBox.Style>
+        </ComboBox>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type inputs:InputStringComboVM}">
         <ComboBox Height="22" 
                   ItemsSource="{Binding Options, Mode=OneTime}"
-                  SelectedValue="{Binding Value}">
+                  SelectedItem="{Binding Value}">
+            <ComboBox.Style>
+                <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsReadOnly}" Value="True">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ComboBox.Style>
             <ComboBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource  UrsaComboBoxItemContainerStyle}">
                     <Style.Triggers>
@@ -151,8 +178,18 @@
     <DataTemplate DataType="{x:Type inputs:InputObjectComboVM}">
         <ComboBox Height="22" 
                   ItemsSource="{Binding Options, Mode=OneTime}"
-                  SelectedValue="{Binding Value}"
-                  DisplayMemberPath="{Binding DisplayMember}"/>
+                  SelectedItem="{Binding Value}"
+                  DisplayMemberPath="{Binding DisplayMember}">
+            <ComboBox.Style>
+                <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsReadOnly}" Value="True">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ComboBox.Style>
+        </ComboBox>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type inputs:InputStringListBoxVM}">
@@ -171,6 +208,69 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type inputs:InputStringListVM}">
+        <Grid Margin="0 2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0 0 0 4">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ToolBarButtonBaseStyle}">
+                        <Setter Property="Width" Value="22"/>
+                        <Setter Property="Height" Value="22"/>
+                        <Setter Property="Margin" Value="0 0 2 0"/>
+                        <Setter Property="IsEnabled" Value="True"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsReadOnly}" Value="True">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Resources>
+
+                <Button Content="+"
+                        Command="{Binding AddCommand}"/>
+                <Button Content="-"
+                        Command="{Binding RemoveCommand}"
+                        IsEnabled="{Binding CanRemove}"/>
+                <Button Content="^"
+                        Command="{Binding MoveUpCommand}"
+                        IsEnabled="{Binding CanMoveUp}"/>
+                <Button Content="v"
+                        Margin="0"
+                        Command="{Binding MoveDownCommand}"
+                        IsEnabled="{Binding CanMoveDown}"/>
+            </StackPanel>
+
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding Items}"
+                     SelectedItem="{Binding SelectedItem}"
+                     attached:SelectedItem.Highlight="Outline"
+                     MinHeight="72">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                        <Setter Property="attached:SelectedItem.Highlight" Value="{Binding Path=(attached:SelectedItem.Highlight),
+                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}}"></Setter>
+                        <Setter Property="attached:SelectListboxItemByControl.Enable" Value="True"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBox Style="{StaticResource InputTextBox}"
+                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0 1"
+                                 IsReadOnly="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+            </ListBox>
         </Grid>
     </DataTemplate>
 
@@ -362,6 +462,23 @@
         </Grid>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type inputs:InputIntRangeVM}">
+        <TextBox Style="{StaticResource InputTextBox}"
+                 IsReadOnly="{Binding IsReadOnly}">
+            <Validation.ErrorTemplate>
+                <ControlTemplate />
+            </Validation.ErrorTemplate>
+            <TextBox.Text>
+                <Binding Path="StringValue"
+                         UpdateSourceTrigger="LostFocus">
+                    <Binding.ValidationRules>
+                        <inputs:StringToIntRangeValidationRule ValidationStep="CommittedValue"/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+    </DataTemplate>
+
 
 
 
@@ -369,6 +486,14 @@
 
     <selectors:InputTemplateSelector x:Key="InputSelector"/>
     <selectors:ParameterTemplateSelector x:Key="ParameterSelector"/>
+
+    <DataTemplate x:Key="ParameterLabelInput">
+        <Grid Margin="4 0">
+            <ContentPresenter Content="{Binding }"
+                              HorizontalAlignment="Stretch"
+                              ContentTemplateSelector="{StaticResource InputSelector}"/>
+        </Grid>
+    </DataTemplate>
 
     <DataTemplate x:Key="ParameterInput">
         <Grid Margin="4 0" >

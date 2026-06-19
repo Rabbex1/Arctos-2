@@ -62,5 +62,10 @@ public static class InputTypeIds
     /// </summary>
     public static InputTypeId FloatRange => new("FloatRange");
 
+    /// <summary>
+    /// Gets the built-in integer range input type identifier.
+    /// </summary>
+    public static InputTypeId IntRange => new("IntRange");
+
     #endregion Properties
 }

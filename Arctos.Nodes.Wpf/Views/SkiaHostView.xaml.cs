@@ -1,5 +1,5 @@
-using System.Windows.Controls;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Arctos.Nodes.Wpf.Rendering;
 using Arctos.Nodes.Wpf.ViewModels;
@@ -7,13 +7,27 @@ using SkiaSharp.Views.Desktop;
 
 namespace Arctos.Nodes.Wpf.Views;
 
+/// <summary>
+/// Hosts the Skia rendering surface and forwards overlay input into the view model.
+/// </summary>
 public partial class SkiaHostView : UserControl
 {
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    #region Constructors
+
+    /// <summary>
+    /// Creates a new Skia host view.
+    /// </summary>
     public SkiaHostView()
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
     }
+
+    #endregion Constructors
+
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    #region Private Methods
 
     private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
@@ -23,20 +37,40 @@ public partial class SkiaHostView : UserControl
         skiaHost.OnPaintSurface(e);
     }
 
+    private void OnOverlayPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+    {
+        if (DataContext is not SkiaHostVM skiaHost)
+            return;
+
+        skiaHost.OnOverlayPaintSurface(e);
+    }
+
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.OldValue is SkiaHostVM oldHost)
+        {
             oldHost.CanvasInvalidated -= OnCanvasInvalidated;
+            oldHost.OverlayInvalidated -= OnOverlayInvalidated;
+        }
 
         if (e.NewValue is SkiaHostVM newHost)
+        {
             newHost.CanvasInvalidated += OnCanvasInvalidated;
+            newHost.OverlayInvalidated += OnOverlayInvalidated;
+        }
 
         SkiaCanvas.InvalidateVisual();
+        OverlayCanvas.InvalidateVisual();
     }
 
     private void OnCanvasInvalidated()
     {
         SkiaCanvas.InvalidateVisual();
+    }
+
+    private void OnOverlayInvalidated()
+    {
+        OverlayCanvas.InvalidateVisual();
     }
 
     private void OnOverlayMouseMove(object sender, MouseEventArgs e)
@@ -51,11 +85,15 @@ public partial class SkiaHostView : UserControl
 
     private void OnOverlayMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        InputOverlay.CaptureMouse();
         SendPointerInput(e, PointerInputType.LeftButtonDown);
     }
 
     private void OnOverlayMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
+        if (InputOverlay.IsMouseCaptured)
+            InputOverlay.ReleaseMouseCapture();
+
         SendPointerInput(e, PointerInputType.LeftButtonUp);
     }
 
@@ -108,4 +146,6 @@ public partial class SkiaHostView : UserControl
 
         skiaHost.OnPointerInput(new PointerInput(inputType, nodePoint, screenPoint, clickCount, wheelDelta));
     }
+
+    #endregion Private Methods
 }

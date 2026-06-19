@@ -13,6 +13,7 @@ namespace Arctos.Wpf.Inputs.Selectors
             return input switch
             {
                 InputGroupVM _ => Application.Current.Resources["ParameterGroupInput"] as DataTemplate,
+                InputLabelVM _ => Application.Current.Resources["ParameterLabelInput"] as DataTemplate,
                 _ => Application.Current.Resources["ParameterInput"] as DataTemplate
             };
         }

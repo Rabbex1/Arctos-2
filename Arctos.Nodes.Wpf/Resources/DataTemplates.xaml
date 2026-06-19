@@ -40,6 +40,10 @@
         <skiaViews:SkiaHostView />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type nodeViewModels:EditTabVM}">
+        <nodeViews:EditTabView />
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type viewModels:NodeStructureToolsVM}">
         <views:NodeStructureToolsView />
     </DataTemplate>

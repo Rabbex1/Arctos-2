@@ -79,6 +79,7 @@ namespace Arctos.Wpf.Inputs
                 DateTime dt => new InputDateTimeVM(description, dt, dt.Kind, v => action?.Invoke(v)),
                 TimeSpan ts => new InputTimeSpanVM(description, ts, v => action?.Invoke(v)),
                 FloatRangeInput fr => new InputFloatRangeVM(description, fr, v => action?.Invoke(v)),
+                IntRangeInput ir => new InputIntRangeVM(description, ir, v => action?.Invoke(v)),
                 StringSelection ss => new InputStringComboVM(description, ss.Value, ss.Options, v =>
                 {
                     ss.Value = v ?? string.Empty;

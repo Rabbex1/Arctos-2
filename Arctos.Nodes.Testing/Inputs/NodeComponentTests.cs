@@ -32,7 +32,7 @@ public sealed class NodeComponentTests
     [Fact]
     public void SetDefaultValue_And_GetDefaultValue_Should_RoundTrip_BuiltIn_Value()
     {
-        var component = new NodeComponent
+        var component = new NodeInput
         {
             Id = "role",
             DisplayName = "Role",
@@ -59,7 +59,7 @@ public sealed class NodeComponentTests
         var typeId = new InputTypeId("Direction");
         registry.Register(InputTypeDefinition.Create<DirectionValue>(typeId, "Direction"));
 
-        var component = new NodeComponent
+        var component = new NodeInput
         {
             Id = "direction",
             DisplayName = "Direction",
@@ -77,7 +77,7 @@ public sealed class NodeComponentTests
     public void SetDefaultValue_Should_Throw_When_TypeId_Is_Not_Registered()
     {
         var registry = new InputTypeRegistry(includeBuiltInTypes: false);
-        var component = new NodeComponent
+        var component = new NodeInput
         {
             Id = "direction",
             TypeId = new InputTypeId("Direction"),

@@ -112,6 +112,17 @@ namespace Arctos.Shell.Documents
         public void RemoveDocument(IDocumentVM? document)
         {
             if (document == null) return;
+
+            try
+            {
+                if (document is DocumentVM documentVm)
+                    documentVm.Closing();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Document close cleanup failed: {ex.Message}");
+            }
+
             document.IsActive = false;
             document.IsSelected = false;
             if (document == ActiveDocument)

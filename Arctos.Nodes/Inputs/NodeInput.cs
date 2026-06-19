@@ -4,39 +4,38 @@ using System.Text.Json.Serialization;
 namespace Arctos.Nodes.Models;
 
 /// <summary>
-/// Defines a portable node component that can later be edited by property panels, popups, or in-canvas widgets.
+/// Defines a portable input component that can later be edited by property panels, popups, or in-canvas widgets.
 /// </summary>
-public sealed class NodeComponent
+public sealed class NodeInput : NodeComponent
 {
     #region Properties
 
     /// <summary>
-    /// Gets or sets the stable component identifier used by applications and runtime updates.
+    /// Gets or sets the human-readable input display name.
     /// </summary>
-    public required string Id { get; set; }
+    public string? DisplayName
+    {
+        get => string.IsNullOrWhiteSpace(Label) ? null : Label;
+        set => Label = value ?? string.Empty;
+    }
 
     /// <summary>
-    /// Gets or sets the human-readable component display name.
-    /// </summary>
-    public string? DisplayName { get; set; }
-
-    /// <summary>
-    /// Gets or sets the optional component description.
+    /// Gets or sets the optional input description.
     /// </summary>
     public string? Description { get; set; }
 
     /// <summary>
-    /// Gets or sets the registered input component type identifier.
+    /// Gets or sets the registered input type identifier.
     /// </summary>
     public required InputTypeId TypeId { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the component is read-only from the editor's perspective.
+    /// Gets or sets a value indicating whether the input is read-only from the editor's perspective.
     /// </summary>
     public bool IsReadOnly { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the component is visible by default.
+    /// Gets or sets a value indicating whether the input is visible by default.
     /// </summary>
     public bool IsVisible { get; set; } = true;
 
@@ -46,7 +45,7 @@ public sealed class NodeComponent
     public string? GroupId { get; set; }
 
     /// <summary>
-    /// Gets the serialized default value payload for the component.
+    /// Gets the serialized default value payload for the input.
     /// </summary>
     [JsonInclude]
     public JsonElement? DefaultValue { get; private set; }
@@ -70,13 +69,28 @@ public sealed class NodeComponent
     /// </summary>
     /// <typeparam name="T">The CLR type of the default value.</typeparam>
     /// <param name="value">The default value to store.</param>
-    /// <param name="registry">The registry used to validate and serialize the component value.</param>
+    /// <param name="registry">The registry used to validate and serialize the input value.</param>
     public void SetDefaultValue<T>(T value, InputTypeRegistry registry)
     {
         ArgumentNullException.ThrowIfNull(registry);
 
         if (!registry.TryGetValue(TypeId, out var definition) || definition == null)
-            throw new InvalidOperationException($"The input component type '{TypeId}' has not been registered.");
+            throw new InvalidOperationException($"The input type '{TypeId}' has not been registered.");
+
+        DefaultValue = definition.Serialize(value);
+    }
+
+    /// <summary>
+    /// Sets the default value using an untyped CLR object and the provided input type registry.
+    /// </summary>
+    /// <param name="value">The default value to store.</param>
+    /// <param name="registry">The registry used to validate and serialize the input value.</param>
+    public void SetDefaultValue(object? value, InputTypeRegistry registry)
+    {
+        ArgumentNullException.ThrowIfNull(registry);
+
+        if (!registry.TryGetValue(TypeId, out var definition) || definition == null)
+            throw new InvalidOperationException($"The input type '{TypeId}' has not been registered.");
 
         DefaultValue = definition.Serialize(value);
     }
@@ -95,7 +109,7 @@ public sealed class NodeComponent
     /// Retrieves the default value using the provided input type registry.
     /// </summary>
     /// <typeparam name="T">The CLR type to deserialize.</typeparam>
-    /// <param name="registry">The registry used to deserialize the stored component value.</param>
+    /// <param name="registry">The registry used to deserialize the stored input value.</param>
     /// <returns>The deserialized default value.</returns>
     public T? GetDefaultValue<T>(InputTypeRegistry registry)
     {
@@ -108,13 +122,13 @@ public sealed class NodeComponent
         if (value is T typedValue)
             return typedValue;
 
-        throw new InvalidOperationException($"The component '{Id}' stores a value of type '{value.GetType().Name}', not '{typeof(T).Name}'.");
+        throw new InvalidOperationException($"The input '{Id}' stores a value of type '{value.GetType().Name}', not '{typeof(T).Name}'.");
     }
 
     /// <summary>
     /// Retrieves the default value as an untyped CLR object using the provided registry.
     /// </summary>
-    /// <param name="registry">The registry used to deserialize the stored component value.</param>
+    /// <param name="registry">The registry used to deserialize the stored input value.</param>
     /// <returns>The deserialized default value as an object.</returns>
     public object? GetDefaultValue(InputTypeRegistry registry)
     {
@@ -124,7 +138,7 @@ public sealed class NodeComponent
             return null;
 
         if (!registry.TryGetValue(TypeId, out var definition) || definition == null)
-            throw new InvalidOperationException($"The input component type '{TypeId}' has not been registered.");
+            throw new InvalidOperationException($"The input type '{TypeId}' has not been registered.");
 
         return definition.Deserialize(DefaultValue.Value);
     }

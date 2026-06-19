@@ -1,20 +1,75 @@
 <UserControl x:Class="Arctos.Nodes.Wpf.Views.SkiaHostView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
+             xmlns:dragDrop="clr-namespace:Arctos.Wpf.DragDrop;assembly=Arctos.Wpf"
              Background="Transparent">
     <Grid Background="Transparent">
-        <skia:SKElement x:Name="SkiaCanvas" PaintSurface="OnPaintSurface" />
-        <Border x:Name="InputOverlay"
-                Background="Transparent"
-                MouseMove="OnOverlayMouseMove"
-                MouseLeave="OnOverlayMouseLeave"
-                MouseDown="OnOverlayMouseDown"
-                MouseUp="OnOverlayMouseUp"
-                MouseLeftButtonDown="OnOverlayMouseLeftButtonDown"
-                MouseLeftButtonUp="OnOverlayMouseLeftButtonUp"
-                MouseRightButtonDown="OnOverlayMouseRightButtonDown"
-                MouseRightButtonUp="OnOverlayMouseRightButtonUp"
-                MouseWheel="OnOverlayMouseWheel" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="Transparent">
+            <skia:SKElement x:Name="SkiaCanvas" PaintSurface="OnPaintSurface" />
+            <skia:SKElement x:Name="OverlayCanvas" PaintSurface="OnOverlayPaintSurface" />
+            <Border x:Name="InputOverlay"
+                    Background="Transparent"
+                    MouseMove="OnOverlayMouseMove"
+                    MouseLeave="OnOverlayMouseLeave"
+                    MouseDown="OnOverlayMouseDown"
+                    MouseUp="OnOverlayMouseUp"
+                    MouseLeftButtonDown="OnOverlayMouseLeftButtonDown"
+                    MouseLeftButtonUp="OnOverlayMouseLeftButtonUp"
+                    MouseRightButtonDown="OnOverlayMouseRightButtonDown"
+                    MouseRightButtonUp="OnOverlayMouseRightButtonUp"
+                    MouseWheel="OnOverlayMouseWheel" />
+            <i:Interaction.Behaviors>
+                <dragDrop:DropBehavior />
+            </i:Interaction.Behaviors>
+        </Grid>
+
+        <Border Grid.Row="1"
+                Padding="0 2"
+                Background="{StaticResource Grey10Brush}"
+                BorderBrush="{StaticResource Grey30Brush}"
+                BorderThickness="0 1 0 0">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left"
+                            Margin="4 0 0 0"
+                            Orientation="Horizontal">
+                    <ToggleButton Margin="0"
+                                  Padding="8 2"
+                                  Content="Grid"
+                                  IsChecked="{Binding ShowGrid}"
+                                  Style="{StaticResource ToolBarToggleButtonStyle}" />
+                    <ToggleButton Margin="4 0 0 0"
+                                  Padding="8 2"
+                                  Content="Debug"
+                                  IsChecked="{Binding ShowDebugBounds}"
+                                  Style="{StaticResource ToolBarToggleButtonStyle}" />
+                    <Button Margin="8 0 0 0"
+                            Padding="8 2"
+                            Command="{Binding DeleteSelectedComponentCommand}"
+                            Content="Delete"
+                            Style="{StaticResource ToolBarButtonBaseStyle}" />
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right"
+                            Margin="0 0 4 0"
+                            Orientation="Horizontal">
+                    <Border Margin="0"
+                            Padding="8 2"
+                            Background="Transparent">
+                        <TextBlock VerticalAlignment="Center"
+                                   Text="{Binding ZoomText}" />
+                    </Border>
+                    <Button Padding="8 2"
+                            Command="{Binding FitToViewCommand}"
+                            Content="Fit"
+                            Style="{StaticResource ToolBarButtonBaseStyle}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
     </Grid>
 </UserControl>

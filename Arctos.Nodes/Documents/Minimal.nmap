@@ -16,37 +16,22 @@
     "RuntimeGraphEdit": true
   },
   "Style": {
-    "ShapeStyle": {
-      "BackgroundColor": {
-        "Red": 230,
-        "Green": 230,
-        "Blue": 225,
-        "Alpha": 255
-      },
-      "BorderColor": {
-        "Red": 96,
-        "Green": 96,
-        "Blue": 92,
-        "Alpha": 255
-      },
-      "BorderThickness": 1,
-      "FontSize": 12,
-      "FontColor": {
-        "Red": 28,
-        "Green": 28,
-        "Blue": 30,
-        "Alpha": 255
-      },
-      "FontFamily": null,
-      "FontWeight": 400
+    "FontFamily": null,
+    "FontSize": 12,
+    "HeaderFontSize": 14,
+    "FontColor": {
+      "Red": 226,
+      "Green": 226,
+      "Blue": 226,
+      "Alpha": 255
     },
-    "HeaderStyle": null,
-    "OverrideRules": {
-      "AllowStyleOverrides": true,
-      "AllowBorderOverrides": true,
-      "AllowFontOverrides": true,
-      "AllowHeaderOverrides": true
-    }
+    "Padding": 1,
+    "RowSpacing": 0,
+    "ColumnSpacing": 1,
+    "RoundedCornerRadius": 2,
+    "MinimumColumnWidth": 22,
+    "PortSize": 2,
+    "PortPlacement": 2
   },
   "LocalLibrary": {
     "Name": null,
@@ -57,8 +42,23 @@
         "DisplayName": "Rounded Rectangle",
         "DomainType": "Primitive",
         "NodeShape": 0,
+        "Size": {
+          "Width": 24,
+          "Height": 16
+        },
+        "ShapeRules": {
+          "Shape": 0,
+          "MaxLeftPorts": 2147483647,
+          "MaxRightPorts": 2147483647,
+          "MaxTopPorts": 0,
+          "MaxBottomPorts": 0,
+          "HeaderPosition": 1,
+          "PortLabelPosition": 1,
+          "AllowInternalComponents": true
+        },
         "IconSvg": null,
-        "HasDetails": true,
+        "HeaderText": null,
+        "HasOverview": true,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -74,17 +74,30 @@
               "Alpha": 255
             },
             "BorderThickness": 2,
-            "FontSize": 12,
             "FontColor": {
               "Red": 0,
               "Green": 0,
               "Blue": 0,
               "Alpha": 255
             },
-            "FontFamily": null,
             "FontWeight": 400
           },
-          "HeaderStyle": null,
+          "HeaderStyle": {
+            "BackgroundColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 0
+            },
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontWeight": 400,
+            "Alignment": 1
+          },
           "OverrideRules": {
             "AllowStyleOverrides": false,
             "AllowBorderOverrides": false,
@@ -92,32 +105,36 @@
             "AllowHeaderOverrides": false
           }
         },
-        "Components": [
-          {
-            "Id": "name",
-            "DisplayName": "Name",
-            "Description": null,
-            "TypeId": "string",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DefaultValue": "Rounded Rectangle"
-          }
-        ]
+        "Components": []
       },
       {
         "TypeName": "RectNode",
         "DisplayName": "Rectangle",
         "DomainType": "Primitive",
-        "NodeShape": 1,
+        "NodeShape": 0,
+        "Size": {
+          "Width": 38,
+          "Height": 26
+        },
+        "ShapeRules": {
+          "Shape": 0,
+          "MaxLeftPorts": 2147483647,
+          "MaxRightPorts": 2147483647,
+          "MaxTopPorts": 0,
+          "MaxBottomPorts": 0,
+          "HeaderPosition": 1,
+          "PortLabelPosition": 1,
+          "AllowInternalComponents": true
+        },
         "IconSvg": null,
-        "HasDetails": false,
+        "HeaderText": null,
+        "HasOverview": false,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
-              "Red": 26,
-              "Green": 48,
-              "Blue": 77,
+              "Red": 7,
+              "Green": 22,
+              "Blue": 41,
               "Alpha": 255
             },
             "BorderColor": {
@@ -127,17 +144,30 @@
               "Alpha": 255
             },
             "BorderThickness": 2,
-            "FontSize": 12,
             "FontColor": {
               "Red": 0,
               "Green": 0,
               "Blue": 0,
               "Alpha": 255
             },
-            "FontFamily": null,
             "FontWeight": 400
           },
-          "HeaderStyle": null,
+          "HeaderStyle": {
+            "BackgroundColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 0
+            },
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontWeight": 400,
+            "Alignment": 1
+          },
           "OverrideRules": {
             "AllowStyleOverrides": false,
             "AllowBorderOverrides": false,
@@ -147,14 +177,89 @@
         },
         "Components": [
           {
-            "Id": "name",
-            "DisplayName": "Name",
+            "$type": "Input",
+            "DisplayName": "Input",
             "Description": null,
-            "TypeId": "string",
+            "TypeId": "String",
             "IsReadOnly": false,
             "IsVisible": true,
             "GroupId": null,
-            "DefaultValue": "Rectangle"
+            "DefaultValue": "",
+            "Id": null,
+            "Label": "Input",
+            "Position": {
+              "X": -18,
+              "Y": -4
+            }
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Date Time",
+            "Description": null,
+            "TypeId": "Boolean",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": false,
+            "Id": null,
+            "Label": "Date Time",
+            "Position": {
+              "X": -18,
+              "Y": 4
+            }
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Input",
+            "Description": null,
+            "TypeId": "StringSelection",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": {
+              "Options": [],
+              "Value": null
+            },
+            "Id": null,
+            "Label": "Input",
+            "Position": {
+              "X": -18,
+              "Y": 8
+            }
+          },
+          {
+            "$type": "Port",
+            "Side": 0,
+            "Shape": 1,
+            "FillColor": {
+              "Red": 63,
+              "Green": 255,
+              "Blue": 104,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": -18,
+              "Y": -8
+            }
+          },
+          {
+            "$type": "Port",
+            "Side": 1,
+            "Shape": 0,
+            "FillColor": {
+              "Red": 36,
+              "Green": 182,
+              "Blue": 223,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": -18,
+              "Y": 0
+            }
           }
         ]
       },
@@ -163,8 +268,23 @@
         "DisplayName": "Diamond",
         "DomainType": "Primitive",
         "NodeShape": 2,
+        "Size": {
+          "Width": 8,
+          "Height": 8
+        },
+        "ShapeRules": {
+          "Shape": 2,
+          "MaxLeftPorts": 1,
+          "MaxRightPorts": 1,
+          "MaxTopPorts": 1,
+          "MaxBottomPorts": 1,
+          "HeaderPosition": 0,
+          "PortLabelPosition": 2,
+          "AllowInternalComponents": false
+        },
         "IconSvg": null,
-        "HasDetails": false,
+        "HeaderText": null,
+        "HasOverview": false,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -180,17 +300,30 @@
               "Alpha": 255
             },
             "BorderThickness": 2,
-            "FontSize": 12,
             "FontColor": {
               "Red": 0,
               "Green": 0,
               "Blue": 0,
               "Alpha": 255
             },
-            "FontFamily": null,
             "FontWeight": 400
           },
-          "HeaderStyle": null,
+          "HeaderStyle": {
+            "BackgroundColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 0
+            },
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontWeight": 400,
+            "Alignment": 1
+          },
           "OverrideRules": {
             "AllowStyleOverrides": false,
             "AllowBorderOverrides": false,
@@ -198,26 +331,30 @@
             "AllowHeaderOverrides": false
           }
         },
-        "Components": [
-          {
-            "Id": "name",
-            "DisplayName": "Name",
-            "Description": null,
-            "TypeId": "string",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DefaultValue": "Diamond"
-          }
-        ]
+        "Components": []
       },
       {
         "TypeName": "CircleNode",
         "DisplayName": "Circle",
         "DomainType": "Primitive",
         "NodeShape": 3,
+        "Size": {
+          "Width": 8,
+          "Height": 8
+        },
+        "ShapeRules": {
+          "Shape": 3,
+          "MaxLeftPorts": 1,
+          "MaxRightPorts": 1,
+          "MaxTopPorts": 1,
+          "MaxBottomPorts": 1,
+          "HeaderPosition": 0,
+          "PortLabelPosition": 2,
+          "AllowInternalComponents": false
+        },
         "IconSvg": null,
-        "HasDetails": false,
+        "HeaderText": null,
+        "HasOverview": false,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -233,17 +370,30 @@
               "Alpha": 255
             },
             "BorderThickness": 2,
-            "FontSize": 12,
             "FontColor": {
               "Red": 0,
               "Green": 0,
               "Blue": 0,
               "Alpha": 255
             },
-            "FontFamily": null,
             "FontWeight": 400
           },
-          "HeaderStyle": null,
+          "HeaderStyle": {
+            "BackgroundColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 0
+            },
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontWeight": 400,
+            "Alignment": 1
+          },
           "OverrideRules": {
             "AllowStyleOverrides": false,
             "AllowBorderOverrides": false,
@@ -251,26 +401,30 @@
             "AllowHeaderOverrides": false
           }
         },
-        "Components": [
-          {
-            "Id": "name",
-            "DisplayName": "Name",
-            "Description": null,
-            "TypeId": "string",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DefaultValue": "Circle"
-          }
-        ]
+        "Components": []
       },
       {
         "TypeName": "CapsuleNode",
         "DisplayName": "Capsule",
         "DomainType": "Primitive",
         "NodeShape": 4,
+        "Size": {
+          "Width": 24,
+          "Height": 8
+        },
+        "ShapeRules": {
+          "Shape": 4,
+          "MaxLeftPorts": 1,
+          "MaxRightPorts": 1,
+          "MaxTopPorts": 0,
+          "MaxBottomPorts": 0,
+          "HeaderPosition": 1,
+          "PortLabelPosition": 2,
+          "AllowInternalComponents": false
+        },
         "IconSvg": null,
-        "HasDetails": false,
+        "HeaderText": null,
+        "HasOverview": false,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -286,17 +440,30 @@
               "Alpha": 255
             },
             "BorderThickness": 2,
-            "FontSize": 12,
             "FontColor": {
               "Red": 0,
               "Green": 0,
               "Blue": 0,
               "Alpha": 255
             },
-            "FontFamily": null,
             "FontWeight": 400
           },
-          "HeaderStyle": null,
+          "HeaderStyle": {
+            "BackgroundColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 0
+            },
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontWeight": 400,
+            "Alignment": 1
+          },
           "OverrideRules": {
             "AllowStyleOverrides": false,
             "AllowBorderOverrides": false,
@@ -304,18 +471,7 @@
             "AllowHeaderOverrides": false
           }
         },
-        "Components": [
-          {
-            "Id": "name",
-            "DisplayName": "Name",
-            "Description": null,
-            "TypeId": "string",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DefaultValue": "Capsule"
-          }
-        ]
+        "Components": []
       }
     ]
   },

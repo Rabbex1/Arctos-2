@@ -10,13 +10,29 @@
         "DisplayName": "Simple Node",
         "DomainType": "Test",
         "NodeShape": 0,
+        "Size": {
+          "Width": 31,
+          "Height": 42
+        },
+        "ShapeRules": {
+          "Shape": 0,
+          "MaxLeftPorts": 2147483647,
+          "MaxRightPorts": 2147483647,
+          "MaxTopPorts": 0,
+          "MaxBottomPorts": 0,
+          "HeaderPosition": 1,
+          "PortLabelPosition": 1,
+          "AllowInternalComponents": true
+        },
         "IconSvg": null,
+        "HeaderText": null,
+        "HasOverview": false,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
-              "Red": 230,
-              "Green": 230,
-              "Blue": 225,
+              "Red": 163,
+              "Green": 208,
+              "Blue": 255,
               "Alpha": 255
             },
             "BorderColor": {
@@ -26,17 +42,30 @@
               "Alpha": 255
             },
             "BorderThickness": 1,
-            "FontSize": 12,
             "FontColor": {
               "Red": 28,
               "Green": 28,
               "Blue": 30,
               "Alpha": 255
             },
-            "FontFamily": null,
             "FontWeight": 400
           },
-          "HeaderStyle": null,
+          "HeaderStyle": {
+            "BackgroundColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 0
+            },
+            "FontColor": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0,
+              "Alpha": 255
+            },
+            "FontWeight": 400,
+            "Alignment": 1
+          },
           "OverrideRules": {
             "AllowStyleOverrides": true,
             "AllowBorderOverrides": true,
@@ -46,14 +75,155 @@
         },
         "Components": [
           {
-            "Id": "name",
-            "DisplayName": "Name",
+            "$type": "Text",
+            "Id": null,
+            "Label": "Text2",
+            "Position": {
+              "X": -14.5,
+              "Y": -16
+            }
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Input",
             "Description": null,
-            "TypeId": "string",
+            "TypeId": "DateTime",
             "IsReadOnly": false,
             "IsVisible": true,
             "GroupId": null,
-            "DefaultValue": "Sample"
+            "DefaultValue": "2026-06-17T17:37:25.3660833\u002B08:00",
+            "Id": null,
+            "Label": "Input",
+            "Position": {
+              "X": -14.5,
+              "Y": 12
+            }
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Input",
+            "Description": null,
+            "TypeId": "TimeSpan",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": "00:00:00",
+            "Id": null,
+            "Label": "Input",
+            "Position": {
+              "X": -14.5,
+              "Y": 8
+            }
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Input",
+            "Description": null,
+            "TypeId": "StringSelection",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DefaultValue": {
+              "Source": 0,
+              "Options": [],
+              "Value": "Test 1"
+            },
+            "Id": null,
+            "Label": "Input",
+            "Position": {
+              "X": -14.5,
+              "Y": 16
+            }
+          },
+          {
+            "$type": "Port",
+            "Side": 1,
+            "Shape": 1,
+            "Placement": 2,
+            "FillColor": {
+              "Red": 228,
+              "Green": 57,
+              "Blue": 50,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": -14.5,
+              "Y": 4
+            }
+          },
+          {
+            "$type": "Port",
+            "Side": 0,
+            "Shape": 0,
+            "Placement": 0,
+            "FillColor": {
+              "Red": 238,
+              "Green": 47,
+              "Blue": 224,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": -14.5,
+              "Y": 0
+            }
+          },
+          {
+            "$type": "Port",
+            "Side": 0,
+            "Shape": 4,
+            "Placement": 1,
+            "FillColor": {
+              "Red": 0,
+              "Green": 99,
+              "Blue": 149,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": -14.5,
+              "Y": -4
+            }
+          },
+          {
+            "$type": "Port",
+            "Side": 0,
+            "Shape": 2,
+            "Placement": 0,
+            "FillColor": {
+              "Red": 81,
+              "Green": 245,
+              "Blue": 85,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": -14.5,
+              "Y": -8
+            }
+          },
+          {
+            "$type": "Port",
+            "Side": 0,
+            "Shape": 0,
+            "Placement": 1,
+            "FillColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": -14.5,
+              "Y": -12
+            }
           }
         ]
       }

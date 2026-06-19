@@ -11,7 +11,7 @@ public sealed class NodeMapFile
 
     public required NodeMapSettings Settings { get; set; }
 
-    public required NodeStyle Style { get; set; }
+    public required MapStyle Style { get; set; }
 
     public NodeLibrary? LocalLibrary { get; set; }
 

@@ -119,6 +119,7 @@ namespace Arctos.Wpf.DragDrop
     {
       //if the DataContext implements IDropable, record the current dragging datatype if it is in the list of data types that can be dropped
       CurrentDataType = null;
+      CurrentObject = null;
       if (AssociatedObject.DataContext != null)
       {
         DropTarget = AssociatedObject.DataContext as IDropable;
@@ -140,7 +141,10 @@ namespace Arctos.Wpf.DragDrop
         }
       }
       if (CurrentDataType != null)
+      {
+        DropTarget.OnDragEnter(CurrentObject, e.GetPosition(AssociatedObject));
         e.Handled = true;
+      }
       else
       {
         e.Effects = DragDropEffects.None;
@@ -155,6 +159,7 @@ namespace Arctos.Wpf.DragDrop
         case AcceptDrop.Yes:
           //give mouse effect
           SetDragDropEffects(e, true);
+          DropTarget.OnDragOver(CurrentObject, e.GetPosition(AssociatedObject));
           //draw the adorner
           UpdateAdorner(e.GetPosition(AssociatedObject));
           e.Handled = true;
@@ -176,12 +181,16 @@ namespace Arctos.Wpf.DragDrop
     protected virtual void OnDragLeave(object sender, DragEventArgs e)
     {
       Adorner?.Remove();
+      DropTarget?.OnDragLeave();
 
       var canDrop = CanDrop(sender, e);
       if (canDrop == AcceptDrop.Ignore || canDrop == AcceptDrop.No)
         e.Handled = false; //leave for parent
       else
         e.Handled = true;
+
+      CurrentDataType = null;
+      CurrentObject = null;
     }
 
     #endregion Event Handlers
@@ -201,7 +210,9 @@ namespace Arctos.Wpf.DragDrop
 
     protected virtual void DoDrop(object sender, DragEventArgs e)
     {
-      DropTarget.Drop(e.Data.GetData(CurrentDataType), 0);
+      DropTarget.Drop(e.Data.GetData(CurrentDataType), e.GetPosition(AssociatedObject), 0);
+      CurrentDataType = null;
+      CurrentObject = null;
       e.Handled = true;
     }
 

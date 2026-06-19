@@ -120,14 +120,15 @@ public sealed class InputTypeRegistry : IEnumerable<InputTypeDefinition>
         Register(InputTypeDefinition.Create<bool>(InputTypeIds.Boolean, "Boolean"));
         Register(InputTypeDefinition.Create<int>(InputTypeIds.Integer, "Integer"));
         Register(InputTypeDefinition.Create<uint>(InputTypeIds.UnsignedInteger, "Unsigned Integer"));
-        Register(InputTypeDefinition.Create<float>(InputTypeIds.Float, "Float"));
-        Register(InputTypeDefinition.Create<double>(InputTypeIds.Double, "Double"));
+        //Register(InputTypeDefinition.Create<float>(InputTypeIds.Float, "Float"));
+        Register(InputTypeDefinition.Create<double>(InputTypeIds.Double, "Numeric"));
         Register(InputTypeDefinition.Create<string>(InputTypeIds.String, "String"));
         Register(InputTypeDefinition.Create<DateTime>(InputTypeIds.DateTime, "Date Time"));
         Register(InputTypeDefinition.Create<TimeSpan>(InputTypeIds.TimeSpan, "Time Span"));
-        Register(InputTypeDefinition.Create<NodeColor>(InputTypeIds.Color, "Color"));
+        //Register(InputTypeDefinition.Create<NodeColor>(InputTypeIds.Color, "Color"));
         Register(InputTypeDefinition.Create<StringSelectionValue>(InputTypeIds.StringSelection, "String Selection"));
-        Register(InputTypeDefinition.Create<FloatRangeValue>(InputTypeIds.FloatRange, "Float Range"));
+        //Register(InputTypeDefinition.Create<FloatRangeValue>(InputTypeIds.FloatRange, "Float Range"));
+        //Register(InputTypeDefinition.Create<IntRangeValue>(InputTypeIds.IntRange, "Int Range"));
     }
 
     #endregion Private Methods

@@ -7,6 +7,7 @@ namespace Arctos.Nodes.Models;
 /// </summary>
 public sealed class NodeDefinition
 {
+    //------------------------------------------------------------------------------------------------------------------------------------------
     #region Properties
 
     /// <summary>
@@ -30,14 +31,29 @@ public sealed class NodeDefinition
     public NodeShape NodeShape { get; set; } = NodeShape.RoundedRectangle;
 
     /// <summary>
+    /// Gets or sets the intrinsic node size in minor node-space units.
+    /// </summary>
+    public NodeSize Size { get; set; } = NodeSize.CreateDefault(NodeShape.RoundedRectangle);
+
+    /// <summary>
+    /// Gets or sets the rules that constrain how the selected <see cref="NodeShape"/> may host labels, ports, and internal components.
+    /// </summary>
+    public ShapeRules ShapeRules { get; set; } = ShapeRules.CreateDefault(NodeShape.RoundedRectangle);
+
+    /// <summary>
     /// Gets or sets the optional SVG icon used to visually identify the node.
     /// </summary>
     public string? IconSvg { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the node definition supports a dedicated detailed view.
+    /// Gets or sets the optional header text override. When <see langword="null"/> or blank, the node <see cref="DisplayName"/> is used as the header text.
     /// </summary>
-    public bool HasDetails { get; set; }
+    public string? HeaderText { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the node definition supports a simplified overview projection.
+    /// </summary>
+    public bool HasOverview { get; set; }
 
     /// <summary>
     /// Gets or sets the optional style override for the node definition. When <see langword="null"/>, the definition inherits the document style.
@@ -45,7 +61,7 @@ public sealed class NodeDefinition
     public NodeStyle? Style { get; set; }
 
     /// <summary>
-    /// Gets the application-defined input components associated with the node definition.
+    /// Gets the persisted detailed-node components associated with the node definition.
     /// </summary>
     public List<NodeComponent> Components { get; set; } = [];
 

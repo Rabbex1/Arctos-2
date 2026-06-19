@@ -2,6 +2,7 @@ using Arctos.Nodes.Models;
 using Arctos.Wpf.Inputs;
 using Arctos.Wpf.Utilities;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
 
 namespace Arctos.Nodes.Wpf.ViewModels;
 
@@ -11,6 +12,7 @@ namespace Arctos.Nodes.Wpf.ViewModels;
 public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTreeItemVM>
 {
     private readonly NodeLibrary _library;
+    private readonly MapStyle _defaultStyle = new();
     private NodeDefinitionVM? _selectedDefinition;
     private ICommand? _addDefinitionCommand;
     private Action? _onDocumentChanged;
@@ -191,6 +193,41 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
         {
             LibraryVersion = version ?? string.Empty;
         }));
+
+        PropertiesForm.Inputs.Add(new InputGroupVM(
+            string.Empty,
+            ("Typography", CreateReadOnlyTypographyInputs()),
+            collapsable: true));
+
+        PropertiesForm.Inputs.Add(new InputGroupVM(
+            string.Empty,
+            ("Layout", CreateReadOnlyLayoutInputs()),
+            collapsable: true));
+    }
+
+    private List<DataInputWrapperVM> CreateReadOnlyTypographyInputs()
+    {
+        return
+        [
+            new InputStringVM("Font Family:", _defaultStyle.FontFamily, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Font Size:", _defaultStyle.FontSize, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Header Font Size:", _defaultStyle.HeaderFontSize, _ => { }) { IsReadOnly = true },
+            new InputColorVM("Font Color:", _defaultStyle.FontColor.ToMediaColor(), _ => { }) { IsReadOnly = true },
+        ];
+    }
+
+    private List<DataInputWrapperVM> CreateReadOnlyLayoutInputs()
+    {
+        return
+        [
+            new InputFloatVM("Padding:", _defaultStyle.Padding, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Row Spacing:", _defaultStyle.RowSpacing, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Column Spacing:", _defaultStyle.ColumnSpacing, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Rounded Corner Radius:", _defaultStyle.RoundedCornerRadius, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Minimum Column Width:", _defaultStyle.MinimumColumnWidth, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Port Size:", _defaultStyle.PortSize, _ => { }) { IsReadOnly = true },
+            new InputEnumVM("Port Placement:", _defaultStyle.PortPlacement, _ => { }) { IsReadOnly = true },
+        ];
     }
 
     private void NotifyDocumentChanged()

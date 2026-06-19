@@ -24,9 +24,9 @@ public sealed class NodeMap
     public NodeMapSettings Settings { get; }
 
     /// <summary>
-    /// Gets or sets the default node style used by the map.
+    /// Gets or sets the document-level visual language and layout rules used by the map.
     /// </summary>
-    public NodeStyle Style { get; set; } = new();
+    public MapStyle Style { get; set; } = new();
 
     /// <summary>
     /// Gets the resolved in-memory libraries used by the map.

@@ -15,8 +15,14 @@ public sealed class RectangleNodeVisual : NodeVisual
     /// Creates a new rectangle node visual.
     /// </summary>
     /// <param name="shapeStyle">The style used to render the node body.</param>
-    public RectangleNodeVisual(NodeShapeStyle shapeStyle)
-        : base(shapeStyle)
+    /// <param name="headerStyle">The style used to render the optional node header.</param>
+    /// <param name="headerText">The resolved header text.</param>
+    /// <param name="fontFamily">The font family used for node text when one is defined.</param>
+    /// <param name="headerFontSize">The header font size used for node header text.</param>
+    /// <param name="nodeUnitSize">The world-space size of <c>1nu</c> for the current document typography.</param>
+    /// <param name="nodeStrokeSize">The world-space size of <c>1ns</c> for the current document typography.</param>
+    public RectangleNodeVisual(NodeShapeStyle shapeStyle, NodeHeaderStyle? headerStyle, string? headerText, string? fontFamily, float headerFontSize, NodeColor fontColor, float headerHorizontalPadding, float nodeUnitSize, float nodeStrokeSize, float headerHeight)
+        : base(shapeStyle, headerStyle, headerText, fontFamily, headerFontSize, fontColor, headerHorizontalPadding, nodeUnitSize, nodeStrokeSize, headerHeight)
     {
     }
 
@@ -37,7 +43,19 @@ public sealed class RectangleNodeVisual : NodeVisual
         using var strokePaint = CreateStrokePaint();
 
         canvas.DrawRect(Bounds, fillPaint);
+        var headerBounds = GetHeaderBounds();
+
+        if (headerBounds.HasValue)
+        {
+            using var headerFillPaint = CreateHeaderFillPaint();
+            canvas.DrawRect(headerBounds.Value, headerFillPaint);
+        }
+
         canvas.DrawRect(Bounds, strokePaint);
+
+        if (headerBounds.HasValue)
+            RenderHeaderText(canvas, headerBounds.Value);
+
         RenderChildren(canvas);
     }
 

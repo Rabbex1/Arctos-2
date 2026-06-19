@@ -5,14 +5,20 @@ namespace Arctos.Nodes.Wpf;
 /// </summary>
 public interface IModelHost
 {
-    /// <summary>Gets the hosted model instance.</summary>
+    /// <summary>
+    /// Gets the hosted model instance.
+    /// </summary>
     object Model { get; }
 
-    /// <summary>Gets the display name for the hosted model.</summary>
+    /// <summary>
+    /// Gets the display name for the hosted model.
+    /// </summary>
     string DisplayName { get; }
 
-    /// <summary>Gets a value indicating whether the hosted model supports a detailed view mode.</summary>
-    bool HasDetails { get; }
+    /// <summary>
+    /// Gets a value indicating whether the hosted model supports an overview mode.
+    /// </summary>
+    bool HasOverview { get; }
 }
 
 /// <summary>
@@ -21,6 +27,8 @@ public interface IModelHost
 /// <typeparam name="T">The hosted model type.</typeparam>
 public interface IModelHost<out T> : IModelHost
 {
-    /// <summary>Gets the hosted model instance.</summary>
+    /// <summary>
+    /// Gets the hosted model instance.
+    /// </summary>
     new T Model { get; }
 }

@@ -68,9 +68,9 @@
             <DockPanel Background="{StaticResource Grey10Brush}">
                 <ToggleButton DockPanel.Dock="Right"
                               Padding="8 2"
-                              Content="Detailed View"
-                              Visibility="{Binding ShowDetailedViewToggle, Converter={StaticResource Bool2Vis}}"
-                              IsChecked="{Binding CurrentCanvas.DetailedView, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Content="Overview"
+                              Visibility="{Binding ShowOverviewToggle, Converter={StaticResource Bool2Vis}}"
+                              IsChecked="{Binding CurrentCanvas.Overview, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource ToolBarToggleButtonStyle}" />
                 <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding NavLinks}">
                     <ItemsControl.ItemsPanel>

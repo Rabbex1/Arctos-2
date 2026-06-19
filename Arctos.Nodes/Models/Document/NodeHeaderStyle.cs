@@ -18,19 +18,14 @@ public sealed class NodeHeaderStyle
     public NodeColor FontColor { get; set; } = NodeColor.Black;
 
     /// <summary>
-    /// Gets or sets the default header font size.
-    /// </summary>
-    public float FontSize { get; set; } = 12.0f;
-
-    /// <summary>
-    /// Gets or sets the preferred header font family. When <see langword="null"/>, the host default font is used.
-    /// </summary>
-    public string? FontFamily { get; set; }
-
-    /// <summary>
     /// Gets or sets the preferred header font weight.
     /// </summary>
     public NodeFontWeight FontWeight { get; set; } = NodeFontWeight.Normal;
+
+    /// <summary>
+    /// Gets or sets the horizontal alignment used for the header text.
+    /// </summary>
+    public NodeTextAlignment Alignment { get; set; } = NodeTextAlignment.Center;
 
     #endregion Properties
 }
