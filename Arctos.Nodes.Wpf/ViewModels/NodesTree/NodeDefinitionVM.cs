@@ -13,7 +13,7 @@ namespace Arctos.Nodes.Wpf.ViewModels;
 /// <summary>
 /// Editable tree view model wrapper over a <see cref="NodeDefinition"/>.
 /// </summary>
-public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTabs, IModelHost<NodeDefinition>
+public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTabs, IModelHost<NodeDefinition>, ICanvasViewStateHost
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
@@ -26,6 +26,8 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     private readonly IReadOnlyList<EditTabVM> _editTabs;
     private ICommand? _deleteCommand;
     private NodeComponentVM? _selectedComponent;
+    private NodePoint _canvasPan;
+    private float _canvasZoom;
 
     #endregion Fields
 
@@ -190,6 +192,25 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     /// Gets the temporary in-memory component instances currently associated with this definition.
     /// </summary>
     public ObservableCollection<NodeComponentVM> NodeComponents => _nodeComponents;
+
+    /// <summary>
+    /// Gets or sets the last canvas pan used while this definition was active.
+    /// </summary>
+    public NodePoint CanvasPan
+    {
+        get => _canvasPan;
+        set => SetProperty(ref _canvasPan, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the last canvas zoom used while this definition was active.
+    /// A value less than or equal to zero indicates that the definition has not been initialized in the canvas yet.
+    /// </summary>
+    public float CanvasZoom
+    {
+        get => _canvasZoom;
+        set => SetProperty(ref _canvasZoom, value);
+    }
 
     /// <summary>
     /// Gets the callback used to notify the owning document that the definition changed.

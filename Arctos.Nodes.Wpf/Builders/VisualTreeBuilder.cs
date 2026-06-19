@@ -137,9 +137,9 @@ public sealed class VisualTreeBuilder
                     showDebugBounds,
                     inputComponent.IsHovered && !isPreview,
                     inputComponent.IsSelected && !isPreview,
-                    isPreview,
-                    selectionColor,
-                    selectionDashLength)
+                    isPreview: isPreview,
+                    defaultSelectionColor: selectionColor,
+                    selectionDashLength: selectionDashLength)
                 {
                     Bounds = bounds,
                 };
@@ -180,12 +180,12 @@ public sealed class VisualTreeBuilder
                     minorGridSize / 4.0f,
                     nodeBounds.Left,
                     nodeBounds.Right,
-                    1.0f,
-                    showDebugBounds,
-                    portComponent.IsHovered && !isPreview,
-                    portComponent.IsSelected && !isPreview,
-                    selectionColor,
-                    selectionDashLength)
+                    opacity: 1.0f,
+                    showDebugBounds: showDebugBounds,
+                    isHovered: portComponent.IsHovered && !isPreview,
+                    isSelected: portComponent.IsSelected && !isPreview,
+                    defaultSelectionColor: selectionColor,
+                    selectionDashLength: selectionDashLength)
                 {
                     Bounds = bounds,
                 };

@@ -95,6 +95,25 @@ namespace Arctos.Wpf.DragDrop
 
     #endregion Allowed Effects
 
+    #region UseSystemCursor
+    public static readonly DependencyProperty UseSystemCursorProperty =
+        DependencyProperty.Register("UseSystemCursor",
+            typeof(bool),
+            typeof(DragBehavior),
+            new PropertyMetadata(false));
+
+    public bool UseSystemCursor
+    {
+      set { SetValue(UseSystemCursorProperty, value); }
+      get
+      {
+        var value = GetValue(UseSystemCursorProperty);
+        return (bool?)value ?? false;
+      }
+    }
+
+    #endregion UseSystemCursor
+
     #endregion Dependancy Properties
 
     //------------------------------------------------------------------------------------------------------------------------------------------
@@ -153,7 +172,8 @@ namespace Arctos.Wpf.DragDrop
       var dragObject = dragSource.DataObject;
       data.SetData(dragType, dragObject); // temp
       IsDragging = true;
-      Cursor.Open();
+      if (!UseSystemCursor)
+        Cursor.Open();
       System.Windows.DragDrop.DoDragDrop(AssociatedObject, data, AllowedEffects);
     }
 
@@ -162,6 +182,13 @@ namespace Arctos.Wpf.DragDrop
 
     protected virtual void GiveFeedback(object sender, GiveFeedbackEventArgs e)
     {
+      if (UseSystemCursor)
+      {
+        e.UseDefaultCursors = true;
+        e.Handled = true;
+        return;
+      }
+
       Cursor.GiveFeedback(e);
       e.Handled = true;
     }

@@ -23,4 +23,9 @@ public sealed class NodeComponentLayoutSnapshot
     /// Gets the resolved component bounds in world-space units.
     /// </summary>
     public required SKRect Bounds { get; init; }
+
+    /// <summary>
+    /// Gets the rendered component bounds in world-space units.
+    /// </summary>
+    public required SKRect VisualBounds { get; init; }
 }

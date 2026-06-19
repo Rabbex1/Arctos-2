@@ -2,6 +2,7 @@ using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.Rendering;
 using Arctos.Nodes.Wpf.ViewModels;
 using Arctos.Nodes.Wpf.ViewModels.Components;
+using Arctos.Nodes.Wpf.Visuals;
 using SkiaSharp;
 
 namespace Arctos.Nodes.Wpf.Layout;
@@ -49,6 +50,8 @@ public sealed class NodeLayoutEngine : ILayoutEngine
             : paddingNu;
         var horizontalBorderClearanceNu = GetHalfBorderClearanceNu(definitionHost, minorGridSize);
         var bottomBorderClearanceNu = GetBottomBorderClearanceNu(definitionHost, minorGridSize);
+        var borderThickness = definitionHost.Model.Style?.ShapeStyle.BorderThickness
+                              ?? new NodeStyle().ShapeStyle.BorderThickness;
         var inputLabelWidthNu = MeasureInputLabelWidthNu(definitionHost, styleContext, minorGridSize);
         var requiredContentHeightNu = GetRequiredContentHeightNu(definitionHost, lineHeightNu, rowSpacingNu, styleContext);
         var requiredContentWidthNu = GetRequiredContentWidthNu(definitionHost, styleContext, minorGridSize, inputLabelWidthNu);
@@ -88,6 +91,7 @@ public sealed class NodeLayoutEngine : ILayoutEngine
 
         var nextRowTopNu = contentTopNu;
         var componentLayouts = new List<NodeComponentLayoutSnapshot>();
+        var visualBounds = nodeBounds;
         var orderedComponents = definitionHost.NodeComponents
             .Select((component, index) => new { component, index })
             .OrderBy(item => item.component.Position.Y)
@@ -102,6 +106,7 @@ public sealed class NodeLayoutEngine : ILayoutEngine
             item.component.SetPosition(resolvedPosition, notifyComponentChanged: false);
 
             var bounds = MeasureComponentBounds(item.component, styleContext, minorGridSize, resolvedPosition, contentRightNu, lineHeightNu, componentHeightNu);
+            var componentVisualBounds = MeasureComponentVisualBounds(item.component, styleContext, minorGridSize, bounds, nodeBounds, borderThickness);
             if (item.component is NodePortComponentVM portComponent)
             {
                 portComponent.Attach = new NodePoint(
@@ -114,7 +119,10 @@ public sealed class NodeLayoutEngine : ILayoutEngine
                 Component = item.component,
                 PositionNu = resolvedPosition,
                 Bounds = bounds,
+                VisualBounds = componentVisualBounds,
             });
+
+            visualBounds = UnionBounds(visualBounds, componentVisualBounds);
 
             nextRowTopNu = resolvedY + componentHeightNu + rowSpacingNu;
         }
@@ -122,6 +130,7 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         return new NodeLayoutSnapshot
         {
             NodeBounds = nodeBounds,
+            VisualBounds = visualBounds,
             HeaderBounds = headerBounds,
             ContentBounds = new SKRect(
                 contentLeftNu * minorGridSize,
@@ -159,6 +168,29 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         };
     }
 
+    private static SKRect MeasureComponentVisualBounds(NodeComponentVM component, NodeCanvasStyleContext styleContext, float minorGridSize, SKRect bounds, SKRect nodeBounds, float borderThickness)
+    {
+        if (component is not NodePortComponentVM portComponent)
+            return bounds;
+
+        var placement = portComponent.Shape == NodePortShape.Hidden
+            ? NodePortPlacement.Over
+            : styleContext.PortPlacement;
+        var nodeStrokeSize = minorGridSize / 4.0f;
+        var portBounds = NodePortGeometry.CreatePortBounds(
+            bounds,
+            portComponent.Side,
+            placement,
+            styleContext.PortSize,
+            nodeBounds.Left,
+            nodeBounds.Right,
+            borderThickness,
+            minorGridSize,
+            nodeStrokeSize);
+
+        return UnionBounds(bounds, portBounds);
+    }
+
     private static SKRect MeasureLabelBounds(NodeLabelComponentVM labelComponent, NodeCanvasStyleContext styleContext, float minorGridSize, NodePoint positionNu, float contentRightNu, float lineHeightNu)
     {
         var x = positionNu.X * minorGridSize;
@@ -175,6 +207,21 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         var right = contentRightNu * minorGridSize;
         var height = componentHeightNu * minorGridSize;
         return new SKRect(x, y, right, y + height);
+    }
+
+    private static SKRect UnionBounds(SKRect current, SKRect next)
+    {
+        if (current.IsEmpty)
+            return next;
+
+        if (next.IsEmpty)
+            return current;
+
+        return new SKRect(
+            MathF.Min(current.Left, next.Left),
+            MathF.Min(current.Top, next.Top),
+            MathF.Max(current.Right, next.Right),
+            MathF.Max(current.Bottom, next.Bottom));
     }
 
     private static float MeasureHeaderHeightNu(NodeCanvasStyleContext styleContext, NodeDefinitionVM definitionHost, float minorGridSize)

@@ -13,6 +13,11 @@ public sealed class NodeLayoutSnapshot : ILayoutSnapshot
     public required SKRect NodeBounds { get; init; }
 
     /// <summary>
+    /// Gets the rendered node bounds in world-space units, including component visuals that extend outside the body.
+    /// </summary>
+    public required SKRect VisualBounds { get; init; }
+
+    /// <summary>
     /// Gets the optional header bounds in world-space units.
     /// </summary>
     public SKRect? HeaderBounds { get; init; }

@@ -30,6 +30,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
     private readonly NodeColor _textColor;
     private readonly float _textSize;
     private readonly float _opacity;
+    private readonly float _fillOpacityScale;
 
     public NodePortComponentVisual(
         string label,
@@ -49,6 +50,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
         float nodeLeft,
         float nodeRight,
         float opacity = 1.0f,
+        float fillOpacityScale = 1.0f,
         bool showDebugBounds = false,
         bool isHovered = false,
         bool isSelected = false,
@@ -72,6 +74,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
         _nodeLeft = nodeLeft;
         _nodeRight = nodeRight;
         _opacity = Math.Clamp(opacity, 0.0f, 1.0f);
+        _fillOpacityScale = MathF.Max(0.0f, fillOpacityScale);
         _showDebugBounds = showDebugBounds;
         _isHovered = isHovered;
         _isSelected = isSelected;
@@ -83,14 +86,16 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
     {
         ArgumentNullException.ThrowIfNull(canvas);
 
-        var size = MathF.Max(_nodeUnitSize, _sizeNu * _nodeUnitSize);
-        var centerX = GetPortCenterX(size);
-        var centerY = Bounds.MidY;
-        var portBounds = new SKRect(
-            centerX - (size * 0.5f),
-            centerY - (size * 0.5f),
-            centerX + (size * 0.5f),
-            centerY + (size * 0.5f));
+        var portBounds = NodePortGeometry.CreatePortBounds(
+            Bounds,
+            _side,
+            _placement,
+            _sizeNu,
+            _nodeLeft,
+            _nodeRight,
+            _nodeBorderThickness,
+            _nodeUnitSize,
+            _nodeStrokeSize);
 
         DrawPort(canvas, portBounds);
         DrawLabel(canvas, portBounds);
@@ -116,7 +121,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
         };
         using var fillPaint = new SKPaint
         {
-            Color = WithOpacity(_fillColor.ToSkColor()),
+            Color = WithOpacity(_fillColor.ToSkColor(), _fillOpacityScale),
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
         };
@@ -134,7 +139,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
                 break;
 
             case NodePortShape.ArrowIn:
-                using (var path = CreateArrowPath(portBounds, pointsIntoNode: true))
+                using (var path = NodePortGeometry.CreateArrowPath(portBounds, _side, pointsIntoNode: true))
                 {
                     canvas.DrawPath(path, fillPaint);
                     canvas.DrawPath(path, strokePaint);
@@ -142,7 +147,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
                 break;
 
             case NodePortShape.ArrowOut:
-                using (var path = CreateArrowPath(portBounds, pointsIntoNode: false))
+                using (var path = NodePortGeometry.CreateArrowPath(portBounds, _side, pointsIntoNode: false))
                 {
                     canvas.DrawPath(path, fillPaint);
                     canvas.DrawPath(path, strokePaint);
@@ -167,28 +172,6 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
 
         canvas.DrawLine(portBounds.Left, portBounds.Top, portBounds.Right, portBounds.Bottom, hiddenPaint);
         canvas.DrawLine(portBounds.Left, portBounds.Bottom, portBounds.Right, portBounds.Top, hiddenPaint);
-    }
-
-    private SKPath CreateArrowPath(SKRect portBounds, bool pointsIntoNode)
-    {
-        var path = new SKPath();
-        var pointsRight = (_side == NodePortSide.Left && pointsIntoNode) || (_side == NodePortSide.Right && !pointsIntoNode);
-
-        if (pointsRight)
-        {
-            path.MoveTo(portBounds.Right, portBounds.MidY);
-            path.LineTo(portBounds.Left, portBounds.Top);
-            path.LineTo(portBounds.Left, portBounds.Bottom);
-        }
-        else
-        {
-            path.MoveTo(portBounds.Left, portBounds.MidY);
-            path.LineTo(portBounds.Right, portBounds.Top);
-            path.LineTo(portBounds.Right, portBounds.Bottom);
-        }
-
-        path.Close();
-        return path;
     }
 
     private void DrawLabel(SKCanvas canvas, SKRect portBounds)
@@ -216,29 +199,9 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
         canvas.DrawText(_label, x, baseline, textPaint);
     }
 
-    private float GetPortCenterX(float size)
+    private SKColor WithOpacity(SKColor color, float opacityScale = 1.0f)
     {
-        var borderCenter = _side == NodePortSide.Left ? _nodeLeft : _nodeRight;
-        if (_placement == NodePortPlacement.Over)
-            return borderCenter;
-
-        // Border thickness is authored in ns, so half of the resolved stroke width aligns on nf steps.
-        var halfStrokeWorld = (_nodeBorderThickness * _nodeStrokeSize) * 0.5f;
-        var offset = halfStrokeWorld + (size * 0.5f);
-
-        return (_side, _placement) switch
-        {
-            (NodePortSide.Left, NodePortPlacement.Inside) => borderCenter + offset,
-            (NodePortSide.Left, NodePortPlacement.Outside) => borderCenter - offset,
-            (NodePortSide.Right, NodePortPlacement.Inside) => borderCenter - offset,
-            (NodePortSide.Right, NodePortPlacement.Outside) => borderCenter + offset,
-            _ => borderCenter,
-        };
-    }
-
-    private SKColor WithOpacity(SKColor color)
-    {
-        return color.WithAlpha((byte)Math.Clamp(MathF.Round(color.Alpha * _opacity), 0.0f, 255.0f));
+        return color.WithAlpha((byte)Math.Clamp(MathF.Round(color.Alpha * _opacity * opacityScale), 0.0f, 255.0f));
     }
 
     private static SKTypeface? CreateTypeface(string? fontFamily, NodeFontWeight fontWeight)

@@ -30,6 +30,7 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
     private readonly object? _value;
     private readonly NodeColor _fieldBorderColor;
     private readonly float _nodeUnitSize;
+    private readonly float _previewOpacity;
 
     #endregion Fields
 
@@ -51,6 +52,7 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         bool isHovered = false,
         bool isSelected = false,
         bool isPreview = false,
+        float previewOpacity = 0.6f,
         SKColor defaultSelectionColor = default,
         float selectionDashLength = 1.0f)
     {
@@ -68,6 +70,7 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         _isHovered = isHovered;
         _isSelected = isSelected;
         _isPreview = isPreview;
+        _previewOpacity = Math.Clamp(previewOpacity, 0.0f, 1.0f);
         _selectionColor = defaultSelectionColor == default ? SKColors.Gray : defaultSelectionColor;
         _selectionDashLength = selectionDashLength;
     }
@@ -247,7 +250,7 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
     {
         return !_isPreview
             ? color
-            : color.WithAlpha((byte)Math.Clamp(MathF.Round(color.Alpha * 0.6f), 0.0f, 255.0f));
+            : color.WithAlpha((byte)Math.Clamp(MathF.Round(color.Alpha * _previewOpacity), 0.0f, 255.0f));
     }
 
     private static string FormatValue(object? value)
