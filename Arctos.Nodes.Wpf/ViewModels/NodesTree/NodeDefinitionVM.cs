@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Input;
 using Arctos.Nodes.Models;
+using Arctos.Nodes.Wpf.DragImage;
 using Arctos.Nodes.Wpf.ViewModels.Components;
 using Arctos.Wpf;
 using Arctos.Wpf.Inputs;
@@ -13,7 +15,7 @@ namespace Arctos.Nodes.Wpf.ViewModels;
 /// <summary>
 /// Editable tree view model wrapper over a <see cref="NodeDefinition"/>.
 /// </summary>
-public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTabs, IModelHost<NodeDefinition>, ICanvasViewStateHost
+public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTabs, IModelHost<NodeDefinition>, ICanvasViewStateHost, IDragImageHost
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
@@ -28,6 +30,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     private NodeComponentVM? _selectedComponent;
     private NodePoint _canvasPan;
     private float _canvasZoom;
+    private DragImage.DragImage? _dragImage;
 
     #endregion Fields
 
@@ -158,6 +161,28 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     }
 
     /// <summary>
+    /// Gets or sets the number of layout columns available to the definition.
+    /// </summary>
+    public int ColumnCount
+    {
+        get => Math.Clamp(_definition.ColumnCount, 1, 4);
+        set
+        {
+            var columnCount = Math.Clamp(value, 1, 4);
+            var currentColumnCount = Math.Clamp(_definition.ColumnCount, 1, 4);
+            if (currentColumnCount == columnCount)
+                return;
+
+            if (columnCount < currentColumnCount)
+                CollapseRemovedColumns(currentColumnCount, columnCount);
+
+            _definition.ColumnCount = columnCount;
+            OnPropertyChanged();
+            NotifyDocumentChanged();
+        }
+    }
+
+    /// <summary>
     /// Gets the shape rules associated with the current definition.
     /// </summary>
     public ShapeRules ShapeRules
@@ -213,6 +238,15 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     }
 
     /// <summary>
+    /// Gets or sets the cached drag image owned by this definition host.
+    /// </summary>
+    public DragImage.DragImage? DragImage
+    {
+        get => _dragImage;
+        set => SetProperty(ref _dragImage, value);
+    }
+
+    /// <summary>
     /// Gets the callback used to notify the owning document that the definition changed.
     /// </summary>
     public Action? OnDocumentChanged { get; private set; }
@@ -250,6 +284,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
             new EditTabVM("Header", _headerForm),
             new EditTabVM("Style", _styleForm),
         ];
+        MigrateLegacyComponentPlacement();
         LoadComponentsFromModel();
         MakeEditTabs();
     }
@@ -272,7 +307,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     /// Adds a temporary component instance to the current definition.
     /// </summary>
     /// <param name="component">The component instance to add.</param>
-    public void AddComponent(NodeComponentVM component)
+    public void AddComponent(NodeComponentVM component, bool notifyDocumentChanged = true)
     {
         ArgumentNullException.ThrowIfNull(component);
 
@@ -280,7 +315,60 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         _nodeComponents.Add(component);
         _definition.Components.Add(component.Model);
         SelectComponent(component);
-        NotifyDocumentChanged();
+        if (notifyDocumentChanged)
+            NotifyDocumentChanged();
+    }
+
+    /// <summary>
+    /// Places the supplied component into the requested column and row slot, normalizing sibling row orders as needed.
+    /// </summary>
+    /// <param name="component">The component to place.</param>
+    /// <param name="column">The zero-based target column.</param>
+    /// <param name="rowIndex">The zero-based target row index within the parent container.</param>
+    /// <param name="inlineWithExistingRow"><see langword="true"/> to place the component into an existing row; otherwise, <see langword="false"/> to insert a new row.</param>
+    /// <param name="parentId">The target parent identifier, or <see langword="null"/> for the root container.</param>
+    /// <param name="notifyDocumentChanged"><see langword="true"/> to notify the owning document; otherwise, <see langword="false"/>.</param>
+    public void PlaceComponent(NodeComponentVM component, int column, int rowIndex, bool inlineWithExistingRow, int xOrder = 0, string? parentId = null, bool notifyDocumentChanged = true)
+    {
+        ArgumentNullException.ThrowIfNull(component);
+
+        var resolvedColumn = Math.Max(0, column);
+        var resolvedParentId = string.IsNullOrWhiteSpace(parentId) ? null : parentId;
+        component.SetColumn(resolvedColumn, notifyComponentChanged: false);
+        component.SetParentId(resolvedParentId, notifyComponentChanged: false);
+        component.SetXOrder(xOrder, notifyComponentChanged: false);
+
+        var siblingRows = BuildPlacementRows(_nodeComponents
+            .Where(candidate => !ReferenceEquals(candidate, component)
+                                && candidate.Column == resolvedColumn
+                                && string.Equals(candidate.ParentId, resolvedParentId, StringComparison.Ordinal)));
+
+        // Compact the remaining row orders first so same-row drag/reorder operations
+        // don't preserve a gap where the dragged button used to live.
+        NormalizePlacementRows(siblingRows);
+
+        if (inlineWithExistingRow && siblingRows.Count > 0)
+        {
+            var targetRowIndex = Math.Clamp(rowIndex, 0, siblingRows.Count - 1);
+            var targetRow = siblingRows[targetRowIndex];
+            var targetXOrder = Math.Clamp(xOrder, 0, targetRow.Components.Count);
+            foreach (var sibling in targetRow.Components.Where(candidate => candidate.XOrder >= targetXOrder))
+                sibling.SetXOrder(sibling.XOrder + 1, notifyComponentChanged: false);
+
+            component.SetXOrder(targetXOrder, notifyComponentChanged: false);
+            targetRow.Components.Add(component);
+            NormalizePlacementRow(targetRow);
+            NormalizePlacementRows(siblingRows);
+        }
+        else
+        {
+            var targetRowIndex = Math.Clamp(rowIndex, 0, siblingRows.Count);
+            siblingRows.Insert(targetRowIndex, new PlacementRow([component]));
+            NormalizePlacementRows(siblingRows);
+        }
+
+        if (notifyDocumentChanged)
+            NotifyDocumentChanged();
     }
 
     /// <summary>
@@ -395,6 +483,53 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         _styleForm.Inputs = new System.Collections.ObjectModel.ObservableCollection<DataInputWrapperVM>(CreateStyleInputs());
     }
 
+    private void MigrateLegacyComponentPlacement()
+    {
+        if (_definition.Components.Count <= 1 || _definition.Components.Any(component => component.YOrder > 0 || !string.IsNullOrWhiteSpace(component.ParentId)))
+            return;
+
+        var orderedComponents = _definition.Components
+            .Select((component, index) => new LegacyOrderedComponent(component, index))
+            .OrderBy(item => Math.Max(0, item.Component.Column))
+            .ThenBy(item => item.Component.Position.Y)
+            .ThenBy(item => IsButtonLikeComponent(item.Component) ? item.Component.Position.X : 0.0f)
+            .ThenBy(item => item.Index)
+            .ToList();
+
+        var currentColumn = -1;
+        var currentYOrder = -1;
+        var currentButtonRowY = 0.0f;
+        var currentButtonXOrder = 0;
+
+        foreach (var item in orderedComponents)
+        {
+            var column = Math.Max(0, item.Component.Column);
+            if (column != currentColumn)
+            {
+                currentColumn = column;
+                currentYOrder = -1;
+                currentButtonRowY = 0.0f;
+                currentButtonXOrder = 0;
+            }
+
+            if (IsButtonLikeComponent(item.Component) && currentYOrder >= 0 && AreClose(item.Component.Position.Y, currentButtonRowY))
+            {
+                item.Component.YOrder = currentYOrder;
+                item.Component.XOrder = currentButtonXOrder++;
+                continue;
+            }
+
+            currentYOrder++;
+            item.Component.YOrder = currentYOrder;
+            item.Component.XOrder = 0;
+            if (IsButtonLikeComponent(item.Component))
+            {
+                currentButtonRowY = item.Component.Position.Y;
+                currentButtonXOrder = 1;
+            }
+        }
+    }
+
     private void LoadComponentsFromModel()
     {
         _nodeComponents.Clear();
@@ -413,12 +548,102 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         {
             NodeText text => new NodeLabelComponentVM(text),
             NodeInput input => new NodeInputComponentVM(input),
+            NodeValueDisplay valueDisplay => new NodeValueDisplayComponentVM(valueDisplay),
             NodeButton button => new NodeButtonComponentVM(button),
             NodeSeparator separator => new NodeSeparatorComponentVM(separator),
             NodeSpacer spacer => new NodeSpacerComponentVM(spacer),
             NodePort port => new NodePortComponentVM(port),
+            NodeGridInput gridInput => new NodeGridInputComponentVM(gridInput),
+            NodeIndicator indicator => new NodeIndicatorComponentVM(indicator),
+            NodeIconButton iconButton => new NodeIconButtonComponentVM(iconButton),
             _ => throw new NotSupportedException($"The node component type '{component.GetType().Name}' is not supported."),
         };
+    }
+
+    private static List<PlacementRow> BuildPlacementRows(IEnumerable<NodeComponentVM> components)
+    {
+        return components
+            .GroupBy(component => component.YOrder)
+            .OrderBy(group => group.Key)
+            .Select(group => new PlacementRow(group.OrderBy(component => IsButtonLikeComponent(component) ? component.XOrder : 0).ToList()))
+            .ToList();
+    }
+
+    private void CollapseRemovedColumns(int oldColumnCount, int newColumnCount)
+    {
+        if (newColumnCount >= oldColumnCount)
+            return;
+
+        var targetColumn = Math.Max(0, newColumnCount - 1);
+
+        foreach (var parentGroup in _nodeComponents.GroupBy(component => component.ParentId, StringComparer.Ordinal))
+        {
+            var targetRows = BuildPlacementRows(parentGroup.Where(component => component.Column == targetColumn));
+            var appendedRows = new List<PlacementRow>();
+
+            for (var sourceColumn = newColumnCount; sourceColumn < oldColumnCount; sourceColumn++)
+            {
+                var sourceRows = BuildPlacementRows(parentGroup.Where(component => component.Column == sourceColumn));
+                foreach (var row in sourceRows)
+                {
+                    foreach (var component in row.Components)
+                        component.SetColumn(targetColumn, notifyComponentChanged: false);
+
+                    appendedRows.Add(row);
+                }
+            }
+
+            if (appendedRows.Count == 0)
+                continue;
+
+            targetRows.AddRange(appendedRows);
+            NormalizePlacementRows(targetRows);
+        }
+    }
+
+    private static void NormalizePlacementRows(IReadOnlyList<PlacementRow> rows)
+    {
+        for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+        {
+            NormalizePlacementRow(rows[rowIndex]);
+            foreach (var component in rows[rowIndex].Components)
+                component.SetYOrder(rowIndex, notifyComponentChanged: false);
+        }
+    }
+
+    private static void NormalizePlacementRow(PlacementRow row)
+    {
+        row.Components.Sort((left, right) =>
+        {
+            var leftX = IsButtonLikeComponent(left) ? left.XOrder : 0;
+            var rightX = IsButtonLikeComponent(right) ? right.XOrder : 0;
+            return leftX.CompareTo(rightX);
+        });
+
+        for (var index = 0; index < row.Components.Count; index++)
+            row.Components[index].SetXOrder(index, notifyComponentChanged: false);
+    }
+
+    private static bool IsButtonLikeComponent(NodeComponentVM component)
+    {
+        return component is NodeButtonComponentVM or NodeIconButtonComponentVM;
+    }
+
+    private static bool IsButtonLikeComponent(NodeComponent component)
+    {
+        return component is NodeButton or NodeIconButton;
+    }
+
+    private static bool AreClose(float left, float right)
+    {
+        return Math.Abs(left - right) < 0.01f;
+    }
+
+    private sealed record LegacyOrderedComponent(NodeComponent Component, int Index);
+
+    private sealed class PlacementRow(List<NodeComponentVM> components)
+    {
+        public List<NodeComponentVM> Components { get; } = components;
     }
 
     private List<DataInputWrapperVM> CreateGeneralInputs()
@@ -446,6 +671,17 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
             new InputBoolVM("Has Overview:", _definition.HasOverview, hasOverview =>
             {
                 HasOverview = hasOverview;
+            }),
+
+            new InputIntRangeVM("Column Count:", new IntRangeInput
+            {
+                Min = 1,
+                Max = 4,
+                Value = ColumnCount,
+            }, columnCount =>
+            {
+                if (columnCount != null)
+                    ColumnCount = columnCount.Value;
             }),
         ];
     }

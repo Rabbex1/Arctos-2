@@ -143,6 +143,7 @@ namespace Arctos.Wpf.DragDrop
       if (CurrentDataType != null)
       {
         DropTarget.OnDragEnter(CurrentObject, e.GetPosition(AssociatedObject));
+        SetDragDropEffects(e, true);
         e.Handled = true;
       }
       else
@@ -157,9 +158,9 @@ namespace Arctos.Wpf.DragDrop
       switch (CanDrop(sender, e))
       {
         case AcceptDrop.Yes:
-          //give mouse effect
-          SetDragDropEffects(e, true);
           DropTarget.OnDragOver(CurrentObject, e.GetPosition(AssociatedObject));
+          //give mouse effect after the drop target has updated any location-specific validity
+          SetDragDropEffects(e, true);
           //draw the adorner
           UpdateAdorner(e.GetPosition(AssociatedObject));
           e.Handled = true;
@@ -197,7 +198,9 @@ namespace Arctos.Wpf.DragDrop
 
     protected virtual void SetDragDropEffects(DragEventArgs e, bool canDrop)
     {
-      e.Effects = CurrentDataType == null ? DragDropEffects.None : DropTarget.GetRequiredEffect(CurrentObject);
+      e.Effects = !canDrop || CurrentDataType == null
+        ? DragDropEffects.None
+        : DropTarget.GetRequiredEffect(CurrentObject);
     }
 
     protected virtual AcceptDrop CanDrop(object sender, DragEventArgs e)

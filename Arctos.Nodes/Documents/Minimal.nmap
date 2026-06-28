@@ -29,9 +29,10 @@
     "RowSpacing": 0,
     "ColumnSpacing": 1,
     "RoundedCornerRadius": 2,
+    "ControlCornerRadius": 0.5,
     "MinimumColumnWidth": 22,
-    "PortSize": 2,
-    "PortPlacement": 2
+    "PortSize": 2.2,
+    "PortPlacement": 0
   },
   "LocalLibrary": {
     "Name": null,
@@ -43,7 +44,7 @@
         "DomainType": "Primitive",
         "NodeShape": 0,
         "Size": {
-          "Width": 24,
+          "Width": 34,
           "Height": 16
         },
         "ShapeRules": {
@@ -59,6 +60,7 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": true,
+        "ColumnCount": 1,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -113,8 +115,8 @@
         "DomainType": "Primitive",
         "NodeShape": 0,
         "Size": {
-          "Width": 38,
-          "Height": 26
+          "Width": 79,
+          "Height": 90
         },
         "ShapeRules": {
           "Shape": 0,
@@ -129,6 +131,7 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
+        "ColumnCount": 2,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -154,10 +157,10 @@
           },
           "HeaderStyle": {
             "BackgroundColor": {
-              "Red": 0,
-              "Green": 0,
-              "Blue": 0,
-              "Alpha": 0
+              "Red": 180,
+              "Green": 73,
+              "Blue": 55,
+              "Alpha": 167
             },
             "FontColor": {
               "Red": 0,
@@ -165,7 +168,7 @@
               "Blue": 0,
               "Alpha": 255
             },
-            "FontWeight": 400,
+            "FontWeight": 700,
             "Alignment": 1
           },
           "OverrideRules": {
@@ -178,58 +181,76 @@
         "Components": [
           {
             "$type": "Input",
-            "DisplayName": "Input",
+            "DisplayName": "String Input",
             "Description": null,
             "TypeId": "String",
             "IsReadOnly": false,
             "IsVisible": true,
             "GroupId": null,
-            "DefaultValue": "",
+            "DateTimeDisplayMode": 2,
+            "DefaultValue": "test",
             "Id": null,
-            "Label": "Input",
+            "Label": "String Input",
             "Position": {
-              "X": -18,
-              "Y": -4
-            }
+              "X": -38,
+              "Y": 21
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 17,
+            "XOrder": 0,
+            "FixedWidth": 0
           },
           {
             "$type": "Input",
-            "DisplayName": "Date Time",
+            "DisplayName": "Bool Input",
             "Description": null,
             "TypeId": "Boolean",
             "IsReadOnly": false,
             "IsVisible": true,
             "GroupId": null,
-            "DefaultValue": false,
+            "DateTimeDisplayMode": 2,
+            "DefaultValue": true,
             "Id": null,
-            "Label": "Date Time",
+            "Label": "Bool Input",
             "Position": {
-              "X": -18,
-              "Y": 4
-            }
+              "X": -38,
+              "Y": 13
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 15,
+            "XOrder": 0,
+            "FixedWidth": 0
           },
           {
             "$type": "Input",
-            "DisplayName": "Input",
+            "DisplayName": "Dropdown",
             "Description": null,
             "TypeId": "StringSelection",
             "IsReadOnly": false,
             "IsVisible": true,
             "GroupId": null,
+            "DateTimeDisplayMode": 2,
             "DefaultValue": {
               "Options": [],
               "Value": null
             },
             "Id": null,
-            "Label": "Input",
+            "Label": "Dropdown",
             "Position": {
-              "X": -18,
-              "Y": 8
-            }
+              "X": -38,
+              "Y": 29
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 19,
+            "XOrder": 0,
+            "FixedWidth": 0
           },
           {
             "$type": "Port",
-            "Side": 0,
+            "Side": 1,
             "Shape": 1,
             "FillColor": {
               "Red": 63,
@@ -240,26 +261,510 @@
             "Id": null,
             "Label": "Port",
             "Position": {
-              "X": -18,
-              "Y": -8
-            }
+              "X": 1,
+              "Y": -27
+            },
+            "Column": 1,
+            "ParentId": null,
+            "YOrder": 3,
+            "XOrder": 0,
+            "FixedWidth": 0
           },
           {
             "$type": "Port",
             "Side": 1,
             "Shape": 0,
             "FillColor": {
-              "Red": 36,
-              "Green": 182,
-              "Blue": 223,
+              "Red": 118,
+              "Green": 62,
+              "Blue": 117,
               "Alpha": 255
             },
             "Id": null,
             "Label": "Port",
             "Position": {
-              "X": -18,
-              "Y": 0
-            }
+              "X": 1,
+              "Y": -31
+            },
+            "Column": 1,
+            "ParentId": null,
+            "YOrder": 2,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "One",
+            "Position": {
+              "X": -38,
+              "Y": -31
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 2,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "Button",
+            "Position": {
+              "X": -38,
+              "Y": -35
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 1,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "Toggle",
+            "Position": {
+              "X": -38,
+              "Y": -39
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 0,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "Four",
+            "Position": {
+              "X": -9.5,
+              "Y": -31
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 2,
+            "XOrder": 3,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Port",
+            "Side": 1,
+            "Shape": 3,
+            "FillColor": {
+              "Red": 62,
+              "Green": 62,
+              "Blue": 62,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": 1,
+              "Y": -35
+            },
+            "Column": 1,
+            "ParentId": null,
+            "YOrder": 1,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Numeric",
+            "Description": null,
+            "TypeId": "String",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DateTimeDisplayMode": 2,
+            "DefaultValue": "123.456",
+            "Id": null,
+            "Label": "Numeric",
+            "Position": {
+              "X": -38,
+              "Y": 25
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 18,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "Three",
+            "Position": {
+              "X": -19,
+              "Y": -31
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 2,
+            "XOrder": 2,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "Two",
+            "Position": {
+              "X": -28.5,
+              "Y": -31
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 2,
+            "XOrder": 1,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Separator",
+            "ColorMode": 0,
+            "Id": null,
+            "Label": "Separator",
+            "Position": {
+              "X": -38,
+              "Y": -3
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 10,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Time Span",
+            "Description": null,
+            "TypeId": "TimeSpan",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DateTimeDisplayMode": 2,
+            "DefaultValue": "00:00:00",
+            "Id": null,
+            "Label": "Time Span",
+            "Position": {
+              "X": -38,
+              "Y": 17
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 16,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "GridInput",
+            "Rows": 1,
+            "Columns": 4,
+            "CellWidth": 4,
+            "CellTypeId": "Integer",
+            "MinValue": 0,
+            "MaxValue": 255,
+            "DefaultValues": [
+              255,
+              168,
+              20,
+              114
+            ],
+            "Id": null,
+            "Label": "IP Address",
+            "Position": {
+              "X": -38,
+              "Y": -15
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 7,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "GridInput",
+            "Rows": 1,
+            "Columns": 4,
+            "CellWidth": 4,
+            "CellTypeId": "Integer",
+            "MinValue": 0,
+            "MaxValue": 255,
+            "DefaultValues": [
+              255,
+              255,
+              255,
+              0
+            ],
+            "Id": null,
+            "Label": "Net Mask",
+            "Position": {
+              "X": -38,
+              "Y": -11
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 8,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "GridInput",
+            "Rows": 1,
+            "Columns": 4,
+            "CellWidth": 4,
+            "CellTypeId": "Integer",
+            "MinValue": 0,
+            "MaxValue": 255,
+            "DefaultValues": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "Id": null,
+            "Label": "Gateway",
+            "Position": {
+              "X": -38,
+              "Y": -7
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 9,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Separator",
+            "ColorMode": 0,
+            "Id": null,
+            "Label": "Separator",
+            "Position": {
+              "X": -38,
+              "Y": -17
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 6,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Port",
+            "Side": 1,
+            "Shape": 2,
+            "FillColor": {
+              "Red": 173,
+              "Green": 173,
+              "Blue": 34,
+              "Alpha": 255
+            },
+            "Id": null,
+            "Label": "Port",
+            "Position": {
+              "X": 1,
+              "Y": -39
+            },
+            "Column": 1,
+            "ParentId": null,
+            "YOrder": 0,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Input",
+            "DisplayName": "Date Time",
+            "Description": null,
+            "TypeId": "DateTime",
+            "IsReadOnly": false,
+            "IsVisible": true,
+            "GroupId": null,
+            "DateTimeDisplayMode": 2,
+            "DefaultValue": "2026-06-22T18:32:30.4624122\u002B08:00",
+            "Id": null,
+            "Label": "Date Time",
+            "Position": {
+              "X": -38,
+              "Y": -27
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 3,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Separator",
+            "ColorMode": 0,
+            "Id": null,
+            "Label": "Separator",
+            "Position": {
+              "X": -38,
+              "Y": 37
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 21,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Indicator",
+            "Color": {
+              "Red": 128,
+              "Green": 19,
+              "Blue": 11,
+              "Alpha": 255
+            },
+            "Shape": 0,
+            "Id": null,
+            "Label": "Connection",
+            "Position": {
+              "X": -38,
+              "Y": -1
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 11,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Separator",
+            "ColorMode": 0,
+            "Id": null,
+            "Label": "Separator",
+            "Position": {
+              "X": -38,
+              "Y": 7
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 13,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Text",
+            "Id": null,
+            "Label": "Text",
+            "Position": {
+              "X": -38,
+              "Y": 33
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 20,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Separator",
+            "ColorMode": 0,
+            "Id": null,
+            "Label": "Separator",
+            "Position": {
+              "X": -38,
+              "Y": -23
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 4,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "1",
+            "Position": {
+              "X": -38,
+              "Y": 39
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 22,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "2",
+            "Position": {
+              "X": -25.333332,
+              "Y": 39
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 22,
+            "XOrder": 1,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Button",
+            "Id": null,
+            "Label": "3",
+            "Position": {
+              "X": -12.666665,
+              "Y": 39
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 22,
+            "XOrder": 2,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Indicator",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255,
+              "Alpha": 255
+            },
+            "Shape": 0,
+            "Id": null,
+            "Label": "Indicator",
+            "Position": {
+              "X": -38,
+              "Y": 3
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 12,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "ValueDisplay",
+            "DefaultValue": "Value",
+            "Id": null,
+            "Label": "Value Display",
+            "Position": {
+              "X": -38,
+              "Y": -21
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 5,
+            "XOrder": 0,
+            "FixedWidth": 0
+          },
+          {
+            "$type": "Text",
+            "Id": null,
+            "Label": "Text",
+            "Position": {
+              "X": -38,
+              "Y": 9
+            },
+            "Column": 0,
+            "ParentId": null,
+            "YOrder": 14,
+            "XOrder": 0,
+            "FixedWidth": 0
           }
         ]
       },
@@ -285,6 +790,7 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
+        "ColumnCount": 1,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -355,6 +861,7 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
+        "ColumnCount": 1,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -409,7 +916,7 @@
         "DomainType": "Primitive",
         "NodeShape": 4,
         "Size": {
-          "Width": 24,
+          "Width": 25,
           "Height": 8
         },
         "ShapeRules": {
@@ -425,6 +932,7 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
+        "ColumnCount": 1,
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {

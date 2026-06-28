@@ -75,11 +75,14 @@ public abstract class NodeComponentVisual : IVisual
     /// <param name="dashLength">The dash and gap length in world-space units.</param>
     /// <param name="strokeWidth">The stroke width used for the selection outline.</param>
     /// <param name="dashed"><see langword="true"/> to use a dashed outline; otherwise <see langword="false"/>.</param>
-    protected void RenderSelectionBounds(SKCanvas canvas, SKColor selectionColor, float dashLength, float strokeWidth, bool dashed)
+    protected void RenderSelectionBounds(SKCanvas canvas, SKColor selectionColor, float dashLength, float strokeWidth, bool dashed, float horizontalPadding = 0.0f)
     {
         ArgumentNullException.ThrowIfNull(canvas);
 
         var resolvedDashLength = MathF.Max(1.0f, dashLength);
+        var selectionBounds = horizontalPadding > 0.0f
+            ? new SKRect(Bounds.Left - horizontalPadding, Bounds.Top, Bounds.Right + horizontalPadding, Bounds.Bottom)
+            : Bounds;
 
         using var selectionPaint = new SKPaint
         {
@@ -98,7 +101,7 @@ public abstract class NodeComponentVisual : IVisual
             ], 0.0f);
         }
 
-        canvas.DrawRect(Bounds, selectionPaint);
+        canvas.DrawRect(selectionBounds, selectionPaint);
     }
 
     #endregion Protected Methods

@@ -1,13 +1,18 @@
 using Arctos;
+using Arctos.Nodes.Wpf.DragImage;
 using Arctos.Nodes.Wpf.ViewModels.Components;
 using Arctos.Wpf.DragDrop;
+using DragImageArtifact = Arctos.Nodes.Wpf.DragImage.DragImage;
+using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Arctos.Nodes.Wpf.ViewModels.ToolWindows;
 
 /// <summary>
 /// Represents a single system-defined palette item that may be dragged into a node.
 /// </summary>
-public sealed class PaletteItemVM : BaseVM, IDragable
+public sealed class PaletteItemVM : BaseVM, IDragable, IDragFeedbackState
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Properties
@@ -28,6 +33,36 @@ public sealed class PaletteItemVM : BaseVM, IDragable
     public Func<NodeComponentVM> CreateComponent { get; }
 
     /// <summary>
+    /// Gets or sets the cached drag image seed for this palette item.
+    /// </summary>
+    #region DragImage
+    private DragImageArtifact? _dragImage;
+    public DragImageArtifact? DragImage
+    {
+        get => _dragImage;
+        set
+        {
+            if (!SetProperty(ref _dragImage, value))
+                return;
+
+            CursorImageSource = CreateCursorImageSource(value);
+        }
+    }
+    #endregion
+
+    /// <summary>
+    /// Gets the WPF image source used by the custom drag cursor.
+    /// </summary>
+    #region CursorImageSource
+    private ImageSource? _cursorImageSource;
+    public ImageSource? CursorImageSource
+    {
+        get => _cursorImageSource;
+        private set => SetProperty(ref _cursorImageSource, value);
+    }
+    #endregion
+
+    /// <summary>
     /// Gets the drag/drop payload type exposed by this palette item.
     /// </summary>
     public Type DataType => typeof(PaletteItemVM);
@@ -36,6 +71,11 @@ public sealed class PaletteItemVM : BaseVM, IDragable
     /// Gets the drag/drop payload object exposed by this palette item.
     /// </summary>
     public object DataObject => this;
+
+    /// <summary>
+    /// Gets or sets an optional override for the currently displayed drag feedback effect.
+    /// </summary>
+    public System.Windows.DragDropEffects? DragFeedbackEffectOverride { get; set; }
 
     #endregion Properties
 
@@ -68,6 +108,21 @@ public sealed class PaletteItemVM : BaseVM, IDragable
     public void Remove(object i)
     {
         _ = i;
+    }
+
+    private static ImageSource? CreateCursorImageSource(DragImageArtifact? dragImage)
+    {
+        if (dragImage == null || dragImage.PngData.Length == 0)
+            return null;
+
+        using var stream = new MemoryStream(dragImage.PngData, writable: false);
+        var bitmap = new BitmapImage();
+        bitmap.BeginInit();
+        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+        bitmap.StreamSource = stream;
+        bitmap.EndInit();
+        bitmap.Freeze();
+        return bitmap;
     }
 
     #endregion Public Methods

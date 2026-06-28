@@ -49,6 +49,18 @@
                  IsReadOnly="{Binding IsReadOnly}"/>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type inputs:InputTextAreaVM}">
+        <TextBox Style="{StaticResource InputTextBox}"
+                 Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
+                 IsReadOnly="{Binding IsReadOnly}"
+                 Height="96"
+                 AcceptsReturn="True"
+                 TextWrapping="NoWrap"
+                 VerticalContentAlignment="Top"
+                 VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Auto"/>
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type inputs:InputLabelVM}">
         <TextBlock Text="{Binding Value}"
                    VerticalAlignment="Center"
@@ -274,6 +286,96 @@
         </Grid>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type inputs:InputNamedColorListVM}">
+        <Grid Margin="0 2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0 0 0 4">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource ToolBarButtonBaseStyle}">
+                        <Setter Property="Width" Value="22"/>
+                        <Setter Property="Height" Value="22"/>
+                        <Setter Property="Margin" Value="0 0 2 0"/>
+                        <Setter Property="IsEnabled" Value="True"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsReadOnly}" Value="True">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Resources>
+
+                <Button Content="+"
+                        Command="{Binding AddCommand}"/>
+                <Button Content="-"
+                        Command="{Binding RemoveCommand}"
+                        IsEnabled="{Binding CanRemove}"/>
+                <Button Content="^"
+                        Command="{Binding MoveUpCommand}"
+                        IsEnabled="{Binding CanMoveUp}"/>
+                <Button Content="v"
+                        Margin="0"
+                        Command="{Binding MoveDownCommand}"
+                        IsEnabled="{Binding CanMoveDown}"/>
+            </StackPanel>
+
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding Items}"
+                     SelectedItem="{Binding SelectedItem}"
+                     attached:SelectedItem.Highlight="Outline"
+                     MinHeight="72">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                        <Setter Property="attached:SelectedItem.Highlight" Value="{Binding Path=(attached:SelectedItem.Highlight),
+                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}}"></Setter>
+                        <Setter Property="attached:SelectListboxItemByControl.Enable" Value="True"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0 1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Style="{StaticResource InputTextBox}"
+                                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0 0 6 0"
+                                     IsReadOnly="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+
+                            <Border Grid.Column="1"
+                                    BorderBrush="{StaticResource ToolWindowBorderBrush}"
+                                    BorderThickness="1"
+                                    Width="112">
+                                <colorPicker:PortableColorPicker SmallChange="5"
+                                                                 SelectedColor="{Binding Color, Mode=TwoWay}"
+                                                                 ShowAlpha="True">
+                                    <colorPicker:PortableColorPicker.Style>
+                                        <Style TargetType="{x:Type colorPicker:PortableColorPicker}" BasedOn="{StaticResource DefaultColorPickerStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Value="True">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </colorPicker:PortableColorPicker.Style>
+                                </colorPicker:PortableColorPicker>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </DataTemplate>
+
     <!--<DataTemplate DataType="{x:Type local:InputColorVM}">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -429,6 +531,32 @@
         </TextBox>
     </DataTemplate>
 
+    <DataTemplate x:Key="InputMatrixTemplate">
+        <Grid Margin="0 2"
+              IsEnabled="{Binding IsEnabled}">
+            <ItemsControl ItemsSource="{Binding Cells}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="{Binding Rows}"
+                                     Columns="{Binding Columns}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBox Style="{StaticResource InputTextBox}"
+                                 Margin="4 2"
+                                 IsReadOnly="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+                            <TextBox.Text>
+                                <Binding Path="Text"
+                                         UpdateSourceTrigger="LostFocus"/>
+                            </TextBox.Text>
+                        </TextBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type inputs:InputGroupVM}">
         <ContentPresenter Content="{Binding PropertiesForm}"
                           attached:SelectedItem.Highlight = "None"
@@ -479,6 +607,24 @@
         </TextBox>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type inputs:InputIntRangeExtraVM}">
+        <TextBox Style="{StaticResource InputTextBox}"
+                 IsReadOnly="{Binding IsReadOnly}"
+                 ToolTip="{Binding AllowedValuesDescription}">
+            <Validation.ErrorTemplate>
+                <ControlTemplate />
+            </Validation.ErrorTemplate>
+            <TextBox.Text>
+                <Binding Path="StringValue"
+                         UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <inputs:StringToIntRangeExtraValidationRule ValidationStep="CommittedValue"/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+    </DataTemplate>
+
 
 
 
@@ -515,6 +661,41 @@
             </ContentPresenter>
             <Button Grid.Column="2" Margin="8 2 0 2" 
                     Width="26" Height="22"
+                    Visibility="{Binding Icon, Converter={StaticResource NotNull2Vis}}"
+                    Command="{Binding ChangeButtonCommand}">
+                <ContentPresenter Content="{Binding Icon, Converter={StaticResource String2Resource}}"/>
+            </Button>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ParameterMatrixInput">
+        <Grid Margin="4 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="LabelColumn" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition SharedSizeGroup="ButtonColumn" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0"
+                   VerticalAlignment="Top"
+                   Content="{Binding Description}"
+                   Padding="0 5"
+                   Margin="0 0 8 0"
+                   MaxWidth="180">
+                <Label.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"
+                                   TextWrapping="Wrap" />
+                    </DataTemplate>
+                </Label.ContentTemplate>
+            </Label>
+            <ContentPresenter Grid.Column="1"
+                              Grid.ColumnSpan="{Binding ValueColumnSpan}"
+                              Content="{Binding }"
+                              HorizontalAlignment="Stretch"
+                              ContentTemplateSelector="{StaticResource InputSelector}" />
+            <Button Grid.Column="2" Margin="8 2 0 2"
+                    Width="26" Height="22"
+                    VerticalAlignment="Top"
                     Visibility="{Binding Icon, Converter={StaticResource NotNull2Vis}}"
                     Command="{Binding ChangeButtonCommand}">
                 <ContentPresenter Content="{Binding Icon, Converter={StaticResource String2Resource}}"/>

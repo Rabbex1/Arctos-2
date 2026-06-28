@@ -20,6 +20,21 @@ public sealed class NodeComponentLayoutSnapshot
     public required NodePoint PositionNu { get; init; }
 
     /// <summary>
+    /// Gets the resolved zero-based layout column used by the component.
+    /// </summary>
+    public required int ColumnIndex { get; init; }
+
+    /// <summary>
+    /// Gets the resolved zero-based row order used by the component.
+    /// </summary>
+    public required int YOrder { get; init; }
+
+    /// <summary>
+    /// Gets the resolved zero-based inline order used by the component.
+    /// </summary>
+    public required int XOrder { get; init; }
+
+    /// <summary>
     /// Gets the resolved component bounds in world-space units.
     /// </summary>
     public required SKRect Bounds { get; init; }

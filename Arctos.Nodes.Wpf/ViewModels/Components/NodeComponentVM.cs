@@ -117,6 +117,42 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
         set => SetPosition(value);
     }
 
+    /// <summary>
+    /// Gets or sets the zero-based layout column used by the component.
+    /// </summary>
+    public int Column
+    {
+        get => Math.Max(0, Model.Column);
+        set => SetColumn(value);
+    }
+
+    /// <summary>
+    /// Gets or sets the optional parent container identifier used by hierarchical layouts.
+    /// </summary>
+    public string? ParentId
+    {
+        get => string.IsNullOrWhiteSpace(Model.ParentId) ? null : Model.ParentId;
+        set => SetParentId(value);
+    }
+
+    /// <summary>
+    /// Gets or sets the persisted vertical ordering slot used within the current parent container.
+    /// </summary>
+    public int YOrder
+    {
+        get => Math.Max(0, Model.YOrder);
+        set => SetYOrder(value);
+    }
+
+    /// <summary>
+    /// Gets or sets the persisted horizontal ordering slot used within a shared row.
+    /// </summary>
+    public int XOrder
+    {
+        get => Math.Max(0, Model.XOrder);
+        set => SetXOrder(value);
+    }
+
     #endregion Properties
 
     //------------------------------------------------------------------------------------------------------------------------------------------
@@ -182,6 +218,90 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
         return true;
     }
 
+    /// <summary>
+    /// Updates the component column, optionally suppressing the component changed callback.
+    /// </summary>
+    /// <param name="column">The new zero-based layout column.</param>
+    /// <param name="notifyComponentChanged"><see langword="true"/> to notify the owner that the component changed; otherwise, <see langword="false"/>.</param>
+    /// <returns><see langword="true"/> when the column changed; otherwise, <see langword="false"/>.</returns>
+    public bool SetColumn(int column, bool notifyComponentChanged = true)
+    {
+        var resolvedColumn = Math.Max(0, column);
+        if (Model.Column == resolvedColumn)
+            return false;
+
+        Model.Column = resolvedColumn;
+        OnPropertyChanged(nameof(Column));
+
+        if (notifyComponentChanged)
+            NotifyComponentChanged();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Updates the component parent identifier, optionally suppressing the component changed callback.
+    /// </summary>
+    /// <param name="parentId">The new parent identifier, or <see langword="null"/> for the root container.</param>
+    /// <param name="notifyComponentChanged"><see langword="true"/> to notify the owner that the component changed; otherwise, <see langword="false"/>.</param>
+    /// <returns><see langword="true"/> when the parent changed; otherwise, <see langword="false"/>.</returns>
+    public bool SetParentId(string? parentId, bool notifyComponentChanged = true)
+    {
+        var resolvedParentId = string.IsNullOrWhiteSpace(parentId) ? null : parentId;
+        if (string.Equals(Model.ParentId, resolvedParentId, StringComparison.Ordinal))
+            return false;
+
+        Model.ParentId = resolvedParentId;
+        OnPropertyChanged(nameof(ParentId));
+
+        if (notifyComponentChanged)
+            NotifyComponentChanged();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Updates the component vertical ordering slot, optionally suppressing the component changed callback.
+    /// </summary>
+    /// <param name="yOrder">The new zero-based row order.</param>
+    /// <param name="notifyComponentChanged"><see langword="true"/> to notify the owner that the component changed; otherwise, <see langword="false"/>.</param>
+    /// <returns><see langword="true"/> when the order changed; otherwise, <see langword="false"/>.</returns>
+    public bool SetYOrder(int yOrder, bool notifyComponentChanged = true)
+    {
+        var resolvedYOrder = Math.Max(0, yOrder);
+        if (Model.YOrder == resolvedYOrder)
+            return false;
+
+        Model.YOrder = resolvedYOrder;
+        OnPropertyChanged(nameof(YOrder));
+
+        if (notifyComponentChanged)
+            NotifyComponentChanged();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Updates the component horizontal ordering slot, optionally suppressing the component changed callback.
+    /// </summary>
+    /// <param name="xOrder">The new zero-based inline order.</param>
+    /// <param name="notifyComponentChanged"><see langword="true"/> to notify the owner that the component changed; otherwise, <see langword="false"/>.</param>
+    /// <returns><see langword="true"/> when the order changed; otherwise, <see langword="false"/>.</returns>
+    public bool SetXOrder(int xOrder, bool notifyComponentChanged = true)
+    {
+        var resolvedXOrder = Math.Max(0, xOrder);
+        if (Model.XOrder == resolvedXOrder)
+            return false;
+
+        Model.XOrder = resolvedXOrder;
+        OnPropertyChanged(nameof(XOrder));
+
+        if (notifyComponentChanged)
+            NotifyComponentChanged();
+
+        return true;
+    }
+
     #endregion Public Methods
 
     //------------------------------------------------------------------------------------------------------------------------------------------
@@ -201,6 +321,17 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
                 Id = id ?? string.Empty;
             }));
         }
+
+        inputs.Add(new InputIntRangeVM("Column:", new IntRangeInput
+        {
+            Min = 1,
+            Max = 4,
+            Value = Column + 1,
+        }, input =>
+        {
+            if (input != null)
+                Column = Math.Max(0, input.Value - 1);
+        }));
 
         inputs.AddRange(CreateGeneralInputs());
         _generalForm.Inputs = new ObservableCollection<DataInputWrapperVM>(inputs);

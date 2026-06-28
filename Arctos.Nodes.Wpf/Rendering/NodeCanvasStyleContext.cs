@@ -14,6 +14,7 @@ public sealed record NodeCanvasStyleContext(
     float RowSpacing,
     float ColumnSpacing,
     float RoundedCornerRadius,
+    float ControlCornerRadius,
     float MinimumColumnWidth,
     float PortSize,
     NodePortPlacement PortPlacement);

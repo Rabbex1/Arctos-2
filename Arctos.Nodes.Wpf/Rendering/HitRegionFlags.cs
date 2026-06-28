@@ -11,8 +11,9 @@ public enum HitRegionFlags
     Right = 1 << 1,
     Top = 1 << 2,
     Bottom = 1 << 3,
-    Body = 1 << 4,
-    Border = 1 << 5,
-    Header = 1 << 6,
-    Glyph = 1 << 7,
+    Middle = 1 << 4,
+    Body = 1 << 5,
+    Border = 1 << 6,
+    Header = 1 << 7,
+    Glyph = 1 << 8,
 }

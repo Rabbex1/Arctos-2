@@ -197,6 +197,12 @@ public sealed class NodeMapDocumentVM : NodeDocumentVM, INodeMapDocumentVM
     }
 
     /// <inheritdoc />
+    protected override float ResolveCanvasControlCornerRadius()
+    {
+        return _nodeMap?.Map.Style.ControlCornerRadius ?? 1.0f;
+    }
+
+    /// <inheritdoc />
     protected override float ResolveCanvasMinimumColumnWidth()
     {
         return _nodeMap?.Map.Style.MinimumColumnWidth ?? 24.0f;

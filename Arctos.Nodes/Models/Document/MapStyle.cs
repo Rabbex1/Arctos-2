@@ -48,6 +48,11 @@ public sealed class MapStyle
     public float RoundedCornerRadius { get; set; } = 2.0f;
 
     /// <summary>
+    /// Gets or sets the shared corner radius used by control chrome such as buttons, expressed in minor node units.
+    /// </summary>
+    public float ControlCornerRadius { get; set; } = 1.0f;
+
+    /// <summary>
     /// Gets or sets the minimum width used by a single detailed-layout content column, expressed in minor node units.
     /// </summary>
     public float MinimumColumnWidth { get; set; } = 24.0f;

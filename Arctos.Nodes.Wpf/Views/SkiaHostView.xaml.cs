@@ -140,11 +140,13 @@ public partial class SkiaHostView : UserControl
         var position = e.GetPosition(InputOverlay);
         var nodeSpace = new NodeSpace((float)InputOverlay.ActualWidth, (float)InputOverlay.ActualHeight);
         var nodePoint = nodeSpace.ToNodePoint(position.X, position.Y, skiaHost.Pan, skiaHost.Zoom);
-        var screenPoint = new SkiaSharp.SKPoint((float)position.X, (float)position.Y);
+        var localPoint = new SkiaSharp.SKPoint((float)position.X, (float)position.Y);
+        var screenPosition = InputOverlay.PointToScreen(position);
+        var screenPoint = new SkiaSharp.SKPoint((float)screenPosition.X, (float)screenPosition.Y);
         var clickCount = e is MouseButtonEventArgs mouseButtonEvent ? mouseButtonEvent.ClickCount : 0;
         var wheelDelta = e is MouseWheelEventArgs mouseWheelEvent ? mouseWheelEvent.Delta : 0;
 
-        skiaHost.OnPointerInput(new PointerInput(inputType, nodePoint, screenPoint, clickCount, wheelDelta));
+        skiaHost.OnPointerInput(new PointerInput(inputType, nodePoint, localPoint, screenPoint, clickCount, wheelDelta));
     }
 
     #endregion Private Methods

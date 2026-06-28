@@ -56,6 +56,11 @@ public sealed class NodeDefinition
     public bool HasOverview { get; set; }
 
     /// <summary>
+    /// Gets or sets the number of layout columns available to the node definition.
+    /// </summary>
+    public int ColumnCount { get; set; } = 1;
+
+    /// <summary>
     /// Gets or sets the optional style override for the node definition. When <see langword="null"/>, the definition inherits the document style.
     /// </summary>
     public NodeStyle? Style { get; set; }

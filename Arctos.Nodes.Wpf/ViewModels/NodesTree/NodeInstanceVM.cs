@@ -1,4 +1,5 @@
 using Arctos.Nodes.Models;
+using Arctos.Nodes.Wpf.DragImage;
 using Arctos.Wpf.Inputs;
 
 namespace Arctos.Nodes.Wpf.ViewModels;
@@ -6,7 +7,7 @@ namespace Arctos.Nodes.Wpf.ViewModels;
 /// <summary>
 /// Tree-based view model over a placed leaf node instance.
 /// </summary>
-public class NodeInstanceVM : NodeTreeParentVM<NodeInstanceVM, INodeTreeItemVM>, IEditTabs, IModelHost<LeafNode>
+public class NodeInstanceVM : NodeTreeParentVM<NodeInstanceVM, INodeTreeItemVM>, IEditTabs, IModelHost<LeafNode>, IDragImageHost
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
@@ -14,6 +15,7 @@ public class NodeInstanceVM : NodeTreeParentVM<NodeInstanceVM, INodeTreeItemVM>,
     private readonly LeafNode _node;
     private readonly InputFormVM _generalForm = new();
     private Action? _onDocumentChanged;
+    private DragImage.DragImage? _dragImage;
 
     #endregion Fields
 
@@ -73,6 +75,15 @@ public class NodeInstanceVM : NodeTreeParentVM<NodeInstanceVM, INodeTreeItemVM>,
     /// Gets the edit tabs shown for the node instance.
     /// </summary>
     public IReadOnlyList<EditTabVM> EditTabs { get; }
+
+    /// <summary>
+    /// Gets or sets the cached drag image owned by this node-instance host.
+    /// </summary>
+    public DragImage.DragImage? DragImage
+    {
+        get => _dragImage;
+        set => SetProperty(ref _dragImage, value);
+    }
 
     #endregion Properties
 

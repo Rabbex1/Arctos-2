@@ -45,6 +45,11 @@ public sealed class NodeInput : NodeComponent
     public string? GroupId { get; set; }
 
     /// <summary>
+    /// Gets or sets how DateTime inputs are displayed when rendered in passive visuals.
+    /// </summary>
+    public DateTimeDisplayMode DateTimeDisplayMode { get; set; } = DateTimeDisplayMode.Both;
+
+    /// <summary>
     /// Gets the serialized default value payload for the input.
     /// </summary>
     [JsonInclude]

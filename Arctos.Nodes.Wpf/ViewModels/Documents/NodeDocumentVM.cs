@@ -30,6 +30,7 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
     private float _canvasRowSpacing;
     private float _canvasColumnSpacing = 1.0f;
     private float _canvasRoundedCornerRadius = 2.0f;
+    private float _canvasControlCornerRadius = 1.0f;
     private float _canvasMinimumColumnWidth = 24.0f;
     private float _canvasPortSize = 1.5f;
     private NodePortPlacement _canvasPortPlacement = NodePortPlacement.Over;
@@ -279,6 +280,26 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
     }
 
     /// <summary>
+    /// Gets or sets the resolved control corner radius for the current document context.
+    /// </summary>
+    public float CanvasControlCornerRadius
+    {
+        get => _canvasControlCornerRadius;
+        protected set
+        {
+            if (Math.Abs(_canvasControlCornerRadius - value) < float.Epsilon)
+            {
+                CurrentCanvas.ControlCornerRadius = value;
+                return;
+            }
+
+            _canvasControlCornerRadius = value;
+            CurrentCanvas.ControlCornerRadius = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>
     /// Gets or sets the resolved minimum width used by a single detailed-layout content column for the current document context.
     /// </summary>
     public float CanvasMinimumColumnWidth
@@ -405,6 +426,7 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
         CurrentCanvas.RowSpacing = _canvasRowSpacing;
         CurrentCanvas.ColumnSpacing = _canvasColumnSpacing;
         CurrentCanvas.RoundedCornerRadius = _canvasRoundedCornerRadius;
+        CurrentCanvas.ControlCornerRadius = _canvasControlCornerRadius;
         CurrentCanvas.MinimumColumnWidth = _canvasMinimumColumnWidth;
         CurrentCanvas.PortSize = _canvasPortSize;
         CurrentCanvas.PortPlacement = _canvasPortPlacement;
@@ -467,6 +489,7 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
         CanvasRowSpacing = ResolveCanvasRowSpacing();
         CanvasColumnSpacing = ResolveCanvasColumnSpacing();
         CanvasRoundedCornerRadius = ResolveCanvasRoundedCornerRadius();
+        CanvasControlCornerRadius = ResolveCanvasControlCornerRadius();
         CanvasMinimumColumnWidth = ResolveCanvasMinimumColumnWidth();
         CanvasPortSize = ResolveCanvasPortSize();
         CanvasPortPlacement = ResolveCanvasPortPlacement();
@@ -563,6 +586,15 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
     protected virtual float ResolveCanvasRoundedCornerRadius()
     {
         return 2.0f;
+    }
+
+    /// <summary>
+    /// Resolves the effective control corner radius for the current document context.
+    /// </summary>
+    /// <returns>The effective control corner radius in <c>nu</c>.</returns>
+    protected virtual float ResolveCanvasControlCornerRadius()
+    {
+        return 1.0f;
     }
 
     /// <summary>

@@ -120,7 +120,7 @@ public sealed class NodePortComponentVM : NodeComponentVM
                 Label = label ?? string.Empty;
             }),
 
-            new InputEnumVM("Side:", Side, side =>
+            new InputEnumVM("Glyph Position:", Side, side =>
             {
                 if (side == null)
                     return;

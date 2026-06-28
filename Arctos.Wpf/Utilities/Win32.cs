@@ -34,6 +34,18 @@ namespace Arctos.Wpf.Utilities
         [DllImport("kernel32.dll")]
         public static extern bool GenerateConsoleCtrlEvent(uint dwCtrlEvent, uint dwProcessGroupId);
 
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
+        private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongW", SetLastError = true)]
+        private static extern int GetWindowLong32(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
+        private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongW", SetLastError = true)]
+        private static extern int SetWindowLong32(IntPtr hWnd, int nIndex, int dwNewLong);
+
         #endregion External Native Functions
 
         #region Native Structs
@@ -46,9 +58,26 @@ namespace Arctos.Wpf.Utilities
         }
         #endregion Native Structs
 
+        public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)
+        {
+            return IntPtr.Size == 8
+                ? GetWindowLongPtr64(hWnd, nIndex)
+                : new IntPtr(GetWindowLong32(hWnd, nIndex));
+        }
+
+        public static IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+        {
+            return IntPtr.Size == 8
+                ? SetWindowLongPtr64(hWnd, nIndex, dwNewLong)
+                : new IntPtr(SetWindowLong32(hWnd, nIndex, dwNewLong.ToInt32()));
+        }
+
         // ReSharper disable once InconsistentNaming
         public const int LOGPIXELSX = 88;    // Logical pixels/inch in X                 
                                              // ReSharper disable once InconsistentNaming
         public const int LOGPIXELSY = 90;    // Logical pixels/inch in Y                 
+        public const int GWL_EXSTYLE = -20;
+        public const int WS_EX_TRANSPARENT = 0x00000020;
+        public const int WS_EX_TOOLWINDOW = 0x00000080;
     }
 }

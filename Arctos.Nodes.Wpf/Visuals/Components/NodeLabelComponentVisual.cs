@@ -8,6 +8,8 @@ namespace Arctos.Nodes.Wpf.Visuals;
 /// </summary>
 public sealed class NodeLabelComponentVisual : NodeComponentVisual
 {
+    private const float ContentScale = 0.6f;
+
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
 
@@ -22,6 +24,7 @@ public sealed class NodeLabelComponentVisual : NodeComponentVisual
     private readonly bool _isSelected;
     private readonly SKColor _selectionColor;
     private readonly float _selectionDashLength;
+    private readonly float _selectionHorizontalPadding;
 
     #endregion Fields
 
@@ -36,7 +39,7 @@ public sealed class NodeLabelComponentVisual : NodeComponentVisual
     /// <param name="textSize">The font size used for the label.</param>
     /// <param name="textColor">The text color used for the label.</param>
     /// <param name="fontWeight">The font weight used for the label.</param>
-    public NodeLabelComponentVisual(string text, string? fontFamily, float textSize, NodeColor textColor, NodeFontWeight fontWeight, float opacity = 1.0f, bool showDebugBounds = false, bool isHovered = false, bool isSelected = false, SKColor defaultSelectionColor = default, float selectionDashLength = 1.0f)
+    public NodeLabelComponentVisual(string text, string? fontFamily, float textSize, NodeColor textColor, NodeFontWeight fontWeight, float opacity = 1.0f, bool showDebugBounds = false, bool isHovered = false, bool isSelected = false, SKColor defaultSelectionColor = default, float selectionDashLength = 1.0f, float selectionHorizontalPadding = 0.0f)
     {
         _text = text ?? string.Empty;
         _fontFamily = fontFamily;
@@ -49,6 +52,7 @@ public sealed class NodeLabelComponentVisual : NodeComponentVisual
         _isSelected = isSelected;
         _selectionColor = defaultSelectionColor == default ? SKColors.Gray : defaultSelectionColor;
         _selectionDashLength = selectionDashLength;
+        _selectionHorizontalPadding = MathF.Max(0.0f, selectionHorizontalPadding);
     }
 
     #endregion Constructors
@@ -78,10 +82,10 @@ public sealed class NodeLabelComponentVisual : NodeComponentVisual
             RenderDebugBounds(canvas);
 
         if (_isHovered && !_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true, _selectionHorizontalPadding);
 
         if (_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false, _selectionHorizontalPadding);
     }
 
     #endregion Public Methods
@@ -95,7 +99,7 @@ public sealed class NodeLabelComponentVisual : NodeComponentVisual
         {
             Color = _textColor.ToSkColor().WithAlpha((byte)Math.Clamp(MathF.Round(_opacity * 255.0f), 0.0f, 255.0f)),
             IsAntialias = true,
-            TextSize = _textSize,
+            TextSize = _textSize * ContentScale,
             TextAlign = SKTextAlign.Left,
             Typeface = CreateTypeface(_fontFamily, _fontWeight),
         };

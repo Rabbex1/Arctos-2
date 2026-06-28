@@ -137,6 +137,11 @@ public sealed class NodeMapSettingsVM : ObservableObject
                 _style.RoundedCornerRadius = radius;
             }),
 
+            new InputFloatVM("Control Corner Radius:", _style.ControlCornerRadius, radius =>
+            {
+                _style.ControlCornerRadius = radius;
+            }),
+
             new InputFloatVM("Minimum Column Width:", _style.MinimumColumnWidth, width =>
             {
                 _style.MinimumColumnWidth = width;

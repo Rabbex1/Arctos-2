@@ -15,6 +15,7 @@ public sealed class NodeSeparatorComponentVisual : NodeComponentVisual
     private readonly bool _isHovered;
     private readonly SKColor _selectionColor;
     private readonly float _selectionDashLength;
+    private readonly float _selectionHorizontalPadding;
     private readonly bool _showDebugBounds;
     private readonly SKColor _strokeColor;
     private readonly float _strokeWidth;
@@ -27,7 +28,7 @@ public sealed class NodeSeparatorComponentVisual : NodeComponentVisual
     /// <summary>
     /// Creates a new separator component visual.
     /// </summary>
-    public NodeSeparatorComponentVisual(SKColor strokeColor, float strokeWidth, bool showDebugBounds = false, bool isHovered = false, bool isSelected = false, SKColor defaultSelectionColor = default, float selectionDashLength = 1.0f)
+    public NodeSeparatorComponentVisual(SKColor strokeColor, float strokeWidth, bool showDebugBounds = false, bool isHovered = false, bool isSelected = false, SKColor defaultSelectionColor = default, float selectionDashLength = 1.0f, float selectionHorizontalPadding = 0.0f)
     {
         _strokeColor = strokeColor;
         _strokeWidth = MathF.Max(0.0f, strokeWidth);
@@ -36,6 +37,7 @@ public sealed class NodeSeparatorComponentVisual : NodeComponentVisual
         _isSelected = isSelected;
         _selectionColor = defaultSelectionColor == default ? SKColors.Gray : defaultSelectionColor;
         _selectionDashLength = selectionDashLength;
+        _selectionHorizontalPadding = MathF.Max(0.0f, selectionHorizontalPadding);
     }
 
     #endregion Constructors
@@ -62,10 +64,10 @@ public sealed class NodeSeparatorComponentVisual : NodeComponentVisual
             RenderDebugBounds(canvas);
 
         if (_isHovered && !_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true, _selectionHorizontalPadding);
 
         if (_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false, _selectionHorizontalPadding);
     }
 
     #endregion Public Methods

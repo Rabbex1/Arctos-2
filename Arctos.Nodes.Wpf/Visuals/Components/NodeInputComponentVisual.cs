@@ -11,8 +11,10 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
 
-    private const float InputFieldHeightNodeStrokeUnits = 14.0f;
+    private const float BodyHeightScale = 0.8f;
+    private const float TextScale = 0.6f;
     private const float InputFieldHorizontalPaddingNodeUnits = 1.0f;
+    private const float InputFieldInternalGapNodeUnits = 0.5f;
 
     private readonly string? _fontFamily;
     private readonly NodeFontWeight _fontWeight;
@@ -29,8 +31,15 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
     private readonly InputTypeId _typeId;
     private readonly object? _value;
     private readonly NodeColor _fieldBorderColor;
+    private readonly NodeColor _fieldBackgroundColor;
+    private readonly float _controlCornerRadius;
     private readonly float _nodeUnitSize;
     private readonly float _previewOpacity;
+    private readonly float? _labelValueGapNodeUnits;
+    private readonly float _fieldStrokeWidth;
+    private readonly float _selectionHorizontalPadding;
+    private readonly DateTimeDisplayMode _dateTimeDisplayMode;
+    private readonly NodeColor? _valueTextColor;
 
     #endregion Fields
 
@@ -46,15 +55,22 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         NodeColor textColor,
         NodeFontWeight fontWeight,
         NodeColor fieldBorderColor,
+        NodeColor fieldBackgroundColor,
+        float controlCornerRadius,
         float nodeUnitSize,
         float inputLabelWidth,
+        DateTimeDisplayMode dateTimeDisplayMode = DateTimeDisplayMode.Both,
+        NodeColor? valueTextColor = null,
+        float? labelValueGapNodeUnits = null,
+        float fieldStrokeWidth = 0.0f,
         bool showDebugBounds = false,
         bool isHovered = false,
         bool isSelected = false,
         bool isPreview = false,
         float previewOpacity = 0.6f,
         SKColor defaultSelectionColor = default,
-        float selectionDashLength = 1.0f)
+        float selectionDashLength = 1.0f,
+        float selectionHorizontalPadding = 0.0f)
     {
         _label = label ?? string.Empty;
         _typeId = typeId;
@@ -64,8 +80,14 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         _textColor = textColor;
         _fontWeight = fontWeight;
         _fieldBorderColor = fieldBorderColor;
+        _fieldBackgroundColor = fieldBackgroundColor;
+        _controlCornerRadius = MathF.Max(0.0f, controlCornerRadius);
         _nodeUnitSize = nodeUnitSize;
         _inputLabelWidth = inputLabelWidth;
+        _dateTimeDisplayMode = dateTimeDisplayMode;
+        _valueTextColor = valueTextColor;
+        _labelValueGapNodeUnits = labelValueGapNodeUnits;
+        _fieldStrokeWidth = Math.Max(0.0f, fieldStrokeWidth);
         _showDebugBounds = showDebugBounds;
         _isHovered = isHovered;
         _isSelected = isSelected;
@@ -73,6 +95,7 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         _previewOpacity = Math.Clamp(previewOpacity, 0.0f, 1.0f);
         _selectionColor = defaultSelectionColor == default ? SKColors.Gray : defaultSelectionColor;
         _selectionDashLength = selectionDashLength;
+        _selectionHorizontalPadding = MathF.Max(0.0f, selectionHorizontalPadding);
     }
 
     #endregion Constructors
@@ -85,38 +108,26 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         ArgumentNullException.ThrowIfNull(canvas);
 
         using var textPaint = CreateTextPaint();
-        var labelBounds = SKRect.Empty;
-        textPaint.MeasureText(_label, ref labelBounds);
-        var baseline = Bounds.MidY - labelBounds.MidY;
-
-        if (!string.IsNullOrWhiteSpace(_label))
-            canvas.DrawText(_label, Bounds.Left, baseline, textPaint);
-
-        var gap = _textSize * 0.5f;
-        var labelWidth = MathF.Max(labelBounds.Width, _inputLabelWidth);
-        var valueLeft = string.IsNullOrWhiteSpace(_label) && _inputLabelWidth <= 0.0f
-            ? Bounds.Left
-            : Bounds.Left + labelWidth + gap;
-        var fieldHeight = MathF.Min(Bounds.Height, (InputFieldHeightNodeStrokeUnits / 4.0f) * _nodeUnitSize);
-        var valueBounds = new SKRect(
-            MathF.Min(valueLeft, Bounds.Right),
+        var fieldHeight = Bounds.Height * BodyHeightScale;
+        var fieldBounds = new SKRect(
+            Bounds.Left,
             Bounds.MidY - (fieldHeight / 2.0f),
             Bounds.Right,
             Bounds.MidY + (fieldHeight / 2.0f));
 
         if (_typeId == InputTypeIds.Boolean)
-            RenderBooleanValue(canvas, valueBounds);
+            RenderBooleanValue(canvas, fieldBounds, textPaint);
         else
-            RenderBoxValue(canvas, valueBounds, textPaint, _typeId == InputTypeIds.StringSelection);
+            RenderBoxValue(canvas, fieldBounds, textPaint, _typeId == InputTypeIds.StringSelection);
 
         if (_showDebugBounds)
             RenderDebugBounds(canvas);
 
         if (_isHovered && !_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true, _selectionHorizontalPadding);
 
         if (_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false, _selectionHorizontalPadding);
     }
 
     #endregion Public Methods
@@ -124,50 +135,80 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Private Methods
 
-    private void RenderBooleanValue(SKCanvas canvas, SKRect valueBounds)
+    private void RenderBooleanValue(SKCanvas canvas, SKRect valueBounds, SKPaint textPaint)
     {
-        var size = MathF.Min(valueBounds.Height * 0.7f, valueBounds.Width);
-        var boxBounds = new SKRect(
-            valueBounds.Left,
-            valueBounds.MidY - (size / 2.0f),
-            valueBounds.Left + size,
-            valueBounds.MidY + (size / 2.0f));
+        var fieldColor = _fieldBorderColor.ToSkColor();
+        var horizontalPadding = InputFieldHorizontalPaddingNodeUnits * _nodeUnitSize;
+        var internalGap = InputFieldInternalGapNodeUnits * _nodeUnitSize;
+        var fieldCornerRadius = (_controlCornerRadius * _nodeUnitSize) * 0.5f;
+        var boxCornerRadius = fieldCornerRadius;
 
         using var fillPaint = new SKPaint
         {
-            Color = _fieldBorderColor.ToSkColor().WithAlpha((byte)(_isPreview ? 26 : 40)),
+            Color = fieldColor.WithAlpha((byte)(_isPreview ? 26 : 60)),
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
         };
+
+        canvas.DrawRoundRect(valueBounds, fieldCornerRadius, fieldCornerRadius, fillPaint);
+
+        var size = MathF.Min(valueBounds.Height * 0.56f, valueBounds.Width);
+        var boxBounds = new SKRect(
+            valueBounds.Right - horizontalPadding - size,
+            valueBounds.MidY - (size / 2.0f),
+            valueBounds.Right - horizontalPadding,
+            valueBounds.MidY + (size / 2.0f));
+        var labelLeft = valueBounds.Left + horizontalPadding;
+        var labelRight = MathF.Max(labelLeft, boxBounds.Left - internalGap);
+
+        using var labelClipPath = new SKPath();
+        labelClipPath.AddRect(new SKRect(labelLeft, valueBounds.Top, labelRight, valueBounds.Bottom));
+        canvas.Save();
+        canvas.ClipPath(labelClipPath, antialias: false);
+        if (!string.IsNullOrWhiteSpace(_label))
+        {
+            var labelBounds = SKRect.Empty;
+            textPaint.MeasureText(_label, ref labelBounds);
+            canvas.DrawText(_label, labelLeft, valueBounds.MidY - labelBounds.MidY, textPaint);
+        }
+        canvas.Restore();
+
         using var borderPaint = new SKPaint
         {
             Color = ApplyPreviewAlpha(_fieldBorderColor.ToSkColor()),
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 0.0f,
+            StrokeWidth = MathF.Max(_nodeUnitSize / 4.0f, 1.0f),
         };
 
-        canvas.DrawRect(boxBounds, fillPaint);
-        canvas.DrawRect(boxBounds, borderPaint);
+        using var boxFillPaint = new SKPaint
+        {
+            Color = ApplyPreviewAlpha(_fieldBackgroundColor.ToSkColor()),
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill,
+        };
+
+        canvas.DrawRoundRect(boxBounds, boxCornerRadius, boxCornerRadius, boxFillPaint);
+        canvas.DrawRoundRect(boxBounds, boxCornerRadius, boxCornerRadius, borderPaint);
 
         if (_value is not bool booleanValue || !booleanValue)
             return;
 
+        var innerSize = size * 0.5f;
+        var innerSquareBounds = new SKRect(
+            boxBounds.MidX - (innerSize / 2.0f),
+            boxBounds.MidY - (innerSize / 2.0f),
+            boxBounds.MidX + (innerSize / 2.0f),
+            boxBounds.MidY + (innerSize / 2.0f));
+
         using var checkPaint = new SKPaint
         {
-            Color = ApplyPreviewAlpha(_textColor.ToSkColor()),
+            Color = ApplyPreviewAlpha(_fieldBorderColor.ToSkColor()),
             IsAntialias = true,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = MathF.Max(1.0f, size * 0.12f),
-            StrokeCap = SKStrokeCap.Round,
-            StrokeJoin = SKStrokeJoin.Round,
+            Style = SKPaintStyle.Fill,
         };
 
-        using var checkPath = new SKPath();
-        checkPath.MoveTo(boxBounds.Left + (size * 0.18f), boxBounds.MidY + (size * 0.02f));
-        checkPath.LineTo(boxBounds.Left + (size * 0.42f), boxBounds.Bottom - (size * 0.22f));
-        checkPath.LineTo(boxBounds.Right - (size * 0.14f), boxBounds.Top + (size * 0.2f));
-        canvas.DrawPath(checkPath, checkPaint);
+        canvas.DrawRoundRect(innerSquareBounds, MathF.Min(boxCornerRadius, innerSize / 6.0f), MathF.Min(boxCornerRadius, innerSize / 6.0f), checkPaint);
     }
 
     private void RenderBoxValue(SKCanvas canvas, SKRect valueBounds, SKPaint textPaint, bool showDropdownArrow)
@@ -175,41 +216,73 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         if (valueBounds.Width <= 0.0f)
             return;
 
-        using var fillPaint = new SKPaint
-        {
-            Color = _fieldBorderColor.ToSkColor().WithAlpha((byte)(_isPreview ? 26 : 40)),
-            IsAntialias = true,
-            Style = SKPaintStyle.Fill,
-        };
-        using var borderPaint = new SKPaint
-        {
-            Color = ApplyPreviewAlpha(_fieldBorderColor.ToSkColor()),
-            IsAntialias = true,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = 0.0f,
-        };
-
-        canvas.DrawRect(valueBounds, fillPaint);
-        canvas.DrawRect(valueBounds, borderPaint);
-
-        var valueText = FormatValue(_value);
-        var textBounds = SKRect.Empty;
-        textPaint.MeasureText(valueText, ref textBounds);
+        var fieldColor = _fieldBorderColor.ToSkColor();
         var horizontalPadding = InputFieldHorizontalPaddingNodeUnits * _nodeUnitSize;
-        var textLeft = valueBounds.Left + horizontalPadding;
+        var internalGap = InputFieldInternalGapNodeUnits * _nodeUnitSize;
+        var fieldCornerRadius = (_controlCornerRadius * _nodeUnitSize) * 0.5f;
+
+        if (showDropdownArrow)
+        {
+            using var borderPaint = new SKPaint
+            {
+                Color = ApplyPreviewAlpha(fieldColor),
+                IsAntialias = true,
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 0.0f,
+            };
+
+            canvas.DrawRoundRect(valueBounds, fieldCornerRadius, fieldCornerRadius, borderPaint);
+        }
+        else
+        {
+            using var fillPaint = new SKPaint
+            {
+                Color = fieldColor.WithAlpha((byte)(_isPreview ? 26 : 60)),
+                IsAntialias = true,
+                Style = SKPaintStyle.Fill,
+            };
+
+            canvas.DrawRoundRect(valueBounds, fieldCornerRadius, fieldCornerRadius, fillPaint);
+        }
+
+        var valueText = FormatValue(_value, _dateTimeDisplayMode);
+        var labelText = _label ?? string.Empty;
+        var labelBounds = SKRect.Empty;
+        var valueTextBounds = SKRect.Empty;
+        textPaint.MeasureText(labelText, ref labelBounds);
+        textPaint.MeasureText(valueText, ref valueTextBounds);
+
         var textRight = valueBounds.Right - horizontalPadding;
+        var valueRight = textRight;
+        var arrowLeft = textRight;
 
         if (showDropdownArrow)
         {
             DrawDropdownArrow(canvas, valueBounds, horizontalPadding);
-            textRight -= horizontalPadding * 1.6f;
+            var arrowReserve = horizontalPadding * 1.8f;
+            arrowLeft = valueBounds.Right - arrowReserve;
+            valueRight = arrowLeft - internalGap;
         }
 
-        using var clipPath = new SKPath();
-        clipPath.AddRect(new SKRect(textLeft, valueBounds.Top, textRight, valueBounds.Bottom));
+        var labelLeft = valueBounds.Left + horizontalPadding;
+        var labelClipRight = MathF.Max(labelLeft, valueRight - MathF.Max(0.0f, valueTextBounds.Width) - internalGap);
+        var valueClipLeft = MathF.Min(valueRight, labelClipRight + internalGap);
+        var baseline = valueBounds.MidY - valueTextBounds.MidY;
+
+        using var labelClipPath = new SKPath();
+        labelClipPath.AddRect(new SKRect(labelLeft, valueBounds.Top, labelClipRight, valueBounds.Bottom));
         canvas.Save();
-        canvas.ClipPath(clipPath, antialias: false);
-        canvas.DrawText(valueText, textLeft, valueBounds.MidY - textBounds.MidY, textPaint);
+        canvas.ClipPath(labelClipPath, antialias: false);
+        if (!string.IsNullOrWhiteSpace(labelText))
+            canvas.DrawText(labelText, labelLeft, valueBounds.MidY - labelBounds.MidY, textPaint);
+        canvas.Restore();
+
+        using var valueClipPath = new SKPath();
+        valueClipPath.AddRect(new SKRect(valueClipLeft, valueBounds.Top, valueRight, valueBounds.Bottom));
+        using var rightAlignedTextPaint = CreateRightAlignedTextPaint(textPaint, _valueTextColor.HasValue ? ApplyPreviewAlpha(_valueTextColor.Value.ToSkColor()) : null);
+        canvas.Save();
+        canvas.ClipPath(valueClipPath, antialias: false);
+        canvas.DrawText(valueText, valueRight, baseline, rightAlignedTextPaint);
         canvas.Restore();
     }
 
@@ -240,9 +313,21 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
         {
             Color = ApplyPreviewAlpha(_textColor.ToSkColor()),
             IsAntialias = true,
-            TextSize = _textSize,
+            TextSize = _textSize * TextScale,
             TextAlign = SKTextAlign.Left,
             Typeface = CreateTypeface(_fontFamily, _fontWeight),
+        };
+    }
+
+    private static SKPaint CreateRightAlignedTextPaint(SKPaint source, SKColor? colorOverride = null)
+    {
+        return new SKPaint
+        {
+            Color = colorOverride ?? source.Color,
+            IsAntialias = source.IsAntialias,
+            TextSize = source.TextSize,
+            TextAlign = SKTextAlign.Right,
+            Typeface = source.Typeface,
         };
     }
 
@@ -253,16 +338,26 @@ public sealed class NodeInputComponentVisual : NodeComponentVisual
             : color.WithAlpha((byte)Math.Clamp(MathF.Round(color.Alpha * _previewOpacity), 0.0f, 255.0f));
     }
 
-    private static string FormatValue(object? value)
+    private static string FormatValue(object? value, DateTimeDisplayMode dateTimeDisplayMode)
     {
         return value switch
         {
             null => string.Empty,
             bool booleanValue => booleanValue ? "True" : "False",
             StringSelectionValue selection => selection.Value ?? string.Empty,
-            DateTime dateTime => dateTime.ToString("g"),
+            DateTime dateTime => FormatDateTime(dateTime, dateTimeDisplayMode),
             TimeSpan timeSpan => timeSpan.ToString(),
             _ => value.ToString() ?? string.Empty,
+        };
+    }
+
+    private static string FormatDateTime(DateTime value, DateTimeDisplayMode mode)
+    {
+        return mode switch
+        {
+            DateTimeDisplayMode.DateOnly => value.ToString("d"),
+            DateTimeDisplayMode.TimeOnly => value.ToString("t"),
+            _ => value.ToString("g"),
         };
     }
 

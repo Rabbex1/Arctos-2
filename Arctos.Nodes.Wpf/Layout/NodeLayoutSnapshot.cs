@@ -38,6 +38,11 @@ public sealed class NodeLayoutSnapshot : ILayoutSnapshot
     public required float InputLabelWidth { get; init; }
 
     /// <summary>
+    /// Gets the resolved column layout entries.
+    /// </summary>
+    public required IReadOnlyList<NodeColumnLayoutSnapshot> Columns { get; init; }
+
+    /// <summary>
     /// Gets the resolved component layout entries.
     /// </summary>
     public required IReadOnlyList<NodeComponentLayoutSnapshot> Components { get; init; }

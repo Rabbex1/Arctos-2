@@ -44,6 +44,24 @@ public sealed class NodeInputComponentVM : NodeComponentVM
     /// </summary>
     public object? DefaultValue => InputModel.GetDefaultValue(_registry);
 
+    /// <summary>
+    /// Gets or sets how DateTime inputs are displayed.
+    /// </summary>
+    public DateTimeDisplayMode DateTimeDisplayMode
+    {
+        get => InputModel.DateTimeDisplayMode;
+        set
+        {
+            if (InputModel.DateTimeDisplayMode == value)
+                return;
+
+            InputModel.DateTimeDisplayMode = value;
+            OnPropertyChanged();
+            RebuildEditTabs();
+            NotifyComponentChanged();
+        }
+    }
+
     #endregion Properties
 
     //------------------------------------------------------------------------------------------------------------------------------------------
@@ -105,6 +123,19 @@ public sealed class NodeInputComponentVM : NodeComponentVM
         {
             AddStringSelectionInputs(inputs);
             return inputs;
+        }
+
+        if (TypeId == InputTypeIds.DateTime)
+        {
+            inputs.Add(new InputStringComboVM(
+                "Display Mode:",
+                GetDateTimeDisplayModeLabel(DateTimeDisplayMode),
+                GetDateTimeDisplayModeLabels(),
+                selectedMode =>
+                {
+                    if (TryParseDateTimeDisplayMode(selectedMode, out var displayMode))
+                        DateTimeDisplayMode = displayMode;
+                }));
         }
 
         var defaultValueWrapper = DataInputWrapperVM.CreateTypeWrapper("Default Value:", ConvertToEditorValue(DefaultValue), value =>
@@ -271,6 +302,48 @@ public sealed class NodeInputComponentVM : NodeComponentVM
 
         if (string.IsNullOrWhiteSpace(selection.Value) || !selection.Options.Contains(selection.Value))
             selection.Value = selection.Options.First();
+    }
+
+    private static IEnumerable<string> GetDateTimeDisplayModeLabels()
+    {
+        return
+        [
+            "Date Only",
+            "Time Only",
+            "Both",
+        ];
+    }
+
+    private static string GetDateTimeDisplayModeLabel(DateTimeDisplayMode mode)
+    {
+        return mode switch
+        {
+            DateTimeDisplayMode.DateOnly => "Date Only",
+            DateTimeDisplayMode.TimeOnly => "Time Only",
+            _ => "Both",
+        };
+    }
+
+    private static bool TryParseDateTimeDisplayMode(string? label, out DateTimeDisplayMode mode)
+    {
+        switch (label)
+        {
+            case "Date Only":
+                mode = DateTimeDisplayMode.DateOnly;
+                return true;
+
+            case "Time Only":
+                mode = DateTimeDisplayMode.TimeOnly;
+                return true;
+
+            case "Both":
+                mode = DateTimeDisplayMode.Both;
+                return true;
+
+            default:
+                mode = DateTimeDisplayMode.Both;
+                return false;
+        }
     }
 
     private NodeInput InputModel => (NodeInput)Model;

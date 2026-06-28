@@ -1,6 +1,7 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Arctos.Wpf.Utilities;
 using Microsoft.Xaml.Behaviors;
 using Ursa.Wpf.DragDrop;
 using DataObject = System.Windows.DataObject;
@@ -21,6 +22,9 @@ namespace Arctos.Wpf.DragDrop
     #region Fields
     protected bool IsMouseClicked;
     protected bool IsDragging;
+    private static readonly DragService SharedDragService = DragService.Shared;
+    private static readonly WpfDragServiceAdapter SharedDragServiceAdapter = new(SharedDragService);
+    private IDragFeedbackState _dragFeedbackState;
     #endregion Fields
 
     public DragDropCursor Cursor { get; set; }
@@ -51,6 +55,20 @@ namespace Arctos.Wpf.DragDrop
       db.Cursor.ImageSource = args.NewValue;
     }
     #endregion CursorImage
+
+    #region DragImage
+    public static readonly DependencyProperty DragImageProperty =
+        DependencyProperty.Register("DragImage",
+            typeof(IDragImageSource),
+            typeof(DragBehavior),
+            new PropertyMetadata(null));
+
+    public IDragImageSource DragImage
+    {
+      set { SetValue(DragImageProperty, value); }
+      get { return (IDragImageSource)GetValue(DragImageProperty); }
+    }
+    #endregion DragImage
 
     #region Cursor Text
     public static readonly DependencyProperty CursorTextProperty =
@@ -123,6 +141,7 @@ namespace Arctos.Wpf.DragDrop
     protected override void OnAttached()
     {
       base.OnAttached();
+      _ = SharedDragServiceAdapter;
       AssociatedObject.MouseLeftButtonDown += MouseLeftButtonDown;
       AssociatedObject.MouseLeftButtonUp += MouseLeftButtonUp;
       AssociatedObject.MouseLeave += MouseLeave;
@@ -137,6 +156,7 @@ namespace Arctos.Wpf.DragDrop
       AssociatedObject.MouseLeftButtonUp -= MouseLeftButtonUp;
       AssociatedObject.MouseLeave -= MouseLeave;
       AssociatedObject.MouseMove -= MouseMove;
+      SharedDragService.End();
       base.OnDetaching();
     }
 
@@ -157,26 +177,45 @@ namespace Arctos.Wpf.DragDrop
     {
       IsMouseClicked = false;
       IsDragging = false;
+      SharedDragService.End();
+      ResetDragFeedbackOverride();
     }
 
     protected virtual void MouseMove(object sender, MouseEventArgs e)
     {
       if (IsDragging || e.LeftButton != MouseButtonState.Pressed)
         return;
-      //set the item's DataContext as the data to be transferred
+
       var dragSource = AssociatedObject.DataContext as IDragable;
       if (dragSource == null)
         return;
+
       var data = new DataObject();
       var dragType = dragSource.DataType;
       var dragObject = dragSource.DataObject;
-      data.SetData(dragType, dragObject); // temp
+      data.SetData(dragType, dragObject);
+      _dragFeedbackState = dragObject as IDragFeedbackState;
+      if (_dragFeedbackState != null)
+        _dragFeedbackState.DragFeedbackEffectOverride = DragDropEffects.None;
       IsDragging = true;
-      if (!UseSystemCursor)
-        Cursor.Open();
-      System.Windows.DragDrop.DoDragDrop(AssociatedObject, data, AllowedEffects);
-    }
 
+      if (UseSystemCursor)
+      {
+        BeginSharedDragImage();
+      }
+      else
+      {
+        Cursor ??= new DragDropCursor();
+        Cursor.ImageSource = GetValue(CursorImageProperty);
+        Cursor.Text = CursorText;
+        Cursor.Open();
+      }
+
+      System.Windows.DragDrop.DoDragDrop(AssociatedObject, data, AllowedEffects);
+      IsDragging = false;
+      SharedDragService.End();
+      ResetDragFeedbackOverride();
+    }
 
     private void MouseLeave(object sender, MouseEventArgs e) { }
 
@@ -184,7 +223,11 @@ namespace Arctos.Wpf.DragDrop
     {
       if (UseSystemCursor)
       {
-        e.UseDefaultCursors = true;
+        UpdateSharedDragPointerPosition();
+        SharedDragService.SetEffectOverride(_dragFeedbackState?.DragFeedbackEffectOverride ?? e.Effects);
+        var effects = _dragFeedbackState?.DragFeedbackEffectOverride ?? e.Effects;
+        Mouse.SetCursor(effects == DragDropEffects.None ? System.Windows.Input.Cursors.No : System.Windows.Input.Cursors.Arrow);
+        e.UseDefaultCursors = false;
         e.Handled = true;
         return;
       }
@@ -198,13 +241,43 @@ namespace Arctos.Wpf.DragDrop
       if (e.KeyStates == DragDropKeyStates.None)
       {
         IsDragging = false;
+        SharedDragService.End();
+        ResetDragFeedbackOverride();
         e.Action = DragAction.Cancel;
       }
       else if (e.KeyStates == DragDropKeyStates.LeftMouseButton)
       {
-        //Cursor.UpdatePosition();
+        UpdateSharedDragPointerPosition();
         e.Action = DragAction.Continue;
       }
+    }
+
+    private void BeginSharedDragImage()
+    {
+      if (DragImage == null || !Win32.GetCursorPos(out var point))
+      {
+        SharedDragService.End();
+        return;
+      }
+
+      SharedDragService.Begin(DragImage, DragDropEffects.None, point.x, point.y);
+    }
+
+    private static void UpdateSharedDragPointerPosition()
+    {
+      if (!Win32.GetCursorPos(out var point))
+        return;
+
+      SharedDragService.UpdatePointerPosition(point.x, point.y);
+    }
+
+    private void ResetDragFeedbackOverride()
+    {
+      if (_dragFeedbackState != null)
+        _dragFeedbackState.DragFeedbackEffectOverride = null;
+
+      _dragFeedbackState = null;
+      SharedDragService.SetEffectOverride(null);
     }
 
     #endregion Private

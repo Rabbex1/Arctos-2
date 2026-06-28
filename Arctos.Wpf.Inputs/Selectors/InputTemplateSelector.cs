@@ -11,6 +11,9 @@ namespace Arctos.Wpf.Inputs.Selectors
             if (item is not DataInputWrapperVM input)
                 return null;
 
+            if (input is IInputMatrixVM)
+                return Application.Current.Resources["InputMatrixTemplate"] as DataTemplate;
+
             var key = new DataTemplateKey(input.GetType());
             var dt = (DataTemplate)Application.Current.TryFindResource(key);
             if (dt != null) return dt;

@@ -161,6 +161,7 @@
                                             <Border Style="{StaticResource PaletteItemBorderStyle}">
                                                 <i:Interaction.Behaviors>
                                                     <dragDrop:DragBehavior AllowedEffects="Copy"
+                                                                           DragImage="{Binding DragImage}"
                                                                            UseSystemCursor="True" />
                                                 </i:Interaction.Behaviors>
                                                 <TextBlock Text="{Binding Label}" />

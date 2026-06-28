@@ -2,6 +2,7 @@ using Arctos;
 using Arctos.Nodes;
 using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.Builders;
+using Arctos.Nodes.Wpf.DragImage;
 using Arctos.Nodes.Wpf.Layout;
 using Arctos.Nodes.Wpf.Rendering;
 using Arctos.Nodes.Wpf.ViewModels.Components;
@@ -13,6 +14,7 @@ using Arctos.Wpf.Utilities;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using System.Windows.Input;
+using System.Windows;
 using DragDropEffects = System.Windows.DragDropEffects;
 using Point = System.Windows.Point;
 
@@ -36,6 +38,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     private const float PreviewIndicatorOpacity = 0.85f;
     private const float PreviewGhostValidOpacity = 0.50f;
     private const float PreviewGhostInvalidOpacity = 0.30f;
+    private static readonly DragService SharedDragService = DragService.Shared;
     private bool _isPanning;
     private bool _isLeftButtonDown;
     private bool _isDraggingSelectedComponent;
@@ -44,16 +47,21 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     private ILayoutEngine _layoutEngine = new NodeLayoutEngine();
     private ILayoutSnapshot? _layoutSnapshot;
     private NodeComponentVM? _dragSourceComponent;
+    private IDragFeedbackState? _activeDragFeedbackState;
     private NodeComponentVM? _hoveredComponent;
     private NodeComponentVM? _pressedComponent;
     private NodeComponentVM? _previewComponent;
     private SKPoint _previewPointWorld = new(0.0f, 0.0f);
     private SKRect _previewPlacementBounds = SKRect.Empty;
     private float? _previewInsertionY;
+    private float? _previewInsertionX;
+    private SKRect _previewInlineBounds = SKRect.Empty;
     private float _previewDropYNu;
-    private bool _previewVisible;
+    private int _previewDropRowIndex;
+    private int _previewDropColumnIndex;
+    private int _previewDropXOrder;
+    private bool _previewInlineWithRow;
     private bool _previewDropValid;
-    private SKPoint _previewGhostOffset;
     private ICommand? _deleteSelectedComponentCommand;
     private ICommand? _fitToViewCommand;
     private float _viewportHeight;
@@ -62,6 +70,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     private readonly Dictionary<int, HitTestResult> _hitEntries = [];
     private bool _hitTestLayerDirty = true;
     private bool _pendingHostViewState = true;
+    private readonly DragImageRenderer _dragImageRenderer = new();
 
     #endregion Fields
 
@@ -244,6 +253,26 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             var radius = MathF.Max(0.0f, value);
 
             if (!SetProperty(ref _roundedCornerRadius, radius))
+                return;
+
+            RebuildVisualTree();
+        }
+    }
+    #endregion
+
+    #region ControlCornerRadius
+    private float _controlCornerRadius = 1.0f;
+    /// <summary>
+    /// Gets or sets the shared control corner radius, expressed in <c>nu</c>.
+    /// </summary>
+    public float ControlCornerRadius
+    {
+        get => _controlCornerRadius;
+        set
+        {
+            var radius = MathF.Max(0.0f, value);
+
+            if (!SetProperty(ref _controlCornerRadius, radius))
                 return;
 
             RebuildVisualTree();
@@ -625,7 +654,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         switch (pointerInput.InputType)
         {
             case PointerInputType.LeftButtonDown:
-                HandleLeftButtonDown(pointerInput.Position, pointerInput.ScreenPosition);
+                HandleLeftButtonDown(pointerInput.Position, pointerInput.LocalPosition);
                 break;
 
             case PointerInputType.LeftButtonUp:
@@ -648,10 +677,10 @@ public sealed class SkiaHostVM : BaseVM, IDropable
                 break;
 
             case PointerInputType.Move:
-                if (HandleComponentDragMove(pointerInput.Position, pointerInput.ScreenPosition))
+                if (HandleComponentDragMove(pointerInput.Position, pointerInput.LocalPosition, pointerInput.ScreenPosition))
                     break;
 
-                UpdateHoveredComponent(pointerInput.Position, pointerInput.ScreenPosition);
+                UpdateHoveredComponent(pointerInput.Position, pointerInput.LocalPosition);
 
                 if (_isPanning)
                 {
@@ -688,9 +717,10 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         if (!CanDrop(data) || data is not PaletteItemVM paletteItem)
             return;
 
+        _activeDragFeedbackState = paletteItem;
         _previewComponent = paletteItem.CreateComponent();
-        _previewGhostOffset = SKPoint.Empty;
         UpdatePreview(location, new SKPoint((float)location.X, (float)location.Y));
+        SetDragFeedbackEffectOverride(paletteItem, _previewDropValid ? DragDropEffects.Copy : DragDropEffects.None);
     }
 
     /// <summary>
@@ -704,6 +734,9 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             return;
 
         UpdatePreview(location, new SKPoint((float)location.X, (float)location.Y));
+
+        if (data is IDragFeedbackState dragFeedbackState)
+            SetDragFeedbackEffectOverride(dragFeedbackState, _previewDropValid ? DragDropEffects.Copy : DragDropEffects.None);
     }
 
     /// <summary>
@@ -713,6 +746,8 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     {
         if (_previewComponent == null)
             return;
+
+        SetDragFeedbackEffectOverride(_activeDragFeedbackState, DragDropEffects.None);
 
         ClearPreview();
     }
@@ -731,14 +766,29 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             return;
 
         if (!_previewDropValid)
+        {
+            SetDragFeedbackEffectOverride(paletteItem, DragDropEffects.None);
             return;
+        }
 
         var component = _previewComponent ?? paletteItem.CreateComponent();
-        component.Position = new NodePoint(component.Position.X, _previewDropYNu);
+        if (_previewComponent != null)
+        {
+            component.SetColumn(_previewComponent.Column, notifyComponentChanged: false);
+            component.SetParentId(_previewComponent.ParentId, notifyComponentChanged: false);
+            component.SetYOrder(_previewComponent.YOrder, notifyComponentChanged: false);
+            component.Position = _previewComponent.Position;
+        }
+        else
+        {
+            component.Position = new NodePoint(component.Position.X, _previewDropYNu);
+        }
+
         ApplyPreviewComponentPlacement(component, (NodeLayoutSnapshot?)LayoutSnapshot, HitTestResult.None);
-        definitionHost.AddComponent(component);
+        definitionHost.AddComponent(component, notifyDocumentChanged: false);
+        definitionHost.PlaceComponent(component, _previewDropColumnIndex, _previewDropRowIndex, _previewInlineWithRow, _previewDropXOrder, parentId: component.ParentId, notifyDocumentChanged: true);
+        SetDragFeedbackEffectOverride(paletteItem, null);
         ClearPreview(false);
-        RebuildVisualTree();
     }
 
     /// <summary>
@@ -748,6 +798,9 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     /// <returns>The required drag/drop effect.</returns>
     public DragDropEffects GetRequiredEffect(object dropObject)
     {
+        if (dropObject is PaletteItemVM && _previewComponent != null)
+            return _previewDropValid ? DragDropEffects.Copy : DragDropEffects.None;
+
         return CanDrop(dropObject)
             ? DragDropEffects.Copy
             : DragDropEffects.None;
@@ -1032,14 +1085,14 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         InvalidateCanvas();
     }
 
-    private void HandleLeftButtonDown(SKPoint position, SKPoint screenPosition)
+    private void HandleLeftButtonDown(SKPoint position, SKPoint localPosition)
     {
         if (Host is not NodeDefinitionVM definitionHost || LayoutSnapshot is not NodeLayoutSnapshot layoutSnapshot)
             return;
 
         _isLeftButtonDown = true;
         _leftButtonDownPosition = position;
-        _pressedComponent = HitTestComponent(layoutSnapshot, position, screenPosition);
+        _pressedComponent = HitTestComponent(layoutSnapshot, position, localPosition);
 
         var selectionChanged = _pressedComponent != null
             ? definitionHost.SelectComponent(_pressedComponent)
@@ -1057,9 +1110,18 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         {
             if (_previewDropValid)
             {
-                _dragSourceComponent.Position = new NodePoint(_dragSourceComponent.Position.X, _previewDropYNu);
-                ApplyPreviewComponentPlacement(_dragSourceComponent, (NodeLayoutSnapshot?)LayoutSnapshot, HitTestResult.None);
-                RebuildVisualTree();
+                var previewComponent = _previewComponent;
+                if (previewComponent != null)
+                {
+                    var resolvedX = IsButtonLikeComponent(previewComponent)
+                        ? previewComponent.Position.X
+                        : _dragSourceComponent.Position.X;
+                    _dragSourceComponent.Position = new NodePoint(resolvedX, _previewDropYNu);
+                    ApplyPreviewComponentPlacement(_dragSourceComponent, (NodeLayoutSnapshot?)LayoutSnapshot, HitTestResult.None);
+                }
+
+                if (Host is NodeDefinitionVM definitionHost)
+                    definitionHost.PlaceComponent(_dragSourceComponent, _previewDropColumnIndex, _previewDropRowIndex, _previewInlineWithRow, _previewDropXOrder, parentId: _dragSourceComponent.ParentId, notifyDocumentChanged: true);
             }
 
             ClearSelectedComponentDrag();
@@ -1069,7 +1131,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         _pressedComponent = null;
     }
 
-    private bool HandleComponentDragMove(SKPoint position, SKPoint screenPosition)
+    private bool HandleComponentDragMove(SKPoint position, SKPoint localPosition, SKPoint screenPosition)
     {
         if (!_isLeftButtonDown || Host is not NodeDefinitionVM definitionHost || LayoutSnapshot is not NodeLayoutSnapshot layoutSnapshot)
             return false;
@@ -1081,19 +1143,18 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
             var deltaX = position.X - _leftButtonDownPosition.X;
             var deltaY = position.Y - _leftButtonDownPosition.Y;
-            var dragDistanceSquared = (deltaX * deltaX) + (deltaY * deltaY);
-
-            if (dragDistanceSquared < 16.0f)
+            if (AreClose(deltaX, 0.0f) && AreClose(deltaY, 0.0f))
                 return true;
 
             _isDraggingSelectedComponent = true;
             _dragSourceComponent = _pressedComponent;
             SetHoveredComponent(null);
             _previewComponent = CreatePreviewComponent(_pressedComponent);
-            _previewGhostOffset = GetPreviewGhostOffset(layoutSnapshot, _pressedComponent, _leftButtonDownPosition);
+            BeginEditorDragImage(definitionHost, screenPosition);
         }
 
-        UpdatePreview(position, screenPosition, layoutSnapshot);
+        UpdatePreview(position, localPosition, layoutSnapshot);
+        UpdateEditorDragFeedback(screenPosition);
         return true;
     }
 
@@ -1103,7 +1164,6 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         ArgumentNullException.ThrowIfNull(definitionHost);
 
         var previewBaseColor = GetPreviewBaseColor(definitionHost, _previewDropValid);
-        RenderPreviewGhost(canvas, definitionHost, layoutSnapshot, previewBaseColor);
 
         if (!_previewDropValid)
             return;
@@ -1111,6 +1171,10 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         if (_previewInsertionY.HasValue)
         {
             DrawInsertionIndicator(canvas, previewBaseColor, _previewInsertionY.Value);
+        }
+        else if (_previewInsertionX.HasValue && !_previewInlineBounds.IsEmpty)
+        {
+            DrawVerticalInsertionIndicator(canvas, previewBaseColor, _previewInsertionX.Value, _previewInlineBounds);
         }
         else if (!_previewPlacementBounds.IsEmpty)
         {
@@ -1237,7 +1301,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         UpdatePreview(_previewPointWorld, screenPoint, layoutSnapshot);
     }
 
-    private void UpdatePreview(SKPoint nodePoint, SKPoint screenPoint, NodeLayoutSnapshot layoutSnapshot)
+    private void UpdatePreview(SKPoint nodePoint, SKPoint localPoint, NodeLayoutSnapshot layoutSnapshot)
     {
         if (_previewComponent == null)
             return;
@@ -1246,19 +1310,19 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
         if (!layoutSnapshot.NodeBounds.Contains(_previewPointWorld.X, _previewPointWorld.Y))
         {
-            _previewVisible = true;
             _previewDropValid = false;
+            _previewInsertionX = null;
+            _previewInlineBounds = SKRect.Empty;
             _previewPlacementBounds = SKRect.Empty;
             _previewInsertionY = null;
             OverlayInvalidated?.Invoke();
             return;
         }
 
-        _previewVisible = true;
         _previewDropValid = true;
         var minorGridSize = GetMinorGridSize();
         _previewComponent.Position = new NodePoint(_previewPointWorld.X / minorGridSize, _previewPointWorld.Y / minorGridSize);
-        var hitResult = GetPreviewHitResult(layoutSnapshot, nodePoint, screenPoint);
+        var hitResult = GetPreviewHitResult(layoutSnapshot, nodePoint, localPoint);
         ApplyPreviewComponentPlacement(_previewComponent, layoutSnapshot, hitResult);
         UpdateProjectedPlacement(layoutSnapshot, hitResult);
         OverlayInvalidated?.Invoke();
@@ -1267,8 +1331,13 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     private void UpdateProjectedPlacement(NodeLayoutSnapshot layoutSnapshot, HitTestResult hitResult)
     {
         var lineHeight = layoutSnapshot.LineHeight;
+        var previewColumn = GetPreviewColumnLayout(layoutSnapshot);
+        _previewDropColumnIndex = previewColumn.Index;
+        _previewDropXOrder = 0;
+        _previewInlineWithRow = false;
         var components = layoutSnapshot.Components
             .Where(component => !ReferenceEquals(component.Component, _dragSourceComponent))
+            .Where(component => component.ColumnIndex == previewColumn.Index)
             .OrderBy(component => component.Bounds.Top)
             .ToList();
         var minorGridSize = GetMinorGridSize();
@@ -1276,12 +1345,16 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         if (components.Count == 0)
         {
             _previewInsertionY = null;
+            _previewInsertionX = null;
+            _previewInlineBounds = SKRect.Empty;
             _previewPlacementBounds = new SKRect(
-                layoutSnapshot.ContentBounds.Left,
-                layoutSnapshot.ContentBounds.Top,
-                layoutSnapshot.ContentBounds.Right,
-                layoutSnapshot.ContentBounds.Top + lineHeight);
-            _previewDropYNu = layoutSnapshot.ContentBounds.Top / minorGridSize;
+                previewColumn.ContentBounds.Left,
+                previewColumn.ContentBounds.Top,
+                previewColumn.ContentBounds.Right,
+                previewColumn.ContentBounds.Top + lineHeight);
+            _previewDropYNu = previewColumn.ContentBounds.Top / minorGridSize;
+            _previewDropRowIndex = 0;
+            _previewDropXOrder = 0;
             return;
         }
 
@@ -1290,20 +1363,53 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             var hitLayout = components.FirstOrDefault(component => ReferenceEquals(component.Component, hitResult.Component));
             if (hitLayout != null)
             {
+                if (IsButtonLikeComponent(_previewComponent) && IsButtonLikeComponent(hitLayout.Component))
+                {
+                    var inlineBefore = hitResult.Flags.HasFlag(HitRegionFlags.Middle)
+                        && hitResult.Flags.HasFlag(HitRegionFlags.Left)
+                        && !hitResult.Flags.HasFlag(HitRegionFlags.Right);
+                    var inlineAfter = hitResult.Flags.HasFlag(HitRegionFlags.Middle)
+                        && hitResult.Flags.HasFlag(HitRegionFlags.Right)
+                        && !hitResult.Flags.HasFlag(HitRegionFlags.Left);
+
+                    if (inlineBefore || inlineAfter)
+                    {
+                        var previewComponent = _previewComponent;
+                        _previewInsertionY = null;
+                        _previewInsertionX = TryGetButtonInsertionIndicatorX(layoutSnapshot, hitLayout, inlineBefore, out var insertionX)
+                            ? insertionX
+                            : inlineBefore
+                                ? hitLayout.Bounds.Left
+                                : hitLayout.Bounds.Right;
+                        _previewInlineBounds = hitLayout.Bounds;
+                        _previewPlacementBounds = SKRect.Empty;
+                        _previewDropYNu = hitLayout.PositionNu.Y;
+                        _previewDropRowIndex = GetRowIndex(components, hitLayout.YOrder);
+                        _previewDropXOrder = GetInlineDropXOrder(layoutSnapshot, hitLayout, inlineBefore);
+                        _previewInlineWithRow = true;
+                        previewComponent!.Position = new NodePoint(hitLayout.PositionNu.X + (inlineBefore ? -0.5f : 0.5f), hitLayout.PositionNu.Y);
+                        return;
+                    }
+                }
+
                 var insertAbove = hitResult.Flags.HasFlag(HitRegionFlags.Top) && !hitResult.Flags.HasFlag(HitRegionFlags.Bottom);
                 var insertBelow = hitResult.Flags.HasFlag(HitRegionFlags.Bottom) && !hitResult.Flags.HasFlag(HitRegionFlags.Top);
 
                 if (insertAbove || insertBelow)
                 {
-                    _previewInsertionY = insertAbove ? hitLayout.Bounds.Top : hitLayout.Bounds.Bottom;
+                    _previewInsertionX = null;
+                    _previewInlineBounds = SKRect.Empty;
+                    _previewInsertionY = GetVerticalInsertionIndicatorY(hitLayout, lineHeight, minorGridSize, insertAbove);
                     _previewPlacementBounds = _dragSourceComponent == null && insertBelow && ReferenceEquals(hitLayout, components[^1])
                         ? new SKRect(
-                            layoutSnapshot.ContentBounds.Left,
+                            previewColumn.ContentBounds.Left,
                             hitLayout.Bounds.Bottom,
-                            layoutSnapshot.ContentBounds.Right,
+                            previewColumn.ContentBounds.Right,
                             hitLayout.Bounds.Bottom + lineHeight)
                         : SKRect.Empty;
                     _previewDropYNu = hitLayout.PositionNu.Y + (insertAbove ? -0.5f : 0.5f);
+                    _previewDropRowIndex = GetRowIndex(components, hitLayout.YOrder) + (insertAbove ? 0 : 1);
+                    _previewDropXOrder = 0;
                     SuppressNoOpInsertion(layoutSnapshot);
                     return;
                 }
@@ -1317,46 +1423,75 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
             if (_previewPointWorld.Y <= component.Bounds.MidY)
             {
-                _previewInsertionY = component.Bounds.Top;
+                _previewInsertionX = null;
+                _previewInlineBounds = SKRect.Empty;
+                _previewInsertionY = GetVerticalInsertionIndicatorY(component, lineHeight, minorGridSize, insertAbove: true);
                 _previewPlacementBounds = SKRect.Empty;
                 _previewDropYNu = component.PositionNu.Y - 0.5f;
+                _previewDropRowIndex = GetRowIndex(components, component.YOrder);
+                _previewDropXOrder = 0;
                 SuppressNoOpInsertion(layoutSnapshot);
                 return;
             }
 
             if (ReferenceEquals(component, components[^1]))
             {
-                _previewInsertionY = component.Bounds.Bottom;
+                _previewInsertionX = null;
+                _previewInlineBounds = SKRect.Empty;
+                _previewInsertionY = GetVerticalInsertionIndicatorY(component, lineHeight, minorGridSize, insertAbove: false);
                 _previewPlacementBounds = _dragSourceComponent == null
                     ? new SKRect(
-                        layoutSnapshot.ContentBounds.Left,
+                        previewColumn.ContentBounds.Left,
                         component.Bounds.Bottom,
-                        layoutSnapshot.ContentBounds.Right,
+                        previewColumn.ContentBounds.Right,
                         component.Bounds.Bottom + lineHeight)
                     : SKRect.Empty;
                 _previewDropYNu = component.PositionNu.Y + 0.5f;
+                _previewDropRowIndex = GetRowIndex(components, component.YOrder) + 1;
+                _previewDropXOrder = 0;
                 SuppressNoOpInsertion(layoutSnapshot);
                 return;
             }
 
-            _previewInsertionY = component.Bounds.Bottom;
+            _previewInsertionY = GetVerticalInsertionIndicatorY(component, lineHeight, minorGridSize, insertAbove: false);
+            _previewInsertionX = null;
+            _previewInlineBounds = SKRect.Empty;
             _previewPlacementBounds = SKRect.Empty;
             _previewDropYNu = component.PositionNu.Y + 0.5f;
+            _previewDropRowIndex = GetRowIndex(components, component.YOrder) + 1;
+            _previewDropXOrder = 0;
             SuppressNoOpInsertion(layoutSnapshot);
             return;
         }
 
         var last = components[^1];
-        _previewInsertionY = last.Bounds.Bottom;
+        _previewInsertionX = null;
+        _previewInlineBounds = SKRect.Empty;
+        _previewInsertionY = GetVerticalInsertionIndicatorY(last, lineHeight, minorGridSize, insertAbove: false);
         _previewPlacementBounds = _dragSourceComponent == null
             ? new SKRect(
-                layoutSnapshot.ContentBounds.Left,
+                previewColumn.ContentBounds.Left,
                 last.Bounds.Bottom,
-                layoutSnapshot.ContentBounds.Right,
+                previewColumn.ContentBounds.Right,
                 last.Bounds.Bottom + lineHeight)
             : SKRect.Empty;
         _previewDropYNu = last.PositionNu.Y + 0.5f;
+        _previewDropRowIndex = GetRowIndex(components, last.YOrder) + 1;
+        _previewDropXOrder = 0;
         SuppressNoOpInsertion(layoutSnapshot);
+    }
+
+    private static float GetVerticalInsertionIndicatorY(
+        NodeComponentLayoutSnapshot componentLayout,
+        float lineHeight,
+        float minorGridSize,
+        bool insertAbove)
+    {
+        if (!IsButtonLikeComponent(componentLayout.Component))
+            return insertAbove ? componentLayout.Bounds.Top : componentLayout.Bounds.Bottom;
+
+        var rowTop = componentLayout.PositionNu.Y * minorGridSize;
+        return insertAbove ? rowTop : rowTop + lineHeight;
     }
 
     private void DrawInsertionIndicator(SKCanvas canvas, SKColor indicatorColor, float insertionY)
@@ -1364,8 +1499,9 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         if (LayoutSnapshot is not NodeLayoutSnapshot layoutSnapshot)
             return;
 
-        var left = layoutSnapshot.ContentBounds.Left;
-        var right = layoutSnapshot.ContentBounds.Right;
+        var previewColumn = GetPreviewColumnLayout(layoutSnapshot);
+        var left = previewColumn.ContentBounds.Left;
+        var right = previewColumn.ContentBounds.Right;
         var arrowSize = MathF.Max(3.0f, GetMinorGridSize() * 0.5f);
         var strokeWidth = 2.0f / MathF.Max(Zoom, 0.01f);
         var previewPort = _previewComponent as NodePortComponentVM;
@@ -1423,198 +1559,41 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         }
     }
 
-    private void RenderPreviewGhost(SKCanvas canvas, NodeDefinitionVM definitionHost, NodeLayoutSnapshot layoutSnapshot, SKColor previewBaseColor)
+    private void DrawVerticalInsertionIndicator(SKCanvas canvas, SKColor indicatorColor, float insertionX, SKRect rowBounds)
     {
-        if (!_previewVisible || _previewComponent == null)
-            return;
+        var arrowSize = MathF.Max(3.0f, GetMinorGridSize() * 0.5f);
+        var strokeWidth = 2.0f / MathF.Max(Zoom, 0.01f);
+        var alphaColor = indicatorColor.WithAlpha((byte)Math.Clamp(MathF.Round(PreviewIndicatorOpacity * 255.0f), 0.0f, 255.0f));
 
-        var ghostBounds = GetPreviewGhostBounds(layoutSnapshot);
-        var nodeStyle = definitionHost.Model.Style ?? new NodeStyle();
-        var shapeStyle = nodeStyle.ShapeStyle;
-        var fontWeight = shapeStyle.FontWeight;
-        var opacity = _previewDropValid ? PreviewGhostValidOpacity : PreviewGhostInvalidOpacity;
-        var minorGridSize = GetMinorGridSize();
-        var nodeStrokeSize = minorGridSize / 4.0f;
-        var ghostVisual = CreatePreviewGhostVisual(
-            _previewComponent,
-            ghostBounds,
-            previewBaseColor,
-            opacity,
-            fontWeight,
-            shapeStyle.BorderThickness,
-            minorGridSize,
-            nodeStrokeSize,
-            layoutSnapshot.InputLabelWidth,
-            layoutSnapshot.NodeBounds);
-
-        ghostVisual?.Render(canvas);
-    }
-
-    private NodeComponentVisual? CreatePreviewGhostVisual(
-        NodeComponentVM component,
-        SKRect bounds,
-        SKColor previewBaseColor,
-        float opacity,
-        NodeFontWeight fontWeight,
-        float borderThickness,
-        float minorGridSize,
-        float nodeStrokeSize,
-        float inputLabelWidth,
-        SKRect nodeBounds)
-    {
-        return component switch
+        using var linePaint = new SKPaint
         {
-            NodeLabelComponentVM labelComponent => new NodeLabelComponentVisual(
-                labelComponent.Label,
-                FontFamily,
-                FontSize,
-                ToNodeColor(previewBaseColor),
-                fontWeight,
-                opacity)
-            {
-                Bounds = bounds,
-            },
-
-            NodeInputComponentVM inputComponent => new NodeLabelComponentVisual(
-                string.IsNullOrWhiteSpace(inputComponent.Label) ? "Input" : inputComponent.Label,
-                FontFamily,
-                FontSize,
-                ToNodeColor(previewBaseColor),
-                fontWeight,
-                opacity)
-            {
-                Bounds = bounds,
-            },
-
-            NodeSeparatorComponentVM separatorComponent => new NodeSeparatorComponentVisual(
-                previewBaseColor.WithAlpha((byte)Math.Clamp(MathF.Round(opacity * 255.0f), 0.0f, 255.0f)),
-                minorGridSize / 8.0f)
-            {
-                Bounds = bounds,
-            },
-
-            NodeSpacerComponentVM => new NodeLabelComponentVisual(
-                "Spacer",
-                FontFamily,
-                FontSize,
-                ToNodeColor(previewBaseColor),
-                fontWeight,
-                opacity)
-            {
-                Bounds = bounds,
-            },
-
-            NodePortComponentVM portComponent => new NodeLabelComponentVisual(
-                string.IsNullOrWhiteSpace(portComponent.Label) ? "Port" : portComponent.Label,
-                FontFamily,
-                FontSize,
-                ToNodeColor(previewBaseColor),
-                fontWeight,
-                opacity)
-            {
-                Bounds = bounds,
-            },
-
-            _ => null,
-        };
-    }
-
-    private SKRect GetPreviewGhostBounds(NodeLayoutSnapshot layoutSnapshot)
-    {
-        if (_dragSourceComponent != null && ShouldUseSourceVisualGhost(_previewComponent))
-        {
-            var sourceVisualBounds = layoutSnapshot.Components
-                .FirstOrDefault(component => ReferenceEquals(component.Component, _dragSourceComponent))
-                ?.VisualBounds;
-
-            if (sourceVisualBounds.HasValue)
-            {
-                var width = sourceVisualBounds.Value.Width;
-                var height = sourceVisualBounds.Value.Height;
-                var left = _previewPointWorld.X - _previewGhostOffset.X;
-                var top = _previewPointWorld.Y - _previewGhostOffset.Y;
-                return new SKRect(left, top, left + width, top + height);
-            }
-        }
-
-        return EstimatePreviewGhostBounds();
-    }
-
-    private SKRect EstimatePreviewGhostBounds()
-    {
-        var minorGridSize = GetMinorGridSize();
-        var width = 24.0f * minorGridSize;
-        var height = 4.0f * minorGridSize;
-
-        if (TryMeasurePreviewGhostTextBounds(out var measuredBounds))
-            return new SKRect(
-                _previewPointWorld.X,
-                _previewPointWorld.Y - (measuredBounds.Height * 0.5f),
-                _previewPointWorld.X + measuredBounds.Width,
-                _previewPointWorld.Y + (measuredBounds.Height * 0.5f));
-
-        if (_previewComponent is NodeSpacerComponentVM spacerComponent)
-            height = MathF.Max(minorGridSize, spacerComponent.Height * minorGridSize);
-        else if (_previewComponent is NodeSeparatorComponentVM)
-            height = 2.0f * minorGridSize;
-        else if (_previewComponent is NodePortComponentVM)
-            height = MathF.Max(4.0f * minorGridSize, PortSize * minorGridSize);
-
-        return new SKRect(
-            _previewPointWorld.X,
-            _previewPointWorld.Y - (height * 0.5f),
-            _previewPointWorld.X + width,
-            _previewPointWorld.Y + (height * 0.5f));
-    }
-
-    private SKPoint GetPreviewGhostOffset(NodeLayoutSnapshot layoutSnapshot, NodeComponentVM component, SKPoint pointerWorld)
-    {
-        var sourceVisualBounds = layoutSnapshot.Components
-            .FirstOrDefault(layout => ReferenceEquals(layout.Component, component))
-            ?.VisualBounds;
-
-        return sourceVisualBounds.HasValue
-            ? new SKPoint(pointerWorld.X - sourceVisualBounds.Value.Left, pointerWorld.Y - sourceVisualBounds.Value.Top)
-            : SKPoint.Empty;
-    }
-
-    private bool TryMeasurePreviewGhostTextBounds(out SKRect bounds)
-    {
-        bounds = SKRect.Empty;
-        var text = GetPreviewGhostText();
-        if (string.IsNullOrWhiteSpace(text))
-            return false;
-
-        using var textPaint = new SKPaint
-        {
+            Color = alphaColor,
             IsAntialias = true,
-            TextSize = FontSize,
-            TextAlign = SKTextAlign.Left,
-            Typeface = CreateTypeface(FontFamily, NodeFontWeight.Normal),
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = strokeWidth,
         };
-
-        textPaint.MeasureText(text, ref bounds);
-        var width = MathF.Max(1.0f, bounds.Width);
-        var height = MathF.Max(FontSize, MathF.Abs(bounds.Height));
-        bounds = new SKRect(0.0f, 0.0f, width, height);
-        return true;
-    }
-
-    private string? GetPreviewGhostText()
-    {
-        return _previewComponent switch
+        using var arrowPaint = new SKPaint
         {
-            NodeLabelComponentVM labelComponent => labelComponent.Label,
-            NodeInputComponentVM inputComponent => string.IsNullOrWhiteSpace(inputComponent.Label) ? "Input" : inputComponent.Label,
-            NodePortComponentVM portComponent => string.IsNullOrWhiteSpace(portComponent.Label) ? "Port" : portComponent.Label,
-            NodeSpacerComponentVM => "Spacer",
-            _ => null,
+            Color = alphaColor,
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill,
         };
-    }
 
-    private static bool ShouldUseSourceVisualGhost(NodeComponentVM? component)
-    {
-        return component is NodeSeparatorComponentVM;
+        canvas.DrawLine(insertionX, rowBounds.Top, insertionX, rowBounds.Bottom, linePaint);
+
+        using var topArrow = new SKPath();
+        topArrow.MoveTo(insertionX - (arrowSize * 0.5f), rowBounds.Top);
+        topArrow.LineTo(insertionX + (arrowSize * 0.5f), rowBounds.Top);
+        topArrow.LineTo(insertionX, rowBounds.Top + arrowSize);
+        topArrow.Close();
+        canvas.DrawPath(topArrow, arrowPaint);
+
+        using var bottomArrow = new SKPath();
+        bottomArrow.MoveTo(insertionX - (arrowSize * 0.5f), rowBounds.Bottom);
+        bottomArrow.LineTo(insertionX + (arrowSize * 0.5f), rowBounds.Bottom);
+        bottomArrow.LineTo(insertionX, rowBounds.Bottom - arrowSize);
+        bottomArrow.Close();
+        canvas.DrawPath(bottomArrow, arrowPaint);
     }
 
     private SKColor GetPreviewBaseColor(NodeDefinitionVM definitionHost, bool isValidDrop)
@@ -1634,16 +1613,34 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         return new SKColor(72, 72, 72);
     }
 
+    private void SetDragFeedbackEffectOverride(IDragFeedbackState? dragFeedbackState, DragDropEffects? effect)
+    {
+        if (dragFeedbackState == null)
+            return;
+
+        dragFeedbackState.DragFeedbackEffectOverride = effect;
+
+        if (effect == null || effect == DragDropEffects.None)
+            _activeDragFeedbackState = null;
+        else
+            _activeDragFeedbackState = dragFeedbackState;
+    }
+
     private void ClearPreview(bool invalidateOverlay = true)
     {
         _previewComponent = null;
-        _previewVisible = false;
         _previewDropValid = false;
         _previewInsertionY = null;
+        _previewInsertionX = null;
+        _previewInlineBounds = SKRect.Empty;
         _previewPlacementBounds = SKRect.Empty;
         _previewDropYNu = 0.0f;
+        _previewDropRowIndex = 0;
+        _previewDropColumnIndex = 0;
+        _previewDropXOrder = 0;
+        _previewInlineWithRow = false;
         _dragSourceComponent = null;
-        _previewGhostOffset = SKPoint.Empty;
+        _activeDragFeedbackState = null;
 
         if (invalidateOverlay)
             OverlayInvalidated?.Invoke();
@@ -1653,10 +1650,44 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     {
         _pressedComponent = null;
         _isDraggingSelectedComponent = false;
+        EndEditorDragImage();
         ClearPreview();
     }
 
-    private void UpdateHoveredComponent(SKPoint position, SKPoint screenPosition)
+    private void BeginEditorDragImage(NodeDefinitionVM definitionHost, SKPoint screenPosition)
+    {
+        if (_previewComponent == null)
+            return;
+
+        definitionHost.DragImage = _dragImageRenderer.RenderComponent(
+            _previewComponent,
+            CreateCanvasStyleContext(),
+            definitionHost.Model.Style ?? new NodeStyle());
+
+        SharedDragService.Begin(
+            definitionHost.DragImage,
+            DragDropEffects.None,
+            screenPosition.X,
+            screenPosition.Y);
+    }
+
+    private void UpdateEditorDragFeedback(SKPoint screenPosition)
+    {
+        if (!_isDraggingSelectedComponent)
+            return;
+
+        SharedDragService.UpdatePointerPosition(screenPosition.X, screenPosition.Y);
+        SharedDragService.SetEffectOverride(_previewDropValid ? DragDropEffects.Move : DragDropEffects.None);
+        Mouse.SetCursor(_previewDropValid ? Cursors.Arrow : Cursors.No);
+    }
+
+    private static void EndEditorDragImage()
+    {
+        SharedDragService.End();
+        Mouse.SetCursor(null);
+    }
+
+    private void UpdateHoveredComponent(SKPoint position, SKPoint localPosition)
     {
         if (_isLeftButtonDown || Host is not NodeDefinitionVM || LayoutSnapshot is not NodeLayoutSnapshot layoutSnapshot)
         {
@@ -1664,7 +1695,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             return;
         }
 
-        SetHoveredComponent(HitTestComponent(layoutSnapshot, position, screenPosition));
+        SetHoveredComponent(HitTestComponent(layoutSnapshot, position, localPosition));
     }
 
     private void SetHoveredComponent(NodeComponentVM? hoveredComponent)
@@ -1688,15 +1719,27 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         if (_dragSourceComponent == null || !_previewInsertionY.HasValue)
             return;
 
-        var sourceBounds = layoutSnapshot.Components
-            .FirstOrDefault(component => ReferenceEquals(component.Component, _dragSourceComponent))
-            ?.Bounds;
+        var sourceLayout = layoutSnapshot.Components
+            .FirstOrDefault(component => ReferenceEquals(component.Component, _dragSourceComponent));
+        if (sourceLayout == null)
+            return;
 
-        if (!sourceBounds.HasValue)
+        if (IsButtonLikeComponent(_dragSourceComponent))
+        {
+            var sharedButtonRowCount = layoutSnapshot.Components.Count(component =>
+                IsButtonLikeComponent(component.Component)
+                && component.ColumnIndex == sourceLayout.ColumnIndex
+                && component.YOrder == sourceLayout.YOrder);
+
+            if (sharedButtonRowCount > 1)
+                return;
+        }
+
+        if (_previewComponent != null && sourceLayout.ColumnIndex != GetComponentColumnIndex(_previewComponent, layoutSnapshot))
             return;
 
         var insertionY = _previewInsertionY.Value;
-        if (!AreClose(insertionY, sourceBounds.Value.Top) && !AreClose(insertionY, sourceBounds.Value.Bottom))
+        if (!AreClose(insertionY, sourceLayout.Bounds.Top) && !AreClose(insertionY, sourceLayout.Bounds.Bottom))
             return;
 
         _previewInsertionY = null;
@@ -1704,9 +1747,43 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         _previewDropYNu = _dragSourceComponent.Position.Y;
     }
 
+    private static bool TryGetButtonInsertionIndicatorX(NodeLayoutSnapshot layoutSnapshot, NodeComponentLayoutSnapshot hitLayout, bool inlineBefore, out float insertionX)
+    {
+        var rowButtons = layoutSnapshot.Components
+            .Where(component => IsButtonLikeComponent(component.Component)
+                                && component.ColumnIndex == hitLayout.ColumnIndex
+                                && AreClose(component.Bounds.Top, hitLayout.Bounds.Top)
+                                && AreClose(component.Bounds.Bottom, hitLayout.Bounds.Bottom))
+            .OrderBy(component => component.Bounds.Left)
+            .ToList();
+        var hitIndex = rowButtons.FindIndex(component => ReferenceEquals(component.Component, hitLayout.Component));
+        if (hitIndex < 0)
+        {
+            insertionX = 0.0f;
+            return false;
+        }
+
+        if (inlineBefore)
+        {
+            var columnLayout = layoutSnapshot.Columns[Math.Clamp(hitLayout.ColumnIndex, 0, layoutSnapshot.Columns.Count - 1)];
+            var leftBoundary = hitIndex > 0
+                ? rowButtons[hitIndex - 1].Bounds.Right
+                : columnLayout.ContentBounds.Left;
+            insertionX = (leftBoundary + hitLayout.Bounds.Left) * 0.5f;
+            return true;
+        }
+
+        var targetColumnLayout = layoutSnapshot.Columns[Math.Clamp(hitLayout.ColumnIndex, 0, layoutSnapshot.Columns.Count - 1)];
+        var rightBoundary = hitIndex < rowButtons.Count - 1
+            ? rowButtons[hitIndex + 1].Bounds.Left
+            : targetColumnLayout.ContentBounds.Right;
+        insertionX = (hitLayout.Bounds.Right + rightBoundary) * 0.5f;
+        return true;
+    }
+
     private static NodeComponentVM CreatePreviewComponent(NodeComponentVM component)
     {
-        return component switch
+        NodeComponentVM previewComponent = component switch
         {
             NodeLabelComponentVM labelComponent => new NodeLabelComponentVM(new NodeText { Label = labelComponent.Label }),
             NodeInputComponentVM inputComponent => new NodeInputComponentVM(new NodeInput
@@ -1714,8 +1791,40 @@ public sealed class SkiaHostVM : BaseVM, IDropable
                 Label = inputComponent.Label,
                 DisplayName = inputComponent.Label,
                 TypeId = inputComponent.TypeId,
+                DateTimeDisplayMode = inputComponent.DateTimeDisplayMode,
+            }),
+            NodeValueDisplayComponentVM valueDisplayComponent => new NodeValueDisplayComponentVM(new NodeValueDisplay
+            {
+                Label = valueDisplayComponent.Label,
+                DefaultValue = valueDisplayComponent.DefaultValue,
+                ValueColorMode = valueDisplayComponent.ValueColorMode,
+                ValueColor = valueDisplayComponent.ValueColor,
+            }),
+            NodeGridInputComponentVM gridInputComponent => new NodeGridInputComponentVM(new NodeGridInput
+            {
+                Label = gridInputComponent.Label,
+                Rows = gridInputComponent.Rows,
+                Columns = gridInputComponent.Columns,
+                CellWidth = gridInputComponent.CellWidth,
+                CellTypeId = gridInputComponent.CellTypeId,
+                MinValue = gridInputComponent.MinValue,
+                MaxValue = gridInputComponent.MaxValue,
+                DefaultValues = [.. gridInputComponent.DefaultValues],
+            }),
+            NodeIndicatorComponentVM indicatorComponent => new NodeIndicatorComponentVM(new NodeIndicator
+            {
+                Label = indicatorComponent.Label,
+                Color = indicatorComponent.Color,
+                Shape = indicatorComponent.Shape,
             }),
             NodeButtonComponentVM buttonComponent => new NodeButtonComponentVM(new NodeButton { Label = buttonComponent.Label }),
+            NodeIconButtonComponentVM iconButtonComponent => new NodeIconButtonComponentVM(new NodeIconButton
+            {
+                Label = iconButtonComponent.Label,
+                Svg = iconButtonComponent.Svg,
+                ColorMode = iconButtonComponent.ColorMode,
+                FixedWidth = iconButtonComponent.Model.FixedWidth,
+            }),
             NodeSeparatorComponentVM separatorComponent => new NodeSeparatorComponentVM(new NodeSeparator { Label = separatorComponent.Label, ColorMode = separatorComponent.ColorMode }),
             NodeSpacerComponentVM spacerComponent => new NodeSpacerComponentVM(new NodeSpacer { Label = spacerComponent.Label, Height = spacerComponent.Height }),
             NodePortComponentVM portComponent => new NodePortComponentVM(new NodePort
@@ -1727,28 +1836,62 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             }),
             _ => throw new NotSupportedException($"Preview creation is not implemented for component type '{component.GetType().Name}'."),
         };
+
+        previewComponent.SetColumn(component.Column, notifyComponentChanged: false);
+        previewComponent.SetParentId(component.ParentId, notifyComponentChanged: false);
+        previewComponent.SetYOrder(component.YOrder, notifyComponentChanged: false);
+        previewComponent.SetXOrder(component.XOrder, notifyComponentChanged: false);
+        return previewComponent;
     }
 
     private void ApplyPreviewComponentPlacement(NodeComponentVM component, NodeLayoutSnapshot? layoutSnapshot, HitTestResult hitResult)
     {
-        if (component is not NodePortComponentVM portComponent || layoutSnapshot == null)
+        if (layoutSnapshot == null)
             return;
 
-        if (hitResult.Flags.HasFlag(HitRegionFlags.Left) && !hitResult.Flags.HasFlag(HitRegionFlags.Right))
+        if (component is NodePortComponentVM portComponent)
         {
-            portComponent.Side = NodePortSide.Left;
+            var previewColumnIndex = ResolvePreviewColumnIndex(layoutSnapshot, hitResult, _previewPointWorld);
+            var lastColumnIndex = layoutSnapshot.Columns.Count - 1;
+            if (layoutSnapshot.Columns.Count > 1)
+            {
+                if (previewColumnIndex <= 0)
+                {
+                    portComponent.Side = NodePortSide.Left;
+                    portComponent.SetColumn(0, notifyComponentChanged: false);
+                    return;
+                }
+
+                if (previewColumnIndex >= lastColumnIndex)
+                {
+                    portComponent.Side = NodePortSide.Right;
+                    portComponent.SetColumn(lastColumnIndex, notifyComponentChanged: false);
+                    return;
+                }
+            }
+
+            if (hitResult.Flags.HasFlag(HitRegionFlags.Left) && !hitResult.Flags.HasFlag(HitRegionFlags.Right))
+            {
+                portComponent.Side = NodePortSide.Left;
+                portComponent.SetColumn(0, notifyComponentChanged: false);
+                return;
+            }
+
+            if (hitResult.Flags.HasFlag(HitRegionFlags.Right) && !hitResult.Flags.HasFlag(HitRegionFlags.Left))
+            {
+                portComponent.Side = NodePortSide.Right;
+                portComponent.SetColumn(layoutSnapshot.Columns.Count - 1, notifyComponentChanged: false);
+                return;
+            }
+
+            portComponent.Side = _previewPointWorld.X <= layoutSnapshot.ContentBounds.MidX
+                ? NodePortSide.Left
+                : NodePortSide.Right;
+            portComponent.SetColumn(portComponent.Side == NodePortSide.Left ? 0 : lastColumnIndex, notifyComponentChanged: false);
             return;
         }
 
-        if (hitResult.Flags.HasFlag(HitRegionFlags.Right) && !hitResult.Flags.HasFlag(HitRegionFlags.Left))
-        {
-            portComponent.Side = NodePortSide.Right;
-            return;
-        }
-
-        portComponent.Side = _previewPointWorld.X <= layoutSnapshot.ContentBounds.MidX
-            ? NodePortSide.Left
-            : NodePortSide.Right;
+        component.SetColumn(ResolvePreviewColumnIndex(layoutSnapshot, hitResult, _previewPointWorld), notifyComponentChanged: false);
     }
 
     private HitTestResult GetPreviewHitResult(NodeLayoutSnapshot layoutSnapshot, SKPoint nodePoint, SKPoint screenPoint)
@@ -1764,11 +1907,15 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
         var flags = hitResult.Flags;
 
-        if (!flags.HasFlag(HitRegionFlags.Top) && !flags.HasFlag(HitRegionFlags.Bottom))
+        if (!flags.HasFlag(HitRegionFlags.Top) && !flags.HasFlag(HitRegionFlags.Bottom) && !flags.HasFlag(HitRegionFlags.Middle))
         {
-            flags |= nodePoint.Y <= componentLayout.Bounds.MidY
+            var topThreshold = componentLayout.Bounds.Top + (componentLayout.Bounds.Height / 3.0f);
+            var bottomThreshold = componentLayout.Bounds.Bottom - (componentLayout.Bounds.Height / 3.0f);
+            flags |= nodePoint.Y <= topThreshold
                 ? HitRegionFlags.Top
-                : HitRegionFlags.Bottom;
+                : nodePoint.Y >= bottomThreshold
+                    ? HitRegionFlags.Bottom
+                    : HitRegionFlags.Middle;
         }
 
         if (!flags.HasFlag(HitRegionFlags.Left) && !flags.HasFlag(HitRegionFlags.Right))
@@ -1850,12 +1997,21 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         var nodeUnitSize = GetMinorGridSize();
         var nodeStrokeSize = nodeUnitSize / 4.0f;
 
+        DrawButtonRowGapHitRegions(canvas, fillPaint, layoutSnapshot);
+
         foreach (var componentLayout in layoutSnapshot.Components)
         {
-            DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.Left, componentLayout.Bounds.Top, componentLayout.Bounds.MidX, componentLayout.Bounds.MidY), HitRegionFlags.Top | HitRegionFlags.Left | HitRegionFlags.Body);
-            DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.MidX, componentLayout.Bounds.Top, componentLayout.Bounds.Right, componentLayout.Bounds.MidY), HitRegionFlags.Top | HitRegionFlags.Right | HitRegionFlags.Body);
-            DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.Left, componentLayout.Bounds.MidY, componentLayout.Bounds.MidX, componentLayout.Bounds.Bottom), HitRegionFlags.Bottom | HitRegionFlags.Left | HitRegionFlags.Body);
-            DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.MidX, componentLayout.Bounds.MidY, componentLayout.Bounds.Right, componentLayout.Bounds.Bottom), HitRegionFlags.Bottom | HitRegionFlags.Right | HitRegionFlags.Body);
+            if (IsButtonLikeComponent(componentLayout.Component))
+            {
+                DrawButtonHitRegions(canvas, fillPaint, componentLayout.Component, componentLayout.Bounds);
+            }
+            else
+            {
+                DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.Left, componentLayout.Bounds.Top, componentLayout.Bounds.MidX, componentLayout.Bounds.MidY), HitRegionFlags.Top | HitRegionFlags.Left | HitRegionFlags.Body);
+                DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.MidX, componentLayout.Bounds.Top, componentLayout.Bounds.Right, componentLayout.Bounds.MidY), HitRegionFlags.Top | HitRegionFlags.Right | HitRegionFlags.Body);
+                DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.Left, componentLayout.Bounds.MidY, componentLayout.Bounds.MidX, componentLayout.Bounds.Bottom), HitRegionFlags.Bottom | HitRegionFlags.Left | HitRegionFlags.Body);
+                DrawQuadrantHitRegion(canvas, fillPaint, componentLayout.Component, new SKRect(componentLayout.Bounds.MidX, componentLayout.Bounds.MidY, componentLayout.Bounds.Right, componentLayout.Bounds.Bottom), HitRegionFlags.Bottom | HitRegionFlags.Right | HitRegionFlags.Body);
+            }
 
             if (componentLayout.Component is NodePortComponentVM portComponent)
             {
@@ -1873,6 +2029,66 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         }
     }
 
+    private void DrawButtonRowGapHitRegions(SKCanvas canvas, SKPaint paint, NodeLayoutSnapshot layoutSnapshot)
+    {
+        var buttonRows = layoutSnapshot.Components
+            .Where(component => IsButtonLikeComponent(component.Component))
+            .GroupBy(component => (component.ColumnIndex, Top: component.Bounds.Top, Bottom: component.Bounds.Bottom))
+            .Where(group => group.Any())
+            .ToList();
+
+        foreach (var row in buttonRows)
+        {
+            var buttons = row
+                .OrderBy(component => component.Bounds.Left)
+                .ToList();
+            if (buttons.Count == 0)
+                continue;
+
+            var columnLayout = layoutSnapshot.Columns[Math.Clamp(row.Key.ColumnIndex, 0, layoutSnapshot.Columns.Count - 1)];
+            var rowLeft = columnLayout.ContentBounds.Left;
+            var rowRight = columnLayout.ContentBounds.Right;
+            var first = buttons[0];
+            var last = buttons[^1];
+
+            if (first.Bounds.Left > rowLeft)
+            {
+                DrawButtonAuxHitRegion(canvas, paint, first.Component, new SKRect(rowLeft, first.Bounds.Top, first.Bounds.Left, first.Bounds.Bottom), useLeftFlags: true);
+            }
+
+            for (var i = 0; i < buttons.Count - 1; i++)
+            {
+                var leftButton = buttons[i];
+                var rightButton = buttons[i + 1];
+                if (rightButton.Bounds.Left <= leftButton.Bounds.Right)
+                    continue;
+
+                var gapMidX = (leftButton.Bounds.Right + rightButton.Bounds.Left) * 0.5f;
+                DrawButtonAuxHitRegion(canvas, paint, leftButton.Component, new SKRect(leftButton.Bounds.Right, leftButton.Bounds.Top, gapMidX, leftButton.Bounds.Bottom), useLeftFlags: false);
+                DrawButtonAuxHitRegion(canvas, paint, rightButton.Component, new SKRect(gapMidX, rightButton.Bounds.Top, rightButton.Bounds.Left, rightButton.Bounds.Bottom), useLeftFlags: true);
+            }
+
+            if (last.Bounds.Right < rowRight)
+            {
+                DrawButtonAuxHitRegion(canvas, paint, last.Component, new SKRect(last.Bounds.Right, last.Bounds.Top, rowRight, last.Bounds.Bottom), useLeftFlags: false);
+            }
+        }
+    }
+
+    private void DrawButtonAuxHitRegion(SKCanvas canvas, SKPaint paint, NodeComponentVM component, SKRect bounds, bool useLeftFlags)
+    {
+        if (bounds.IsEmpty || bounds.Width <= 0.0f)
+            return;
+
+        var thirdTop = bounds.Top + (bounds.Height / 3.0f);
+        var thirdBottom = bounds.Bottom - (bounds.Height / 3.0f);
+        var horizontalFlags = useLeftFlags ? HitRegionFlags.Left : HitRegionFlags.Right;
+
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.Left, bounds.Top, bounds.Right, thirdTop), HitRegionFlags.Top | horizontalFlags | HitRegionFlags.Body);
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.Left, thirdTop, bounds.Right, thirdBottom), HitRegionFlags.Middle | horizontalFlags | HitRegionFlags.Body);
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.Left, thirdBottom, bounds.Right, bounds.Bottom), HitRegionFlags.Bottom | horizontalFlags | HitRegionFlags.Body);
+    }
+
     private void DrawQuadrantHitRegion(SKCanvas canvas, SKPaint paint, NodeComponentVM component, SKRect bounds, HitRegionFlags flags)
     {
         if (bounds.IsEmpty)
@@ -1880,6 +2096,24 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
         paint.Color = EncodeHitColor(RegisterHitEntry(component, flags));
         canvas.DrawRect(bounds, paint);
+    }
+
+    private void DrawButtonHitRegions(SKCanvas canvas, SKPaint paint, NodeComponentVM component, SKRect bounds)
+    {
+        var thirdTop = bounds.Top + (bounds.Height / 3.0f);
+        var thirdBottom = bounds.Bottom - (bounds.Height / 3.0f);
+
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.Left, bounds.Top, bounds.MidX, thirdTop), HitRegionFlags.Top | HitRegionFlags.Left | HitRegionFlags.Body);
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.MidX, bounds.Top, bounds.Right, thirdTop), HitRegionFlags.Top | HitRegionFlags.Right | HitRegionFlags.Body);
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.Left, thirdTop, bounds.MidX, thirdBottom), HitRegionFlags.Middle | HitRegionFlags.Left | HitRegionFlags.Body);
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.MidX, thirdTop, bounds.Right, thirdBottom), HitRegionFlags.Middle | HitRegionFlags.Right | HitRegionFlags.Body);
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.Left, thirdBottom, bounds.MidX, bounds.Bottom), HitRegionFlags.Bottom | HitRegionFlags.Left | HitRegionFlags.Body);
+        DrawQuadrantHitRegion(canvas, paint, component, new SKRect(bounds.MidX, thirdBottom, bounds.Right, bounds.Bottom), HitRegionFlags.Bottom | HitRegionFlags.Right | HitRegionFlags.Body);
+    }
+
+    private static bool IsButtonLikeComponent(NodeComponentVM? component)
+    {
+        return component is NodeButtonComponentVM or NodeIconButtonComponentVM;
     }
 
     private void DrawPortGlyphHitRegion(
@@ -1917,6 +2151,11 @@ public sealed class SkiaHostVM : BaseVM, IDropable
                 canvas.DrawRect(portBounds, fillPaint);
                 break;
 
+            case NodePortShape.Diamond:
+                using (var path = NodePortGeometry.CreateDiamondPath(portBounds))
+                    canvas.DrawPath(path, fillPaint);
+                break;
+
             case NodePortShape.ArrowIn:
                 using (var path = NodePortGeometry.CreateArrowPath(portBounds, portComponent.Side, pointsIntoNode: true))
                     canvas.DrawPath(path, fillPaint);
@@ -1948,6 +2187,72 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         var hitEntryId = _hitEntries.Count + 1;
         _hitEntries[hitEntryId] = new HitTestResult(target, flags);
         return hitEntryId;
+    }
+
+    private NodeColumnLayoutSnapshot GetPreviewColumnLayout(NodeLayoutSnapshot layoutSnapshot)
+    {
+        return GetColumnLayout(layoutSnapshot, _previewComponent != null ? GetComponentColumnIndex(_previewComponent, layoutSnapshot) : 0);
+    }
+
+    private static NodeColumnLayoutSnapshot GetColumnLayout(NodeLayoutSnapshot layoutSnapshot, int columnIndex)
+    {
+        var resolvedIndex = Math.Clamp(columnIndex, 0, layoutSnapshot.Columns.Count - 1);
+        return layoutSnapshot.Columns[resolvedIndex];
+    }
+
+    private static int GetComponentColumnIndex(NodeComponentVM component, NodeLayoutSnapshot layoutSnapshot)
+    {
+        if (component is NodePortComponentVM portComponent)
+            return portComponent.Side == NodePortSide.Left ? 0 : layoutSnapshot.Columns.Count - 1;
+
+        return Math.Clamp(component.Column, 0, layoutSnapshot.Columns.Count - 1);
+    }
+
+    private static int ResolvePreviewColumnIndex(NodeLayoutSnapshot layoutSnapshot, HitTestResult hitResult, SKPoint nodePoint)
+    {
+        if (hitResult.Component != null)
+        {
+            var componentLayout = layoutSnapshot.Components
+                .FirstOrDefault(component => ReferenceEquals(component.Component, hitResult.Component));
+            if (componentLayout != null)
+                return componentLayout.ColumnIndex;
+        }
+
+        var directColumn = layoutSnapshot.Columns
+            .FirstOrDefault(column => nodePoint.X >= column.Bounds.Left && nodePoint.X <= column.Bounds.Right);
+        if (directColumn != null)
+            return directColumn.Index;
+
+        return layoutSnapshot.Columns
+            .OrderBy(column => MathF.Abs(column.ContentBounds.MidX - nodePoint.X))
+            .First()
+            .Index;
+    }
+
+    private static int GetRowIndex(IReadOnlyList<NodeComponentLayoutSnapshot> components, int yOrder)
+    {
+        return components
+            .Select(component => component.YOrder)
+            .Distinct()
+            .OrderBy(order => order)
+            .ToList()
+            .FindIndex(order => order == yOrder);
+    }
+
+    private int GetInlineDropXOrder(NodeLayoutSnapshot layoutSnapshot, NodeComponentLayoutSnapshot hitLayout, bool inlineBefore)
+    {
+        var rowButtons = layoutSnapshot.Components
+            .Where(component => IsButtonLikeComponent(component.Component)
+                                && component.ColumnIndex == hitLayout.ColumnIndex
+                                && component.YOrder == hitLayout.YOrder)
+            .Where(component => !ReferenceEquals(component.Component, _dragSourceComponent))
+            .OrderBy(component => component.XOrder)
+            .ToList();
+        var hitIndex = rowButtons.FindIndex(component => ReferenceEquals(component.Component, hitLayout.Component));
+        if (hitIndex < 0)
+            return 0;
+
+        return inlineBefore ? hitIndex : hitIndex + 1;
     }
 
     private void MarkHitTestLayerDirty(bool resetBitmap = false)
@@ -2055,6 +2360,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             RowSpacing,
             ColumnSpacing,
             RoundedCornerRadius,
+            ControlCornerRadius,
             MinimumColumnWidth,
             PortSize,
             PortPlacement);

@@ -13,6 +13,7 @@ public sealed class NodeSpacerComponentVisual : NodeComponentVisual
     private readonly bool _isSelected;
     private readonly bool _isHovered;
     private readonly float _selectionDashLength;
+    private readonly float _selectionHorizontalPadding;
     private readonly SKColor _selectionColor;
     private readonly bool _showDebugBounds;
 
@@ -24,13 +25,14 @@ public sealed class NodeSpacerComponentVisual : NodeComponentVisual
     /// <summary>
     /// Creates a new spacer component visual.
     /// </summary>
-    public NodeSpacerComponentVisual(bool showDebugBounds = false, bool isHovered = false, bool isSelected = false, SKColor defaultSelectionColor = default, float selectionDashLength = 1.0f)
+    public NodeSpacerComponentVisual(bool showDebugBounds = false, bool isHovered = false, bool isSelected = false, SKColor defaultSelectionColor = default, float selectionDashLength = 1.0f, float selectionHorizontalPadding = 0.0f)
     {
         _showDebugBounds = showDebugBounds;
         _isHovered = isHovered;
         _isSelected = isSelected;
         _selectionColor = defaultSelectionColor == default ? SKColors.Gray : defaultSelectionColor;
         _selectionDashLength = selectionDashLength;
+        _selectionHorizontalPadding = MathF.Max(0.0f, selectionHorizontalPadding);
     }
 
     #endregion Constructors
@@ -47,10 +49,10 @@ public sealed class NodeSpacerComponentVisual : NodeComponentVisual
             RenderDebugBounds(canvas);
 
         if (_isHovered && !_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true, _selectionHorizontalPadding);
 
         if (_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false, _selectionHorizontalPadding);
     }
 
     #endregion Public Methods

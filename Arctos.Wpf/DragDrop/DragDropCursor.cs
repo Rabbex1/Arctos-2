@@ -65,7 +65,7 @@ namespace Arctos.Wpf.DragDrop
           fe.Height = 64;
         }
         if (_customCursor?.FindName("CursorImage") is ContentPresenter image)
-          image.Content = ImageSource;
+          image.Content = CreateCursorContent(ImageSource);
       }
     }
     #endregion
@@ -125,7 +125,7 @@ namespace Arctos.Wpf.DragDrop
       }
       var cursorImage = (ContentPresenter)_customCursor.FindName("CursorImage");
       if (cursorImage != null)
-        cursorImage.Content = ImageSource;
+        cursorImage.Content = CreateCursorContent(ImageSource);
       var cursorText = (TextBlock)_customCursor.FindName("CursorText");
       if (cursorText != null)
         cursorText.Text = Text;
@@ -223,6 +223,32 @@ namespace Arctos.Wpf.DragDrop
       // return cursor stream
       cursorStream.Seek(0, SeekOrigin.Begin);
       return new Cursor(cursorStream);
+    }
+
+    private static object CreateCursorContent(object imageSource)
+    {
+      return imageSource switch
+      {
+        null => null,
+        ImageSource source => new Grid
+        {
+          Width = 128,
+          Height = 128,
+          Background = System.Windows.Media.Brushes.Transparent,
+          Children =
+          {
+            new Image
+            {
+              Source = source,
+              Stretch = Stretch.None,
+              HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+              VerticalAlignment = VerticalAlignment.Top,
+              SnapsToDevicePixels = true,
+            },
+          },
+        },
+        _ => imageSource
+      };
     }
 
     #endregion Private Methods

@@ -1,17 +1,19 @@
 using Arctos.Nodes.Models;
+using Arctos.Nodes.Wpf.DragImage;
 
 namespace Arctos.Nodes.Wpf.ViewModels;
 
 /// <summary>
 /// Tree-based view model over a <see cref="NodeGraph"/>.
 /// </summary>
-public sealed class NodeGraphVM : NodeTreeParentVM<NodeInstanceVM, INodeTreeItemVM>, IModelHost<NodeGraph>
+public sealed class NodeGraphVM : NodeTreeParentVM<NodeInstanceVM, INodeTreeItemVM>, IModelHost<NodeGraph>, IDragImageHost
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
 
     private readonly NodeGraph _graph;
     private NodeInstanceVM? _selectedNode;
+    private DragImage.DragImage? _dragImage;
 
     #endregion Fields
 
@@ -57,6 +59,15 @@ public sealed class NodeGraphVM : NodeTreeParentVM<NodeInstanceVM, INodeTreeItem
     /// Gets the currently selected host for properties and navigation. When no node is selected, the graph is selected.
     /// </summary>
     public IModelHost? SelectedHost => _selectedNode as IModelHost ?? this;
+
+    /// <summary>
+    /// Gets or sets the cached drag image owned by this graph host.
+    /// </summary>
+    public DragImage.DragImage? DragImage
+    {
+        get => _dragImage;
+        set => SetProperty(ref _dragImage, value);
+    }
 
     /// <inheritdoc />
     public override bool IsSelectable => true;

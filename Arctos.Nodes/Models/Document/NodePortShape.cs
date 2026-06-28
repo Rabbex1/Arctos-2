@@ -7,6 +7,7 @@ public enum NodePortShape
 {
     Circle,
     Square,
+    Diamond,
     ArrowIn,
     ArrowOut,
     Hidden,

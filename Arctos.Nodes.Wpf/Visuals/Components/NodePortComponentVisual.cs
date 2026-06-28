@@ -8,6 +8,8 @@ namespace Arctos.Nodes.Wpf.Visuals;
 /// </summary>
 public sealed class NodePortComponentVisual : NodeComponentVisual
 {
+    private const float LabelScale = 0.6f;
+
     private readonly string? _fontFamily;
     private readonly NodeFontWeight _fontWeight;
     private readonly bool _isHovered;
@@ -31,6 +33,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
     private readonly float _textSize;
     private readonly float _opacity;
     private readonly float _fillOpacityScale;
+    private readonly float _selectionHorizontalPadding;
 
     public NodePortComponentVisual(
         string label,
@@ -55,7 +58,8 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
         bool isHovered = false,
         bool isSelected = false,
         SKColor defaultSelectionColor = default,
-        float selectionDashLength = 1.0f)
+        float selectionDashLength = 1.0f,
+        float selectionHorizontalPadding = 0.0f)
     {
         _label = label ?? string.Empty;
         _side = side;
@@ -80,6 +84,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
         _isSelected = isSelected;
         _selectionColor = defaultSelectionColor == default ? SKColors.Gray : defaultSelectionColor;
         _selectionDashLength = selectionDashLength;
+        _selectionHorizontalPadding = MathF.Max(0.0f, selectionHorizontalPadding);
     }
 
     public override void Render(SKCanvas canvas)
@@ -104,10 +109,10 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
             RenderDebugBounds(canvas);
 
         if (_isHovered && !_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, true, _selectionHorizontalPadding);
 
         if (_isSelected)
-            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false);
+            RenderSelectionBounds(canvas, _selectionColor, _selectionDashLength, 0.0f, false, _selectionHorizontalPadding);
     }
 
     private void DrawPort(SKCanvas canvas, SKRect portBounds)
@@ -136,6 +141,14 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
             case NodePortShape.Square:
                 canvas.DrawRect(portBounds, fillPaint);
                 canvas.DrawRect(portBounds, strokePaint);
+                break;
+
+            case NodePortShape.Diamond:
+                using (var path = NodePortGeometry.CreateDiamondPath(portBounds))
+                {
+                    canvas.DrawPath(path, fillPaint);
+                    canvas.DrawPath(path, strokePaint);
+                }
                 break;
 
             case NodePortShape.ArrowIn:
@@ -183,7 +196,7 @@ public sealed class NodePortComponentVisual : NodeComponentVisual
         {
             Color = WithOpacity(_textColor.ToSkColor()),
             IsAntialias = true,
-            TextSize = _textSize,
+            TextSize = _textSize * LabelScale,
             TextAlign = _side == NodePortSide.Left ? SKTextAlign.Left : SKTextAlign.Right,
             Typeface = CreateTypeface(_fontFamily, _fontWeight),
         };

@@ -224,6 +224,7 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
             new InputFloatVM("Row Spacing:", _defaultStyle.RowSpacing, _ => { }) { IsReadOnly = true },
             new InputFloatVM("Column Spacing:", _defaultStyle.ColumnSpacing, _ => { }) { IsReadOnly = true },
             new InputFloatVM("Rounded Corner Radius:", _defaultStyle.RoundedCornerRadius, _ => { }) { IsReadOnly = true },
+            new InputFloatVM("Control Corner Radius:", _defaultStyle.ControlCornerRadius, _ => { }) { IsReadOnly = true },
             new InputFloatVM("Minimum Column Width:", _defaultStyle.MinimumColumnWidth, _ => { }) { IsReadOnly = true },
             new InputFloatVM("Port Size:", _defaultStyle.PortSize, _ => { }) { IsReadOnly = true },
             new InputEnumVM("Port Placement:", _defaultStyle.PortPlacement, _ => { }) { IsReadOnly = true },

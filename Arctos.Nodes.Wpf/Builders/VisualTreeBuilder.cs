@@ -91,6 +91,9 @@ public sealed class VisualTreeBuilder
 
         if (previewComponent != null)
             AddComponentVisual(nodeVisual, previewComponent, nodeStyle, styleContext, minorGridSize, componentBounds, inputLabelWidth, nodeBounds, true, showDebugBounds);
+
+        if (layoutSnapshot?.Columns.Count > 1)
+            nodeVisual.AddChild(new NodeColumnGuidesVisual(layoutSnapshot.Columns, GetNeutralContrastColor(nodeStyle.ShapeStyle.BackgroundColor), minorGridSize / 2.0f));
     }
 
     private static void AddComponentVisual(NodeVisual nodeVisual, NodeComponentVM component, NodeStyle nodeStyle, NodeCanvasStyleContext styleContext, float minorGridSize, Dictionary<NodeComponentVM, SKRect>? componentBounds, float inputLabelWidth, SKRect nodeBounds, bool isPreview, bool showDebugBounds)
@@ -100,6 +103,7 @@ public sealed class VisualTreeBuilder
             : CreateFallbackBounds(component, styleContext, minorGridSize);
         var selectionColor = GetSelectionColor(nodeStyle.ShapeStyle.BackgroundColor);
         var selectionDashLength = minorGridSize / 4.0f;
+        var selectionHorizontalPadding = minorGridSize * 0.5f;
 
         switch (component)
         {
@@ -115,7 +119,8 @@ public sealed class VisualTreeBuilder
                     labelComponent.IsHovered && !isPreview,
                     labelComponent.IsSelected && !isPreview,
                     selectionColor,
-                    selectionDashLength)
+                    selectionDashLength,
+                    selectionHorizontalPadding)
                 {
                     Bounds = bounds,
                 };
@@ -132,18 +137,152 @@ public sealed class VisualTreeBuilder
                     styleContext.FontColor,
                     nodeStyle.ShapeStyle.FontWeight,
                     nodeStyle.ShapeStyle.BorderColor,
+                    nodeStyle.ShapeStyle.BackgroundColor,
+                    styleContext.ControlCornerRadius,
                     minorGridSize,
-                    inputLabelWidth,
-                    showDebugBounds,
-                    inputComponent.IsHovered && !isPreview,
-                    inputComponent.IsSelected && !isPreview,
+                    inputLabelWidth: inputLabelWidth,
+                    dateTimeDisplayMode: inputComponent.DateTimeDisplayMode,
+                    showDebugBounds: showDebugBounds,
+                    isHovered: inputComponent.IsHovered && !isPreview,
+                    isSelected: inputComponent.IsSelected && !isPreview,
                     isPreview: isPreview,
                     defaultSelectionColor: selectionColor,
-                    selectionDashLength: selectionDashLength)
+                    selectionDashLength: selectionDashLength,
+                    selectionHorizontalPadding: selectionHorizontalPadding)
                 {
                     Bounds = bounds,
                 };
                 nodeVisual.AddChild(inputVisual);
+                break;
+
+            case NodeValueDisplayComponentVM valueDisplayComponent:
+                var valueDisplayVisual = new NodeInputComponentVisual(
+                    valueDisplayComponent.Label,
+                    InputTypeIds.String,
+                    valueDisplayComponent.DefaultValue,
+                    styleContext.FontFamily,
+                    styleContext.FontSize,
+                    styleContext.FontColor,
+                    nodeStyle.ShapeStyle.FontWeight,
+                    nodeStyle.ShapeStyle.BackgroundColor,
+                    nodeStyle.ShapeStyle.BackgroundColor,
+                    styleContext.ControlCornerRadius,
+                    minorGridSize,
+                    inputLabelWidth: inputLabelWidth,
+                    valueTextColor: valueDisplayComponent.ValueColorMode == NodeValueDisplayColorMode.Custom
+                        ? valueDisplayComponent.ValueColor
+                        : null,
+                    showDebugBounds: showDebugBounds,
+                    isHovered: valueDisplayComponent.IsHovered && !isPreview,
+                    isSelected: valueDisplayComponent.IsSelected && !isPreview,
+                    isPreview: isPreview,
+                    defaultSelectionColor: selectionColor,
+                    selectionDashLength: selectionDashLength,
+                    selectionHorizontalPadding: selectionHorizontalPadding)
+                {
+                    Bounds = bounds,
+                };
+                nodeVisual.AddChild(valueDisplayVisual);
+                break;
+
+            case NodeButtonComponentVM buttonComponent:
+                var buttonVisual = new NodeButtonComponentVisual(
+                    buttonComponent.Label,
+                    styleContext.FontFamily,
+                    styleContext.FontSize,
+                    styleContext.FontColor,
+                    nodeStyle.ShapeStyle.FontWeight,
+                    nodeStyle.ShapeStyle.BorderColor,
+                    styleContext.ControlCornerRadius * minorGridSize,
+                    minorGridSize,
+                    previewOpacity: isPreview ? 0.6f : 1.0f,
+                    showDebugBounds: showDebugBounds,
+                    isHovered: buttonComponent.IsHovered && !isPreview,
+                    isSelected: buttonComponent.IsSelected && !isPreview,
+                    isPreview: isPreview,
+                    defaultSelectionColor: selectionColor,
+                    selectionDashLength: selectionDashLength,
+                    selectionHorizontalPadding: selectionHorizontalPadding)
+                {
+                    Bounds = bounds,
+                };
+                nodeVisual.AddChild(buttonVisual);
+                break;
+
+            case NodeIconButtonComponentVM iconButtonComponent:
+                var iconButtonVisual = new NodeIconButtonComponentVisual(
+                    iconButtonComponent.Svg,
+                    iconButtonComponent.ColorMode,
+                    nodeStyle.ShapeStyle.BackgroundColor,
+                    nodeStyle.ShapeStyle.BorderColor,
+                    styleContext.FontColor,
+                    styleContext.ControlCornerRadius * minorGridSize,
+                    minorGridSize,
+                    previewOpacity: isPreview ? 0.6f : 1.0f,
+                    showDebugBounds: showDebugBounds,
+                    isHovered: iconButtonComponent.IsHovered && !isPreview,
+                    isSelected: iconButtonComponent.IsSelected && !isPreview,
+                    isPreview: isPreview,
+                    defaultSelectionColor: selectionColor,
+                    selectionDashLength: selectionDashLength,
+                    selectionHorizontalPadding: selectionHorizontalPadding)
+                {
+                    Bounds = bounds,
+                };
+                nodeVisual.AddChild(iconButtonVisual);
+                break;
+
+            case NodeIndicatorComponentVM indicatorComponent:
+                var indicatorVisual = new NodeIndicatorComponentVisual(
+                    indicatorComponent.Label,
+                    indicatorComponent.Shape,
+                    indicatorComponent.Color,
+                    nodeStyle.ShapeStyle.BorderColor,
+                    styleContext.FontFamily,
+                    styleContext.FontSize,
+                    styleContext.FontColor,
+                    nodeStyle.ShapeStyle.FontWeight,
+                    styleContext.ControlCornerRadius,
+                    minorGridSize,
+                    showDebugBounds: showDebugBounds,
+                    isHovered: indicatorComponent.IsHovered && !isPreview,
+                    isSelected: indicatorComponent.IsSelected && !isPreview,
+                    isPreview: isPreview,
+                    defaultSelectionColor: selectionColor,
+                    selectionDashLength: selectionDashLength,
+                    selectionHorizontalPadding: selectionHorizontalPadding)
+                {
+                    Bounds = bounds,
+                };
+                nodeVisual.AddChild(indicatorVisual);
+                break;
+
+            case NodeGridInputComponentVM gridInputComponent:
+                var gridInputVisual = new NodeGridInputComponentVisual(
+                    gridInputComponent.Label,
+                    gridInputComponent.Rows,
+                    gridInputComponent.Columns,
+                    gridInputComponent.CellWidth,
+                    gridInputComponent.CellTypeId,
+                    gridInputComponent.DefaultValues,
+                    styleContext.FontFamily,
+                    styleContext.FontSize,
+                    styleContext.FontColor,
+                    nodeStyle.ShapeStyle.FontWeight,
+                    nodeStyle.ShapeStyle.BorderColor,
+                    styleContext.ControlCornerRadius,
+                    minorGridSize,
+                    showDebugBounds: showDebugBounds,
+                    isHovered: gridInputComponent.IsHovered && !isPreview,
+                    isSelected: gridInputComponent.IsSelected && !isPreview,
+                    isPreview: isPreview,
+                    defaultSelectionColor: selectionColor,
+                    selectionDashLength: selectionDashLength,
+                    selectionHorizontalPadding: selectionHorizontalPadding)
+                {
+                    Bounds = bounds,
+                };
+                nodeVisual.AddChild(gridInputVisual);
                 break;
 
             case NodeSeparatorComponentVM separatorComponent:
@@ -155,7 +294,8 @@ public sealed class VisualTreeBuilder
                     separatorComponent.IsHovered && !isPreview,
                     separatorComponent.IsSelected && !isPreview,
                     selectionColor,
-                    selectionDashLength)
+                    selectionDashLength,
+                    selectionHorizontalPadding)
                 {
                     Bounds = bounds,
                 };
@@ -185,7 +325,8 @@ public sealed class VisualTreeBuilder
                     isHovered: portComponent.IsHovered && !isPreview,
                     isSelected: portComponent.IsSelected && !isPreview,
                     defaultSelectionColor: selectionColor,
-                    selectionDashLength: selectionDashLength)
+                    selectionDashLength: selectionDashLength,
+                    selectionHorizontalPadding: selectionHorizontalPadding)
                 {
                     Bounds = bounds,
                 };
@@ -198,7 +339,8 @@ public sealed class VisualTreeBuilder
                     spacerComponent.IsHovered && !isPreview,
                     spacerComponent.IsSelected && !isPreview,
                     selectionColor,
-                    selectionDashLength)
+                    selectionDashLength,
+                    selectionHorizontalPadding)
                 {
                     Bounds = bounds,
                 };
@@ -213,6 +355,11 @@ public sealed class VisualTreeBuilder
         {
             NodeLabelComponentVM labelComponent => CreateLabelBounds(labelComponent, styleContext, minorGridSize),
             NodeInputComponentVM => CreateFullWidthBounds(component.Position, 4.0f, minorGridSize),
+            NodeValueDisplayComponentVM => CreateFullWidthBounds(component.Position, 4.0f, minorGridSize),
+            NodeGridInputComponentVM gridInputComponent => CreateFullWidthBounds(component.Position, MathF.Max(4.0f, gridInputComponent.Rows * 4.0f), minorGridSize),
+            NodeButtonComponentVM => CreateFullWidthBounds(component.Position, 4.0f, minorGridSize),
+            NodeIconButtonComponentVM => CreateFullWidthBounds(component.Position, 4.0f, minorGridSize),
+            NodeIndicatorComponentVM => CreateFullWidthBounds(component.Position, 4.0f, minorGridSize),
             NodePortComponentVM => CreateFullWidthBounds(component.Position, MathF.Max(4.0f, styleContext.PortSize), minorGridSize),
             NodeSpacerComponentVM spacerComponent => CreateFullWidthBounds(component.Position, MathF.Max(1.0f, spacerComponent.Height), minorGridSize),
             NodeSeparatorComponentVM => CreateFullWidthBounds(component.Position, 2.0f, minorGridSize),

@@ -48,6 +48,22 @@ internal static class NodePortGeometry
         return path;
     }
 
+    /// <summary>
+    /// Creates the diamond path used for diamond-shaped ports.
+    /// </summary>
+    public static SKPath CreateDiamondPath(SKRect portBounds)
+    {
+        var expandX = portBounds.Width * 0.05f;
+        var expandY = portBounds.Height * 0.05f;
+        var path = new SKPath();
+        path.MoveTo(portBounds.MidX, portBounds.Top - expandY);
+        path.LineTo(portBounds.Right + expandX, portBounds.MidY);
+        path.LineTo(portBounds.MidX, portBounds.Bottom + expandY);
+        path.LineTo(portBounds.Left - expandX, portBounds.MidY);
+        path.Close();
+        return path;
+    }
+
     private static float GetPortCenterX(NodePortSide side, NodePortPlacement placement, float size, float nodeLeft, float nodeRight, float nodeBorderThickness, float nodeStrokeSize)
     {
         var borderCenter = side == NodePortSide.Left ? nodeLeft : nodeRight;
