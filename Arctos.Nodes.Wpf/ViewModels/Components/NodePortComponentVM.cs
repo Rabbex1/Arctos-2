@@ -32,11 +32,16 @@ public sealed class NodePortComponentVM : NodeComponentVM
         get => _side;
         set
         {
-            if (!SetProperty(ref _side, value))
-                return;
-
-            PortModel.Side = value;
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change port side",
+                _side,
+                value,
+                side =>
+                {
+                    _side = side;
+                    PortModel.Side = side;
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -48,11 +53,16 @@ public sealed class NodePortComponentVM : NodeComponentVM
         get => _shape;
         set
         {
-            if (!SetProperty(ref _shape, value))
-                return;
-
-            PortModel.Shape = value;
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change port shape",
+                _shape,
+                value,
+                shape =>
+                {
+                    _shape = shape;
+                    PortModel.Shape = shape;
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -64,11 +74,16 @@ public sealed class NodePortComponentVM : NodeComponentVM
         get => _fillColor;
         set
         {
-            if (!SetProperty(ref _fillColor, value))
-                return;
-
-            PortModel.FillColor = value;
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change port fill color",
+                _fillColor,
+                value,
+                fillColor =>
+                {
+                    _fillColor = fillColor;
+                    PortModel.FillColor = fillColor;
+                    OnPropertyChanged();
+                });
         }
     }
 

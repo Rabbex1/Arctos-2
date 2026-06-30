@@ -23,12 +23,15 @@ public sealed class NodeValueDisplayComponentVM : NodeComponentVM
         set
         {
             var resolvedValue = value ?? string.Empty;
-            if (string.Equals(ValueDisplayModel.DefaultValue, resolvedValue, StringComparison.Ordinal))
-                return;
-
-            ValueDisplayModel.DefaultValue = resolvedValue;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change display value",
+                ValueDisplayModel.DefaultValue,
+                resolvedValue,
+                defaultValue =>
+                {
+                    ValueDisplayModel.DefaultValue = defaultValue;
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -40,13 +43,16 @@ public sealed class NodeValueDisplayComponentVM : NodeComponentVM
         get => ValueDisplayModel.ValueColorMode;
         set
         {
-            if (ValueDisplayModel.ValueColorMode == value)
-                return;
-
-            ValueDisplayModel.ValueColorMode = value;
-            OnPropertyChanged();
-            Application.Current?.Dispatcher.BeginInvoke(new Action(RebuildEditTabs), DispatcherPriority.Background);
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change display value color mode",
+                ValueDisplayModel.ValueColorMode,
+                value,
+                valueColorMode =>
+                {
+                    ValueDisplayModel.ValueColorMode = valueColorMode;
+                    OnPropertyChanged();
+                    Application.Current?.Dispatcher.BeginInvoke(new Action(RebuildEditTabs), DispatcherPriority.Background);
+                });
         }
     }
 
@@ -58,12 +64,15 @@ public sealed class NodeValueDisplayComponentVM : NodeComponentVM
         get => ValueDisplayModel.ValueColor;
         set
         {
-            if (ValueDisplayModel.ValueColor == value)
-                return;
-
-            ValueDisplayModel.ValueColor = value;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change display value color",
+                ValueDisplayModel.ValueColor,
+                value,
+                valueColor =>
+                {
+                    ValueDisplayModel.ValueColor = valueColor;
+                    OnPropertyChanged();
+                });
         }
     }
 

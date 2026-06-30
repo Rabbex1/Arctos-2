@@ -1,232 +1,341 @@
 {
-  "Name": "Minimal Library",
-  "Version": "1.0.0",
-  "Library": {
-    "Name": "Minimal Library",
-    "Version": "1.0.0",
-    "definitions": [
-      {
-        "TypeName": "SimpleNode",
-        "DisplayName": "Simple Node",
-        "DomainType": "Test",
-        "NodeShape": 0,
-        "Size": {
-          "Width": 31,
-          "Height": 42
-        },
-        "ShapeRules": {
-          "Shape": 0,
-          "MaxLeftPorts": 2147483647,
-          "MaxRightPorts": 2147483647,
-          "MaxTopPorts": 0,
-          "MaxBottomPorts": 0,
-          "HeaderPosition": 1,
-          "PortLabelPosition": 1,
-          "AllowInternalComponents": true
-        },
-        "IconSvg": null,
-        "HeaderText": null,
-        "HasOverview": false,
-        "Style": {
-          "ShapeStyle": {
-            "BackgroundColor": {
-              "Red": 163,
-              "Green": 208,
-              "Blue": 255,
-              "Alpha": 255
-            },
-            "BorderColor": {
-              "Red": 96,
-              "Green": 96,
-              "Blue": 92,
-              "Alpha": 255
-            },
-            "BorderThickness": 1,
-            "FontColor": {
-              "Red": 28,
-              "Green": 28,
-              "Blue": 30,
-              "Alpha": 255
-            },
-            "FontWeight": 400
-          },
-          "HeaderStyle": {
-            "BackgroundColor": {
-              "Red": 0,
-              "Green": 0,
-              "Blue": 0,
-              "Alpha": 0
-            },
-            "FontColor": {
-              "Red": 0,
-              "Green": 0,
-              "Blue": 0,
-              "Alpha": 255
-            },
-            "FontWeight": 400,
-            "Alignment": 1
-          },
-          "OverrideRules": {
-            "AllowStyleOverrides": true,
-            "AllowBorderOverrides": true,
-            "AllowFontOverrides": true,
-            "AllowHeaderOverrides": true
-          }
-        },
-        "Components": [
-          {
-            "$type": "Text",
-            "Id": null,
-            "Label": "Text2",
-            "Position": {
-              "X": -14.5,
-              "Y": -16
-            }
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Input",
-            "Description": null,
-            "TypeId": "DateTime",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DefaultValue": "2026-06-17T17:37:25.3660833\u002B08:00",
-            "Id": null,
-            "Label": "Input",
-            "Position": {
-              "X": -14.5,
-              "Y": 12
-            }
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Input",
-            "Description": null,
-            "TypeId": "TimeSpan",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DefaultValue": "00:00:00",
-            "Id": null,
-            "Label": "Input",
-            "Position": {
-              "X": -14.5,
-              "Y": 8
-            }
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Input",
-            "Description": null,
-            "TypeId": "StringSelection",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DefaultValue": {
-              "Source": 0,
-              "Options": [],
-              "Value": "Test 1"
-            },
-            "Id": null,
-            "Label": "Input",
-            "Position": {
-              "X": -14.5,
-              "Y": 16
-            }
-          },
-          {
-            "$type": "Port",
-            "Side": 1,
-            "Shape": 1,
-            "Placement": 2,
-            "FillColor": {
-              "Red": 228,
-              "Green": 57,
-              "Blue": 50,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": -14.5,
-              "Y": 4
-            }
-          },
-          {
-            "$type": "Port",
-            "Side": 0,
-            "Shape": 0,
-            "Placement": 0,
-            "FillColor": {
-              "Red": 238,
-              "Green": 47,
-              "Blue": 224,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": -14.5,
-              "Y": 0
-            }
-          },
-          {
-            "$type": "Port",
-            "Side": 0,
-            "Shape": 4,
-            "Placement": 1,
-            "FillColor": {
-              "Red": 0,
-              "Green": 99,
-              "Blue": 149,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": -14.5,
-              "Y": -4
-            }
-          },
-          {
-            "$type": "Port",
-            "Side": 0,
-            "Shape": 2,
-            "Placement": 0,
-            "FillColor": {
-              "Red": 81,
-              "Green": 245,
-              "Blue": 85,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": -14.5,
-              "Y": -8
-            }
-          },
-          {
-            "$type": "Port",
-            "Side": 0,
-            "Shape": 0,
-            "Placement": 1,
-            "FillColor": {
-              "Red": 255,
-              "Green": 255,
-              "Blue": 255,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": -14.5,
-              "Y": -12
-            }
-          }
-        ]
-      }
-    ]
-  }
+    "Name":  "Minimal Library",
+    "Version":  "1.0.0",
+    "Library":  {
+                    "Name":  "Minimal Library",
+                    "Version":  "1.0.0",
+                    "definitions":  [
+                                        {
+                                            "TypeName":  "SimpleNode",
+                                            "DisplayName":  "Simple Node",
+                                            "DomainType":  "Test",
+                                            "NodeShape":  0,
+                                            "Size":  {
+                                                         "Width":  31,
+                                                         "Height":  42
+                                                     },
+                                            "ShapeRules":  {
+                                                               "Shape":  0,
+                                                               "MaxLeftPorts":  2147483647,
+                                                               "MaxRightPorts":  2147483647,
+                                                               "MaxTopPorts":  0,
+                                                               "MaxBottomPorts":  0,
+                                                               "HeaderPosition":  1,
+                                                               "PortLabelPosition":  1,
+                                                               "AllowInternalComponents":  true
+                                                           },
+                                            "IconSvg":  null,
+                                            "HeaderText":  null,
+                                            "HasOverview":  false,
+                                            "Style":  {
+                                                          "ShapeStyle":  {
+                                                                             "BackgroundColor":  {
+                                                                                                     "Red":  163,
+                                                                                                     "Green":  208,
+                                                                                                     "Blue":  255,
+                                                                                                     "Alpha":  255
+                                                                                                 },
+                                                                             "BorderColor":  {
+                                                                                                 "Red":  96,
+                                                                                                 "Green":  96,
+                                                                                                 "Blue":  92,
+                                                                                                 "Alpha":  255
+                                                                                             },
+                                                                             "BorderThickness":  1,
+                                                                             "FontColor":  {
+                                                                                               "Red":  28,
+                                                                                               "Green":  28,
+                                                                                               "Blue":  30,
+                                                                                               "Alpha":  255
+                                                                                           },
+                                                                             "FontWeight":  400
+                                                                         },
+                                                          "HeaderStyle":  {
+                                                                              "BackgroundColor":  {
+                                                                                                      "Red":  0,
+                                                                                                      "Green":  0,
+                                                                                                      "Blue":  0,
+                                                                                                      "Alpha":  0
+                                                                                                  },
+                                                                              "FontColor":  {
+                                                                                                "Red":  0,
+                                                                                                "Green":  0,
+                                                                                                "Blue":  0,
+                                                                                                "Alpha":  255
+                                                                                            },
+                                                                              "FontWeight":  400,
+                                                                              "Alignment":  1
+                                                                          },
+                                                          "OverrideRules":  {
+                                                                                "AllowStyleOverrides":  true,
+                                                                                "AllowBorderOverrides":  true,
+                                                                                "AllowFontOverrides":  true,
+                                                                                "AllowHeaderOverrides":  true
+                                                                            }
+                                                      },
+                                            "Columns":  [
+                                                            {
+                                                                "Id":  "c8c6aa0e272e4b50965030ce5db87a8a",
+                                                                "XOrder":  0,
+                                                                "WidthMode":  0,
+                                                                "WidthNu":  0,
+                                                                "Rows":  [
+                                                                             {
+                                                                                 "Id":  "7958770d8bf64343bd79e89d481070f9",
+                                                                                 "YOrder":  0,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Text",
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Text2",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  -16
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "7958770d8bf64343bd79e89d481070f9",
+                                                                                                        "YOrder":  0,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "0cf3937b9ccc48c5b503d26b2d2bdb34",
+                                                                                 "YOrder":  1,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Port",
+                                                                                                        "Side":  0,
+                                                                                                        "Shape":  0,
+                                                                                                        "Placement":  1,
+                                                                                                        "FillColor":  {
+                                                                                                                          "Red":  255,
+                                                                                                                          "Green":  255,
+                                                                                                                          "Blue":  255,
+                                                                                                                          "Alpha":  255
+                                                                                                                      },
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Port",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  -12
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "0cf3937b9ccc48c5b503d26b2d2bdb34",
+                                                                                                        "YOrder":  1,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "705fd5ad8bfc484cba1b1cb863af102d",
+                                                                                 "YOrder":  2,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Port",
+                                                                                                        "Side":  0,
+                                                                                                        "Shape":  2,
+                                                                                                        "Placement":  0,
+                                                                                                        "FillColor":  {
+                                                                                                                          "Red":  81,
+                                                                                                                          "Green":  245,
+                                                                                                                          "Blue":  85,
+                                                                                                                          "Alpha":  255
+                                                                                                                      },
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Port",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  -8
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "705fd5ad8bfc484cba1b1cb863af102d",
+                                                                                                        "YOrder":  2,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "af4327f41da64e6d9f7c46e45ae47265",
+                                                                                 "YOrder":  3,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Port",
+                                                                                                        "Side":  0,
+                                                                                                        "Shape":  4,
+                                                                                                        "Placement":  1,
+                                                                                                        "FillColor":  {
+                                                                                                                          "Red":  0,
+                                                                                                                          "Green":  99,
+                                                                                                                          "Blue":  149,
+                                                                                                                          "Alpha":  255
+                                                                                                                      },
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Port",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  -4
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "af4327f41da64e6d9f7c46e45ae47265",
+                                                                                                        "YOrder":  3,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "c61b1d98237a4d348def92f811ae6dc1",
+                                                                                 "YOrder":  4,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Port",
+                                                                                                        "Side":  0,
+                                                                                                        "Shape":  0,
+                                                                                                        "Placement":  0,
+                                                                                                        "FillColor":  {
+                                                                                                                          "Red":  238,
+                                                                                                                          "Green":  47,
+                                                                                                                          "Blue":  224,
+                                                                                                                          "Alpha":  255
+                                                                                                                      },
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Port",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  0
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "c61b1d98237a4d348def92f811ae6dc1",
+                                                                                                        "YOrder":  4,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "ae9f44a4e47347d0988f8f2c97bd4562",
+                                                                                 "YOrder":  5,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Port",
+                                                                                                        "Side":  1,
+                                                                                                        "Shape":  1,
+                                                                                                        "Placement":  2,
+                                                                                                        "FillColor":  {
+                                                                                                                          "Red":  228,
+                                                                                                                          "Green":  57,
+                                                                                                                          "Blue":  50,
+                                                                                                                          "Alpha":  255
+                                                                                                                      },
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Port",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  4
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "ae9f44a4e47347d0988f8f2c97bd4562",
+                                                                                                        "YOrder":  5,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "ba46fd5b214647078aa3c4a2641c2c78",
+                                                                                 "YOrder":  6,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Input",
+                                                                                                        "DisplayName":  "Input",
+                                                                                                        "Description":  null,
+                                                                                                        "TypeId":  "TimeSpan",
+                                                                                                        "IsReadOnly":  false,
+                                                                                                        "IsVisible":  true,
+                                                                                                        "GroupId":  null,
+                                                                                                        "DefaultValue":  "00:00:00",
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Input",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  8
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "ba46fd5b214647078aa3c4a2641c2c78",
+                                                                                                        "YOrder":  6,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "9e9c85b59db64e0eb8f183e56cef2283",
+                                                                                 "YOrder":  7,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Input",
+                                                                                                        "DisplayName":  "Input",
+                                                                                                        "Description":  null,
+                                                                                                        "TypeId":  "DateTime",
+                                                                                                        "IsReadOnly":  false,
+                                                                                                        "IsVisible":  true,
+                                                                                                        "GroupId":  null,
+                                                                                                        "DefaultValue":  "2026-06-17T17:37:25.3660833+08:00",
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Input",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  12
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "9e9c85b59db64e0eb8f183e56cef2283",
+                                                                                                        "YOrder":  7,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             },
+                                                                             {
+                                                                                 "Id":  "00cd718dde64405785f0b43c6ee5ba5e",
+                                                                                 "YOrder":  8,
+                                                                                 "ColumnSpan":  1,
+                                                                                 "Components":  [
+                                                                                                    {
+                                                                                                        "$type":  "Input",
+                                                                                                        "DisplayName":  "Input",
+                                                                                                        "Description":  null,
+                                                                                                        "TypeId":  "StringSelection",
+                                                                                                        "IsReadOnly":  false,
+                                                                                                        "IsVisible":  true,
+                                                                                                        "GroupId":  null,
+                                                                                                        "DefaultValue":  {
+                                                                                                                             "Source":  0,
+                                                                                                                             "Options":  [
+
+                                                                                                                                         ],
+                                                                                                                             "Value":  "Test 1"
+                                                                                                                         },
+                                                                                                        "Id":  null,
+                                                                                                        "Label":  "Input",
+                                                                                                        "Position":  {
+                                                                                                                         "X":  -14.5,
+                                                                                                                         "Y":  16
+                                                                                                                     },
+                                                                                                        "Column":  0,
+                                                                                                        "ParentId":  "00cd718dde64405785f0b43c6ee5ba5e",
+                                                                                                        "YOrder":  8,
+                                                                                                        "XOrder":  0
+                                                                                                    }
+                                                                                                ]
+                                                                             }
+                                                                         ]
+                                                            }
+                                                        ]
+                                        }
+                                    ]
+                }
 }

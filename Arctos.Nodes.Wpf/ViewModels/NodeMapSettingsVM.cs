@@ -15,6 +15,7 @@ public sealed class NodeMapSettingsVM : ObservableObject
 
     private readonly NodeMapSettings _settings;
     private readonly MapStyle _style;
+    private Action<string, Action, Action>? _recordHistory;
 
     #endregion Fields
 
@@ -42,11 +43,32 @@ public sealed class NodeMapSettingsVM : ObservableObject
 
     #endregion Constructors
 
+    //------------------------------------------------------------------------------------------------------------------------------------------
+
+    #region Methods
+
+    public void SetHistoryRecorder(Action<string, Action, Action>? recordHistory)
+    {
+        _recordHistory = recordHistory;
+    }
+
+
     private void MakePropertiesForm()
     {
-        PropertiesForm.Inputs.Add(new InputStringVM("Name:", _settings.Name, (name) =>
+        PropertiesForm.Inputs.Add(new InputStringVM("Name:", _settings.Name, (wrapper, name) =>
         {
-            _settings.Name = name ?? string.Empty;
+            var value = name ?? string.Empty;
+
+            ApplyMapChange(
+                "Change map name",
+                _settings.Name,
+                value,
+                mapName =>
+                {
+                    _settings.Name = mapName;
+                    wrapper.UpdateValue(mapName);
+                    OnPropertyChanged(nameof(Settings));
+                });
         }));
 
         PropertiesForm.Inputs.Add(new InputStringVM("Document Type:", _settings.DocumentType, (docType) =>
@@ -91,9 +113,10 @@ public sealed class NodeMapSettingsVM : ObservableObject
     {
         return
         [
-            new InputStringVM("Font Family:", _style.FontFamily, fontFamily =>
+            new InputStringVM("Font Family:", _style.FontFamily, (input, fontFamily) =>
             {
                 _style.FontFamily = string.IsNullOrWhiteSpace(fontFamily) ? null : fontFamily;
+                input.UpdateValue(_style.FontFamily);
             }),
 
             new InputFloatVM("Font Size:", _style.FontSize, fontSize =>
@@ -167,5 +190,30 @@ public sealed class NodeMapSettingsVM : ObservableObject
     {
         OnDocumentChanged?.Invoke();
     }
+
+    private bool ApplyMapChange<T>(string description, T oldValue, T newValue, Action<T> applyValue)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(description);
+        ArgumentNullException.ThrowIfNull(applyValue);
+
+        if (EqualityComparer<T>.Default.Equals(oldValue, newValue))
+            return false;
+
+        if (_recordHistory != null)
+        {
+            _recordHistory(
+                description,
+                () => applyValue(newValue),
+                () => applyValue(oldValue));
+            return true;
+        }
+
+        applyValue(newValue);
+        OnDocumentChanged?.Invoke();
+        return true;
+    }
+
+
+    #endregion Methods
 
 }

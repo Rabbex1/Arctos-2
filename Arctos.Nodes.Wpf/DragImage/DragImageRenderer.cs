@@ -456,22 +456,9 @@ public sealed class DragImageRenderer
         return colorMode switch
         {
             NodeSeparatorColorMode.Text => textColor.ToSkColor(),
-            NodeSeparatorColorMode.Neutral => GetNeutralContrastColor(nodeBackgroundColor),
+            NodeSeparatorColorMode.Neutral => NodeVisualDrawing.GetNeutralColor(nodeBackgroundColor),
             _ => borderColor.ToSkColor(),
         };
-    }
-
-    private static SKColor GetNeutralContrastColor(NodeColor backgroundColor)
-    {
-        var grayscale = ((backgroundColor.Red * 0.299f) + (backgroundColor.Green * 0.587f) + (backgroundColor.Blue * 0.114f));
-
-        if (grayscale <= 64.0f || grayscale >= 191.0f)
-            return new SKColor(128, 128, 128);
-
-        if (grayscale <= 127.0f)
-            return new SKColor(192, 192, 192);
-
-        return new SKColor(72, 72, 72);
     }
 
     private sealed class SpacerDragImageVisual(SKColor strokeColor, float strokeWidth) : NodeComponentVisual

@@ -122,6 +122,10 @@ namespace Arctos.Shell.Documents
             {
                 Debug.WriteLine($"Document close cleanup failed: {ex.Message}");
             }
+            finally
+            {
+                TryReleaseHistoryContext(document);
+            }
 
             document.IsActive = false;
             document.IsSelected = false;
@@ -401,6 +405,10 @@ namespace Arctos.Shell.Documents
             {
                 Debug.WriteLine($"Document cleanup (Closing) failed: {ex.Message}");
             }
+            finally
+            {
+                TryReleaseHistoryContext(document);
+            }
 
             try
             {
@@ -410,6 +418,19 @@ namespace Arctos.Shell.Documents
             catch (Exception ex)
             {
                 Debug.WriteLine($"Document cleanup (Dispose) failed: {ex.Message}");
+            }
+        }
+
+        private static void TryReleaseHistoryContext(IDocumentVM document)
+        {
+            try
+            {
+                if (document is History.IHistory historyDocument)
+                    historyDocument.ReleaseHistoryContext();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Document cleanup (History) failed: {ex.Message}");
             }
         }
 

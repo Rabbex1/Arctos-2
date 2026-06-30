@@ -3,6 +3,7 @@ using Arctos.Nodes.Wpf.Documents;
 using Arctos.Nodes.Wpf.ViewModels.Documents;
 using Arctos.Nodes.Wpf.ViewModels.ToolWindows;
 using Arctos.Nodes.Wpf.ViewModels;
+using Arctos.History;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arctos.Nodes.Wpf;
@@ -23,6 +24,7 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
+        services.AddSingleton<IHistoryService, HistoryService>();
         services.AddSingleton<NodesManager>();
         services.AddSingleton<NodeSession>();
         services.AddSingleton<NodeDocumentFactory>();

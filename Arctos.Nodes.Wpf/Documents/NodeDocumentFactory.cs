@@ -1,3 +1,4 @@
+using Arctos.History;
 using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.ViewModels.Documents;
 using Arctos.Shell.Documents;
@@ -13,15 +14,17 @@ public sealed class NodeDocumentFactory : IDocumentFactory
 
     private readonly NodesManager _nodesManager;
     private readonly NodeSession _session;
+    private readonly IHistoryService _historyService;
 
     #endregion Fields
 
     #region Constructors
 
-    public NodeDocumentFactory(NodesManager nodesManager, NodeSession session)
+    public NodeDocumentFactory(NodesManager nodesManager, NodeSession session, IHistoryService historyService)
     {
         _nodesManager = nodesManager ?? throw new ArgumentNullException(nameof(nodesManager));
         _session = session ?? throw new ArgumentNullException(nameof(session));
+        _historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
     }
 
     #endregion Constructors
@@ -41,13 +44,14 @@ public sealed class NodeDocumentFactory : IDocumentFactory
         var extension = metadata.Properties?.TryGetValue("extension", out var value) == true
             ? value
             : null;
+        var historyContext = _historyService.GetOrCreateContext($"nodes-document:{Guid.NewGuid():N}");
 
         return string.Equals(extension, "nlib", StringComparison.OrdinalIgnoreCase)
-            ? new NodeLibraryDocumentVM(_nodesManager, _session)
+            ? new NodeLibraryDocumentVM(_nodesManager, _session, _historyService, historyContext)
             {
                 DisplayName = string.IsNullOrWhiteSpace(metadata.Title) ? "Untitled.nlib" : metadata.Title
             }
-            : new NodeMapDocumentVM(_nodesManager, _session)
+            : new NodeMapDocumentVM(_nodesManager, _session, _historyService, historyContext)
         {
             DisplayName = string.IsNullOrWhiteSpace(metadata.Title) ? "Untitled.nmap" : metadata.Title
         };

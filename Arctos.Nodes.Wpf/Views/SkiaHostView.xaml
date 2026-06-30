@@ -16,6 +16,7 @@
             <skia:SKElement x:Name="OverlayCanvas" PaintSurface="OnOverlayPaintSurface" />
             <Border x:Name="InputOverlay"
                     Background="Transparent"
+                    Focusable="True"
                     MouseMove="OnOverlayMouseMove"
                     MouseLeave="OnOverlayMouseLeave"
                     MouseDown="OnOverlayMouseDown"
@@ -49,6 +50,16 @@
                                   Content="Debug"
                                   IsChecked="{Binding ShowDebugBounds}"
                                   Style="{StaticResource ToolBarToggleButtonStyle}" />
+                    <Button Margin="8 0 0 0"
+                            Padding="8 2"
+                            Command="{Binding UndoCommand}"
+                            Content="Undo"
+                            Style="{StaticResource ToolBarButtonBaseStyle}" />
+                    <Button Margin="4 0 0 0"
+                            Padding="8 2"
+                            Command="{Binding RedoCommand}"
+                            Content="Redo"
+                            Style="{StaticResource ToolBarButtonBaseStyle}" />
                     <Button Margin="8 0 0 0"
                             Padding="8 2"
                             Command="{Binding DeleteSelectedComponentCommand}"

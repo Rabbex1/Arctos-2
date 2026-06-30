@@ -85,6 +85,7 @@ public partial class SkiaHostView : UserControl
 
     private void OnOverlayMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        FocusOverlay();
         InputOverlay.CaptureMouse();
         SendPointerInput(e, PointerInputType.LeftButtonDown);
     }
@@ -102,6 +103,7 @@ public partial class SkiaHostView : UserControl
         if (e.ChangedButton != MouseButton.Middle)
             return;
 
+        FocusOverlay();
         InputOverlay.CaptureMouse();
         SendPointerInput(e, PointerInputType.MiddleButtonDown);
     }
@@ -119,6 +121,7 @@ public partial class SkiaHostView : UserControl
 
     private void OnOverlayMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
+        FocusOverlay();
         SendPointerInput(e, PointerInputType.RightButtonDown);
     }
 
@@ -147,6 +150,14 @@ public partial class SkiaHostView : UserControl
         var wheelDelta = e is MouseWheelEventArgs mouseWheelEvent ? mouseWheelEvent.Delta : 0;
 
         skiaHost.OnPointerInput(new PointerInput(inputType, nodePoint, localPoint, screenPoint, clickCount, wheelDelta));
+    }
+
+    private void FocusOverlay()
+    {
+        if (!InputOverlay.Focusable)
+            return;
+
+        Keyboard.Focus(InputOverlay);
     }
 
     #endregion Private Methods

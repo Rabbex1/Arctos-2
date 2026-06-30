@@ -20,12 +20,15 @@ public sealed class NodeIndicatorComponentVM : NodeComponentVM
         get => IndicatorModel.Color;
         set
         {
-            if (IndicatorModel.Color == value)
-                return;
-
-            IndicatorModel.Color = value;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change indicator color",
+                IndicatorModel.Color,
+                value,
+                color =>
+                {
+                    IndicatorModel.Color = color;
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -37,12 +40,15 @@ public sealed class NodeIndicatorComponentVM : NodeComponentVM
         get => IndicatorModel.Shape;
         set
         {
-            if (IndicatorModel.Shape == value)
-                return;
-
-            IndicatorModel.Shape = value;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change indicator shape",
+                IndicatorModel.Shape,
+                value,
+                shape =>
+                {
+                    IndicatorModel.Shape = shape;
+                    OnPropertyChanged();
+                });
         }
     }
 

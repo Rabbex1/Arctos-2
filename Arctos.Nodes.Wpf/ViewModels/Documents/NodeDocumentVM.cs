@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Arctos;
+using Arctos.History;
 using Arctos.Nodes;
 using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.ViewModels;
@@ -11,12 +12,14 @@ namespace Arctos.Nodes.Wpf.ViewModels.Documents;
 /// <summary>
 /// Shared shell document wrapper surface for node artifacts.
 /// </summary>
-public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
+public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM, IHistory
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
 
     private readonly SkiaHostVM _skiaHost = new();
+    private readonly IHistoryService _historyService;
+    private bool _historyReleased;
     private IModelHost? _navLinkSource;
     private INotifyPropertyChanged? _navLinkSourceNotifier;
     private NavLinkVM? _currentNavLink;
@@ -44,6 +47,11 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
     /// Gets the owning node session.
     /// </summary>
     public NodeSession Session { get; }
+
+    /// <summary>
+    /// Gets the document-scoped history context.
+    /// </summary>
+    public IHistoryContext History { get; }
 
     /// <summary>
     /// Gets or sets the root navigation link for the current document path.
@@ -414,9 +422,12 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
     /// Creates a new node document wrapper.
     /// </summary>
     /// <param name="session">The owning node session.</param>
-    protected NodeDocumentVM(NodeSession session)
+    protected NodeDocumentVM(NodeSession session, IHistoryService historyService, IHistoryContext history)
     {
         Session = session ?? throw new ArgumentNullException(nameof(session));
+        _historyService = historyService ?? throw new ArgumentNullException(nameof(historyService));
+        History = history ?? throw new ArgumentNullException(nameof(history));
+        CurrentCanvas.HistoryContext = History;
         CurrentCanvas.BackgroundColor = _canvasBackgroundColor;
         CurrentCanvas.FontColor = _canvasFontColor;
         CurrentCanvas.FontFamily = _canvasFontFamily;
@@ -436,6 +447,16 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
 
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Protected Methods
+
+    /// <inheritdoc />
+    public void ReleaseHistoryContext()
+    {
+        if (_historyReleased)
+            return;
+
+        _historyReleased = true;
+        _historyService.RemoveContext(History.Id);
+    }
 
     /// <summary>
     /// Updates the current navigation source from the provided selected host.
@@ -505,6 +526,33 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM
         RefreshCanvasTypography();
         RefreshCanvasLayout();
         CurrentCanvas.RebuildVisualTree();
+    }
+
+    /// <summary>
+    /// Creates a recorder that writes actions into the current document history and keeps the canvas up to date.
+    /// </summary>
+    /// <returns>The recorder callback used by child view models.</returns>
+    protected Action<string, Action, Action> CreateHistoryRecorder()
+    {
+        return (description, redo, undo) =>
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(description);
+            ArgumentNullException.ThrowIfNull(redo);
+            ArgumentNullException.ThrowIfNull(undo);
+
+            History.Execute(
+                description,
+                () =>
+                {
+                    redo();
+                    MarkChanged();
+                },
+                () =>
+                {
+                    undo();
+                    MarkChanged();
+                });
+        };
     }
 
     /// <summary>

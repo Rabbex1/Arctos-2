@@ -43,7 +43,7 @@ namespace Arctos.Wpf.Inputs
         #region Constructors
 
         public InputGroupVM(string description, (string header, List<DataInputWrapperVM> wrappers) value, bool collapsable = false, Action? extraAction = null)
-            : base(description, value, null)
+            : base(description, value, (Action<(string header, List<DataInputWrapperVM> wrappers)>?)null)
         {
             Header = value.header;
             Collapsable = collapsable;

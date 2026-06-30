@@ -75,6 +75,7 @@ public sealed class NodeEditToolsVM : ToolWindowVM
                 new PaletteItemVM(PaletteItemKind.Button, "Button", () => new NodeButtonComponentVM()),
                 new PaletteItemVM(PaletteItemKind.IconButton, "Icon Button", () => new NodeIconButtonComponentVM()),
                 new PaletteItemVM(PaletteItemKind.Indicator, "Indicator", () => new NodeIndicatorComponentVM()),
+                new PaletteItemVM(PaletteItemKind.Column, "Column", () => new NodeLabelComponentVM(new NodeText { Label = "Column" })),
                 new PaletteItemVM(PaletteItemKind.Separator, "Separator", () => new NodeSeparatorComponentVM()),
                 new PaletteItemVM(PaletteItemKind.Spacer, "Spacer", () => new NodeSpacerComponentVM()),
             ]),

@@ -32,7 +32,7 @@
     "ControlCornerRadius": 0.5,
     "MinimumColumnWidth": 22,
     "PortSize": 2.2,
-    "PortPlacement": 0
+    "PortPlacement": 2
   },
   "LocalLibrary": {
     "Name": null,
@@ -60,7 +60,15 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": true,
-        "ColumnCount": 1,
+        "Columns": [
+          {
+            "Id": "9885af81e9964a03ae055d01d44ac9c7",
+            "XOrder": 0,
+            "WidthMode": 0,
+            "WidthNu": 0,
+            "Rows": []
+          }
+        ],
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -106,8 +114,7 @@
             "AllowFontOverrides": false,
             "AllowHeaderOverrides": false
           }
-        },
-        "Components": []
+        }
       },
       {
         "TypeName": "RectNode",
@@ -116,7 +123,7 @@
         "NodeShape": 0,
         "Size": {
           "Width": 79,
-          "Height": 90
+          "Height": 86
         },
         "ShapeRules": {
           "Shape": 0,
@@ -131,7 +138,753 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
-        "ColumnCount": 2,
+        "Columns": [
+          {
+            "Id": "1d099210d9374b73b714268413fb844b",
+            "XOrder": 0,
+            "WidthMode": 0,
+            "WidthNu": 0,
+            "Rows": [
+              {
+                "Id": "561faff5c6374e2b87675f2ae575de2a",
+                "YOrder": 0,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "Toggle",
+                    "Position": {
+                      "X": -38,
+                      "Y": -37
+                    },
+                    "Column": 0,
+                    "ParentId": "561faff5c6374e2b87675f2ae575de2a",
+                    "YOrder": 0,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "31d16a596b284a3fb3ef6429017fcde9",
+                "YOrder": 1,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "One",
+                    "Position": {
+                      "X": -38,
+                      "Y": -33
+                    },
+                    "Column": 0,
+                    "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
+                    "YOrder": 1,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  },
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "Two",
+                    "Position": {
+                      "X": -28.5,
+                      "Y": -33
+                    },
+                    "Column": 0,
+                    "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
+                    "YOrder": 1,
+                    "XOrder": 1,
+                    "FixedWidth": 0
+                  },
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "Three",
+                    "Position": {
+                      "X": -19,
+                      "Y": -33
+                    },
+                    "Column": 0,
+                    "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
+                    "YOrder": 1,
+                    "XOrder": 2,
+                    "FixedWidth": 0
+                  },
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "Four",
+                    "Position": {
+                      "X": -9.5,
+                      "Y": -33
+                    },
+                    "Column": 0,
+                    "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
+                    "YOrder": 1,
+                    "XOrder": 3,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "21dad2d76c0441acaccc7bd72aec5c98",
+                "YOrder": 2,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Input",
+                    "DisplayName": "Date Time",
+                    "Description": null,
+                    "TypeId": "DateTime",
+                    "IsReadOnly": false,
+                    "IsVisible": true,
+                    "GroupId": null,
+                    "DateTimeDisplayMode": 2,
+                    "DefaultValue": "2026-06-22T18:32:30.4624122\u002B08:00",
+                    "Id": null,
+                    "Label": "Date Time",
+                    "Position": {
+                      "X": -38,
+                      "Y": -29
+                    },
+                    "Column": 0,
+                    "ParentId": "21dad2d76c0441acaccc7bd72aec5c98",
+                    "YOrder": 2,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "3fea108a8bcc4a65b93d71365945fecc",
+                "YOrder": 3,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "GridInput",
+                    "Rows": 1,
+                    "Columns": 4,
+                    "CellWidth": 4,
+                    "CellTypeId": "Integer",
+                    "MinValue": 0,
+                    "MaxValue": 255,
+                    "DefaultValues": [
+                      255,
+                      168,
+                      20,
+                      114
+                    ],
+                    "Id": null,
+                    "Label": "IP Address",
+                    "Position": {
+                      "X": -38,
+                      "Y": -25
+                    },
+                    "Column": 0,
+                    "ParentId": "3fea108a8bcc4a65b93d71365945fecc",
+                    "YOrder": 3,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "41566497b33e4a86bbf7314c392984e2",
+                "YOrder": 4,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "GridInput",
+                    "Rows": 1,
+                    "Columns": 4,
+                    "CellWidth": 4,
+                    "CellTypeId": "Integer",
+                    "MinValue": 0,
+                    "MaxValue": 255,
+                    "DefaultValues": [
+                      255,
+                      255,
+                      255,
+                      0
+                    ],
+                    "Id": null,
+                    "Label": "Net Mask",
+                    "Position": {
+                      "X": -38,
+                      "Y": -21
+                    },
+                    "Column": 0,
+                    "ParentId": "41566497b33e4a86bbf7314c392984e2",
+                    "YOrder": 4,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "c301204846db4e7ca22439892888b229",
+                "YOrder": 5,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "GridInput",
+                    "Rows": 1,
+                    "Columns": 4,
+                    "CellWidth": 4,
+                    "CellTypeId": "Integer",
+                    "MinValue": 0,
+                    "MaxValue": 255,
+                    "DefaultValues": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "Id": null,
+                    "Label": "Gateway",
+                    "Position": {
+                      "X": -38,
+                      "Y": -17
+                    },
+                    "Column": 0,
+                    "ParentId": "c301204846db4e7ca22439892888b229",
+                    "YOrder": 5,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "f753ad6d26bb415c949a3116218bb900",
+                "YOrder": 6,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Port",
+                    "Side": 0,
+                    "Shape": 0,
+                    "FillColor": {
+                      "Red": 9,
+                      "Green": 219,
+                      "Blue": 9,
+                      "Alpha": 255
+                    },
+                    "Id": null,
+                    "Label": "Port",
+                    "Position": {
+                      "X": -38,
+                      "Y": -13
+                    },
+                    "Column": 0,
+                    "ParentId": "f753ad6d26bb415c949a3116218bb900",
+                    "YOrder": 6,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "a8895cfa1ab5441a8580ce48922ce786",
+                "YOrder": 7,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Separator",
+                    "ColorMode": 0,
+                    "Id": null,
+                    "Label": "Separator",
+                    "Position": {
+                      "X": -38,
+                      "Y": -9
+                    },
+                    "Column": 0,
+                    "ParentId": "a8895cfa1ab5441a8580ce48922ce786",
+                    "YOrder": 7,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "c1d29fa191ef41e4a3e17d2448f00426",
+                "YOrder": 8,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Indicator",
+                    "Color": {
+                      "Red": 128,
+                      "Green": 19,
+                      "Blue": 11,
+                      "Alpha": 255
+                    },
+                    "Shape": 0,
+                    "Id": null,
+                    "Label": "Connection",
+                    "Position": {
+                      "X": -38,
+                      "Y": -7
+                    },
+                    "Column": 0,
+                    "ParentId": "c1d29fa191ef41e4a3e17d2448f00426",
+                    "YOrder": 8,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "ebfad4106a244a70bafea2bbd21e88e1",
+                "YOrder": 9,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Indicator",
+                    "Color": {
+                      "Red": 255,
+                      "Green": 255,
+                      "Blue": 255,
+                      "Alpha": 255
+                    },
+                    "Shape": 0,
+                    "Id": null,
+                    "Label": "Indicator",
+                    "Position": {
+                      "X": -38,
+                      "Y": -3
+                    },
+                    "Column": 0,
+                    "ParentId": "ebfad4106a244a70bafea2bbd21e88e1",
+                    "YOrder": 9,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "eb27e432cf71469ea9d8d11066a1cf98",
+                "YOrder": 10,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Separator",
+                    "ColorMode": 0,
+                    "Id": null,
+                    "Label": "Separator",
+                    "Position": {
+                      "X": -38,
+                      "Y": 1
+                    },
+                    "Column": 0,
+                    "ParentId": "eb27e432cf71469ea9d8d11066a1cf98",
+                    "YOrder": 10,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "6de2916158b14ee791486498ef93e3db",
+                "YOrder": 11,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Text",
+                    "Id": null,
+                    "Label": "Text",
+                    "Position": {
+                      "X": -38,
+                      "Y": 3
+                    },
+                    "Column": 0,
+                    "ParentId": "6de2916158b14ee791486498ef93e3db",
+                    "YOrder": 11,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "9e8156735d0644f4b04f1e4bd61a0016",
+                "YOrder": 12,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Input",
+                    "DisplayName": "String Input",
+                    "Description": null,
+                    "TypeId": "String",
+                    "IsReadOnly": false,
+                    "IsVisible": true,
+                    "GroupId": null,
+                    "DateTimeDisplayMode": 2,
+                    "DefaultValue": "test",
+                    "Id": null,
+                    "Label": "String Input",
+                    "Position": {
+                      "X": -38,
+                      "Y": 7
+                    },
+                    "Column": 0,
+                    "ParentId": "9e8156735d0644f4b04f1e4bd61a0016",
+                    "YOrder": 12,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "d601feb8e3294dbfb1d782b9cb72378c",
+                "YOrder": 13,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Input",
+                    "DisplayName": "Numeric",
+                    "Description": null,
+                    "TypeId": "String",
+                    "IsReadOnly": false,
+                    "IsVisible": true,
+                    "GroupId": null,
+                    "DateTimeDisplayMode": 2,
+                    "DefaultValue": "123.456",
+                    "Id": null,
+                    "Label": "Numeric",
+                    "Position": {
+                      "X": -38,
+                      "Y": 11
+                    },
+                    "Column": 0,
+                    "ParentId": "d601feb8e3294dbfb1d782b9cb72378c",
+                    "YOrder": 13,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "9aa4833e465b4b34a75027824661f2ac",
+                "YOrder": 14,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Input",
+                    "DisplayName": "Dropdown",
+                    "Description": null,
+                    "TypeId": "StringSelection",
+                    "IsReadOnly": false,
+                    "IsVisible": true,
+                    "GroupId": null,
+                    "DateTimeDisplayMode": 2,
+                    "DefaultValue": {
+                      "Options": [],
+                      "Value": null
+                    },
+                    "Id": null,
+                    "Label": "Dropdown",
+                    "Position": {
+                      "X": -38,
+                      "Y": 15
+                    },
+                    "Column": 0,
+                    "ParentId": "9aa4833e465b4b34a75027824661f2ac",
+                    "YOrder": 14,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "777c1e5a2f404d50bd1b1c28c35222c6",
+                "YOrder": 15,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Text",
+                    "Id": null,
+                    "Label": "Text",
+                    "Position": {
+                      "X": -38,
+                      "Y": 19
+                    },
+                    "Column": 0,
+                    "ParentId": "777c1e5a2f404d50bd1b1c28c35222c6",
+                    "YOrder": 15,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "6094f527068345f3bd214f09855ebbd5",
+                "YOrder": 16,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "1",
+                    "Position": {
+                      "X": -38,
+                      "Y": 23
+                    },
+                    "Column": 0,
+                    "ParentId": "6094f527068345f3bd214f09855ebbd5",
+                    "YOrder": 16,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  },
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "2",
+                    "Position": {
+                      "X": -25.333332,
+                      "Y": 23
+                    },
+                    "Column": 0,
+                    "ParentId": "6094f527068345f3bd214f09855ebbd5",
+                    "YOrder": 16,
+                    "XOrder": 1,
+                    "FixedWidth": 0
+                  },
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "3",
+                    "Position": {
+                      "X": -12.666665,
+                      "Y": 23
+                    },
+                    "Column": 0,
+                    "ParentId": "6094f527068345f3bd214f09855ebbd5",
+                    "YOrder": 16,
+                    "XOrder": 2,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "e867145148da45d59ab1ee615e63052d",
+                "YOrder": 17,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Spacer",
+                    "Height": 4,
+                    "Expand": true,
+                    "Id": null,
+                    "Label": "Spacer",
+                    "Position": {
+                      "X": -38,
+                      "Y": 27
+                    },
+                    "Column": 0,
+                    "ParentId": "e867145148da45d59ab1ee615e63052d",
+                    "YOrder": 17,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "63c55bd02d7f4e5ca2342630098599ac",
+                "YOrder": 18,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Spacer",
+                    "Height": 4,
+                    "Expand": true,
+                    "Id": null,
+                    "Label": "Spacer",
+                    "Position": {
+                      "X": -38,
+                      "Y": 27
+                    },
+                    "Column": 0,
+                    "ParentId": "63c55bd02d7f4e5ca2342630098599ac",
+                    "YOrder": 18,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "14880a2fcb1748e3935517ec83fc2d14",
+                "YOrder": 19,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Separator",
+                    "ColorMode": 0,
+                    "Id": null,
+                    "Label": "Separator",
+                    "Position": {
+                      "X": -38,
+                      "Y": 27
+                    },
+                    "Column": 0,
+                    "ParentId": "14880a2fcb1748e3935517ec83fc2d14",
+                    "YOrder": 19,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "5a110852f26a4adf875cda6fb21334f6",
+                "YOrder": 20,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "Button",
+                    "Position": {
+                      "X": -38,
+                      "Y": 29
+                    },
+                    "Column": 0,
+                    "ParentId": "5a110852f26a4adf875cda6fb21334f6",
+                    "YOrder": 20,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "348e668009fe4f8081a13af2441c5e31",
+                "YOrder": 21,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "Button",
+                    "Position": {
+                      "X": -38,
+                      "Y": 33
+                    },
+                    "Column": 0,
+                    "ParentId": "348e668009fe4f8081a13af2441c5e31",
+                    "YOrder": 21,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "8ac3e428216845a087728fec50d68d8e",
+                "YOrder": 22,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Input",
+                    "DisplayName": "Bool Input",
+                    "Description": null,
+                    "TypeId": "Boolean",
+                    "IsReadOnly": false,
+                    "IsVisible": true,
+                    "GroupId": null,
+                    "DateTimeDisplayMode": 2,
+                    "DefaultValue": true,
+                    "Id": null,
+                    "Label": "Bool Input",
+                    "Position": {
+                      "X": -38,
+                      "Y": 37
+                    },
+                    "Column": 0,
+                    "ParentId": "8ac3e428216845a087728fec50d68d8e",
+                    "YOrder": 22,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "bae1bcf649ae4265b682740820bb06a1",
+                "YOrder": 23,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Spacer",
+                    "Height": 4,
+                    "Expand": true,
+                    "Id": null,
+                    "Label": "Spacer",
+                    "Position": {
+                      "X": -38,
+                      "Y": 41
+                    },
+                    "Column": 0,
+                    "ParentId": "bae1bcf649ae4265b682740820bb06a1",
+                    "YOrder": 23,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Id": "840ff8f93bab4bc4b68557f51886d83e",
+            "XOrder": 1,
+            "WidthMode": 0,
+            "WidthNu": 0,
+            "Rows": [
+              {
+                "Id": "149b594255e240369737809eb0d9e507",
+                "YOrder": 0,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "GridInput",
+                    "Rows": 4,
+                    "Columns": 4,
+                    "CellWidth": 5,
+                    "CellTypeId": "Double",
+                    "MinValue": 0,
+                    "MaxValue": 1,
+                    "DefaultValues": [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "Id": null,
+                    "Label": "Grid Input",
+                    "Position": {
+                      "X": 1,
+                      "Y": -37
+                    },
+                    "Column": 1,
+                    "ParentId": "149b594255e240369737809eb0d9e507",
+                    "YOrder": 0,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              }
+            ]
+          }
+        ],
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -177,596 +930,7 @@
             "AllowFontOverrides": false,
             "AllowHeaderOverrides": false
           }
-        },
-        "Components": [
-          {
-            "$type": "Input",
-            "DisplayName": "String Input",
-            "Description": null,
-            "TypeId": "String",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DateTimeDisplayMode": 2,
-            "DefaultValue": "test",
-            "Id": null,
-            "Label": "String Input",
-            "Position": {
-              "X": -38,
-              "Y": 21
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 17,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Bool Input",
-            "Description": null,
-            "TypeId": "Boolean",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DateTimeDisplayMode": 2,
-            "DefaultValue": true,
-            "Id": null,
-            "Label": "Bool Input",
-            "Position": {
-              "X": -38,
-              "Y": 13
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 15,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Dropdown",
-            "Description": null,
-            "TypeId": "StringSelection",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DateTimeDisplayMode": 2,
-            "DefaultValue": {
-              "Options": [],
-              "Value": null
-            },
-            "Id": null,
-            "Label": "Dropdown",
-            "Position": {
-              "X": -38,
-              "Y": 29
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 19,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Port",
-            "Side": 1,
-            "Shape": 1,
-            "FillColor": {
-              "Red": 63,
-              "Green": 255,
-              "Blue": 104,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": 1,
-              "Y": -27
-            },
-            "Column": 1,
-            "ParentId": null,
-            "YOrder": 3,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Port",
-            "Side": 1,
-            "Shape": 0,
-            "FillColor": {
-              "Red": 118,
-              "Green": 62,
-              "Blue": 117,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": 1,
-              "Y": -31
-            },
-            "Column": 1,
-            "ParentId": null,
-            "YOrder": 2,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "One",
-            "Position": {
-              "X": -38,
-              "Y": -31
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 2,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "Button",
-            "Position": {
-              "X": -38,
-              "Y": -35
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 1,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "Toggle",
-            "Position": {
-              "X": -38,
-              "Y": -39
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 0,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "Four",
-            "Position": {
-              "X": -9.5,
-              "Y": -31
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 2,
-            "XOrder": 3,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Port",
-            "Side": 1,
-            "Shape": 3,
-            "FillColor": {
-              "Red": 62,
-              "Green": 62,
-              "Blue": 62,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": 1,
-              "Y": -35
-            },
-            "Column": 1,
-            "ParentId": null,
-            "YOrder": 1,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Numeric",
-            "Description": null,
-            "TypeId": "String",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DateTimeDisplayMode": 2,
-            "DefaultValue": "123.456",
-            "Id": null,
-            "Label": "Numeric",
-            "Position": {
-              "X": -38,
-              "Y": 25
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 18,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "Three",
-            "Position": {
-              "X": -19,
-              "Y": -31
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 2,
-            "XOrder": 2,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "Two",
-            "Position": {
-              "X": -28.5,
-              "Y": -31
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 2,
-            "XOrder": 1,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Separator",
-            "ColorMode": 0,
-            "Id": null,
-            "Label": "Separator",
-            "Position": {
-              "X": -38,
-              "Y": -3
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 10,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Time Span",
-            "Description": null,
-            "TypeId": "TimeSpan",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DateTimeDisplayMode": 2,
-            "DefaultValue": "00:00:00",
-            "Id": null,
-            "Label": "Time Span",
-            "Position": {
-              "X": -38,
-              "Y": 17
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 16,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "GridInput",
-            "Rows": 1,
-            "Columns": 4,
-            "CellWidth": 4,
-            "CellTypeId": "Integer",
-            "MinValue": 0,
-            "MaxValue": 255,
-            "DefaultValues": [
-              255,
-              168,
-              20,
-              114
-            ],
-            "Id": null,
-            "Label": "IP Address",
-            "Position": {
-              "X": -38,
-              "Y": -15
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 7,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "GridInput",
-            "Rows": 1,
-            "Columns": 4,
-            "CellWidth": 4,
-            "CellTypeId": "Integer",
-            "MinValue": 0,
-            "MaxValue": 255,
-            "DefaultValues": [
-              255,
-              255,
-              255,
-              0
-            ],
-            "Id": null,
-            "Label": "Net Mask",
-            "Position": {
-              "X": -38,
-              "Y": -11
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 8,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "GridInput",
-            "Rows": 1,
-            "Columns": 4,
-            "CellWidth": 4,
-            "CellTypeId": "Integer",
-            "MinValue": 0,
-            "MaxValue": 255,
-            "DefaultValues": [
-              0,
-              0,
-              0,
-              0
-            ],
-            "Id": null,
-            "Label": "Gateway",
-            "Position": {
-              "X": -38,
-              "Y": -7
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 9,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Separator",
-            "ColorMode": 0,
-            "Id": null,
-            "Label": "Separator",
-            "Position": {
-              "X": -38,
-              "Y": -17
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 6,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Port",
-            "Side": 1,
-            "Shape": 2,
-            "FillColor": {
-              "Red": 173,
-              "Green": 173,
-              "Blue": 34,
-              "Alpha": 255
-            },
-            "Id": null,
-            "Label": "Port",
-            "Position": {
-              "X": 1,
-              "Y": -39
-            },
-            "Column": 1,
-            "ParentId": null,
-            "YOrder": 0,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Input",
-            "DisplayName": "Date Time",
-            "Description": null,
-            "TypeId": "DateTime",
-            "IsReadOnly": false,
-            "IsVisible": true,
-            "GroupId": null,
-            "DateTimeDisplayMode": 2,
-            "DefaultValue": "2026-06-22T18:32:30.4624122\u002B08:00",
-            "Id": null,
-            "Label": "Date Time",
-            "Position": {
-              "X": -38,
-              "Y": -27
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 3,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Separator",
-            "ColorMode": 0,
-            "Id": null,
-            "Label": "Separator",
-            "Position": {
-              "X": -38,
-              "Y": 37
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 21,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Indicator",
-            "Color": {
-              "Red": 128,
-              "Green": 19,
-              "Blue": 11,
-              "Alpha": 255
-            },
-            "Shape": 0,
-            "Id": null,
-            "Label": "Connection",
-            "Position": {
-              "X": -38,
-              "Y": -1
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 11,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Separator",
-            "ColorMode": 0,
-            "Id": null,
-            "Label": "Separator",
-            "Position": {
-              "X": -38,
-              "Y": 7
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 13,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Text",
-            "Id": null,
-            "Label": "Text",
-            "Position": {
-              "X": -38,
-              "Y": 33
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 20,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Separator",
-            "ColorMode": 0,
-            "Id": null,
-            "Label": "Separator",
-            "Position": {
-              "X": -38,
-              "Y": -23
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 4,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "1",
-            "Position": {
-              "X": -38,
-              "Y": 39
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 22,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "2",
-            "Position": {
-              "X": -25.333332,
-              "Y": 39
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 22,
-            "XOrder": 1,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Button",
-            "Id": null,
-            "Label": "3",
-            "Position": {
-              "X": -12.666665,
-              "Y": 39
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 22,
-            "XOrder": 2,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Indicator",
-            "Color": {
-              "Red": 255,
-              "Green": 255,
-              "Blue": 255,
-              "Alpha": 255
-            },
-            "Shape": 0,
-            "Id": null,
-            "Label": "Indicator",
-            "Position": {
-              "X": -38,
-              "Y": 3
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 12,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "ValueDisplay",
-            "DefaultValue": "Value",
-            "Id": null,
-            "Label": "Value Display",
-            "Position": {
-              "X": -38,
-              "Y": -21
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 5,
-            "XOrder": 0,
-            "FixedWidth": 0
-          },
-          {
-            "$type": "Text",
-            "Id": null,
-            "Label": "Text",
-            "Position": {
-              "X": -38,
-              "Y": 9
-            },
-            "Column": 0,
-            "ParentId": null,
-            "YOrder": 14,
-            "XOrder": 0,
-            "FixedWidth": 0
-          }
-        ]
+        }
       },
       {
         "TypeName": "DiamondNode",
@@ -790,7 +954,15 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
-        "ColumnCount": 1,
+        "Columns": [
+          {
+            "Id": "03026f4674ff49fe92f48f9cc2beea97",
+            "XOrder": 0,
+            "WidthMode": 0,
+            "WidthNu": 0,
+            "Rows": []
+          }
+        ],
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -836,8 +1008,7 @@
             "AllowFontOverrides": false,
             "AllowHeaderOverrides": false
           }
-        },
-        "Components": []
+        }
       },
       {
         "TypeName": "CircleNode",
@@ -861,7 +1032,15 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
-        "ColumnCount": 1,
+        "Columns": [
+          {
+            "Id": "ca346fc911534a36b27f7c19040be671",
+            "XOrder": 0,
+            "WidthMode": 0,
+            "WidthNu": 0,
+            "Rows": []
+          }
+        ],
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -907,8 +1086,7 @@
             "AllowFontOverrides": false,
             "AllowHeaderOverrides": false
           }
-        },
-        "Components": []
+        }
       },
       {
         "TypeName": "CapsuleNode",
@@ -932,7 +1110,15 @@
         "IconSvg": null,
         "HeaderText": null,
         "HasOverview": false,
-        "ColumnCount": 1,
+        "Columns": [
+          {
+            "Id": "579aaf15fb7e4ff38da915e5e6c01113",
+            "XOrder": 0,
+            "WidthMode": 0,
+            "WidthNu": 0,
+            "Rows": []
+          }
+        ],
         "Style": {
           "ShapeStyle": {
             "BackgroundColor": {
@@ -978,8 +1164,7 @@
             "AllowFontOverrides": false,
             "AllowHeaderOverrides": false
           }
-        },
-        "Components": []
+        }
       }
     ]
   },

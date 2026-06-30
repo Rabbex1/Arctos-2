@@ -21,12 +21,37 @@ public sealed class NodeSpacerComponentVM : NodeComponentVM
         set
         {
             var height = NodeSpacer.SizeRange.Clamp(value);
-            if (SpacerModel.Height == height)
-                return;
+            ApplyComponentChange(
+                "Change spacer height",
+                SpacerModel.Height,
+                height,
+                resolvedHeight =>
+                {
+                    SpacerModel.Height = resolvedHeight;
+                    DisplayName = GetDisplayName();
+                    OnPropertyChanged();
+                });
+        }
+    }
 
-            SpacerModel.Height = height;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+    /// <summary>
+    /// Gets or sets a value indicating whether the spacer expands to consume leftover column height.
+    /// </summary>
+    public bool Expand
+    {
+        get => SpacerModel.Expand;
+        set
+        {
+            ApplyComponentChange(
+                "Change spacer expand mode",
+                SpacerModel.Expand,
+                value,
+                expand =>
+                {
+                    SpacerModel.Expand = expand;
+                    DisplayName = GetDisplayName();
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -52,26 +77,33 @@ public sealed class NodeSpacerComponentVM : NodeComponentVM
 
     protected override List<DataInputWrapperVM> CreateGeneralInputs()
     {
-        var sizeInput = new IntRangeInput
-        {
-            Min = NodeSpacer.SizeRange.Minimum,
-            Max = NodeSpacer.SizeRange.Maximum,
-            Value = Height,
-        };
-
         return
         [
-            new InputIntRangeVM("Size:", sizeInput, input =>
+            new InputIntRangeExtraVM("Size:", Expand ? "e" : Height.ToString(), NodeSpacer.SizeRange.Minimum, NodeSpacer.SizeRange.Maximum, value =>
             {
-                if (input != null)
-                    Height = input.Value;
-            }),
+                if (string.IsNullOrWhiteSpace(value))
+                    return;
+
+                if (string.Equals(value, "e", StringComparison.OrdinalIgnoreCase))
+                {
+                    Expand = true;
+                    return;
+                }
+
+                if (!int.TryParse(value, out var parsedHeight))
+                    return;
+
+                Expand = false;
+                Height = parsedHeight;
+            }, ('e', "Expand")),
         ];
     }
 
     protected override string GetDisplayName()
     {
-        return $"Spacer ({Height:0.##} nu)";
+        return Expand
+            ? "Spacer (Expand)"
+            : $"Spacer ({Height:0.##} nu)";
     }
 
     #endregion Protected Methods

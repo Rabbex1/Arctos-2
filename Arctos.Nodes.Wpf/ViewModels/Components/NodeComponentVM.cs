@@ -17,6 +17,7 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
     private bool _isHovered;
     private bool _isSelected;
     private readonly bool _supportsId;
+    private Action<string, Action, Action>? _recordHistory;
 
     #endregion Fields
 
@@ -47,13 +48,16 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
         set
         {
             var label = value ?? string.Empty;
-            if (string.Equals(Model.Label, label, StringComparison.Ordinal))
-                return;
-
-            Model.Label = label;
-            DisplayName = GetDisplayName();
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change component label",
+                Model.Label,
+                label,
+                resolvedLabel =>
+                {
+                    Model.Label = resolvedLabel;
+                    DisplayName = GetDisplayName();
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -66,12 +70,15 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
         set
         {
             var id = string.IsNullOrWhiteSpace(value) ? null : value;
-            if (string.Equals(Model.Id, id, StringComparison.Ordinal))
-                return;
-
-            Model.Id = id;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change component id",
+                Model.Id,
+                id,
+                resolvedId =>
+                {
+                    Model.Id = resolvedId;
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -199,6 +206,15 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
     }
 
     /// <summary>
+    /// Sets the callback used to record history entries for component edits.
+    /// </summary>
+    /// <param name="recordHistory">The callback that records redo/undo actions.</param>
+    public void SetHistoryRecorder(Action<string, Action, Action>? recordHistory)
+    {
+        _recordHistory = recordHistory;
+    }
+
+    /// <summary>
     /// Updates the component position, optionally suppressing the component changed callback.
     /// </summary>
     /// <param name="position">The new node-space position.</param>
@@ -322,17 +338,6 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
             }));
         }
 
-        inputs.Add(new InputIntRangeVM("Column:", new IntRangeInput
-        {
-            Min = 1,
-            Max = 4,
-            Value = Column + 1,
-        }, input =>
-        {
-            if (input != null)
-                Column = Math.Max(0, input.Value - 1);
-        }));
-
         inputs.AddRange(CreateGeneralInputs());
         _generalForm.Inputs = new ObservableCollection<DataInputWrapperVM>(inputs);
     }
@@ -349,6 +354,37 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
     protected void NotifyComponentChanged()
     {
         OnComponentChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Applies a component edit, optionally recording it into the active history context.
+    /// </summary>
+    /// <typeparam name="T">The edited value type.</typeparam>
+    /// <param name="description">The user-facing history description.</param>
+    /// <param name="oldValue">The previous value.</param>
+    /// <param name="newValue">The new value.</param>
+    /// <param name="applyValue">The action that applies the supplied value to the component.</param>
+    /// <returns><see langword="true"/> when the value changed; otherwise, <see langword="false"/>.</returns>
+    protected bool ApplyComponentChange<T>(string description, T oldValue, T newValue, Action<T> applyValue)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(description);
+        ArgumentNullException.ThrowIfNull(applyValue);
+
+        if (EqualityComparer<T>.Default.Equals(oldValue, newValue))
+            return false;
+
+        if (_recordHistory != null)
+        {
+            _recordHistory(
+                description,
+                () => applyValue(newValue),
+                () => applyValue(oldValue));
+            return true;
+        }
+
+        applyValue(newValue);
+        NotifyComponentChanged();
+        return true;
     }
 
     /// <summary>

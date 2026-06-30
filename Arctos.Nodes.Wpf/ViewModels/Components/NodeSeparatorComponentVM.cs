@@ -20,12 +20,15 @@ public sealed class NodeSeparatorComponentVM : NodeComponentVM
         get => SeparatorModel.ColorMode;
         set
         {
-            if (SeparatorModel.ColorMode == value)
-                return;
-
-            SeparatorModel.ColorMode = value;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change separator color mode",
+                SeparatorModel.ColorMode,
+                value,
+                colorMode =>
+                {
+                    SeparatorModel.ColorMode = colorMode;
+                    OnPropertyChanged();
+                });
         }
     }
 

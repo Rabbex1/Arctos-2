@@ -92,8 +92,18 @@ public sealed class VisualTreeBuilder
         if (previewComponent != null)
             AddComponentVisual(nodeVisual, previewComponent, nodeStyle, styleContext, minorGridSize, componentBounds, inputLabelWidth, nodeBounds, true, showDebugBounds);
 
-        if (layoutSnapshot?.Columns.Count > 1)
-            nodeVisual.AddChild(new NodeColumnGuidesVisual(layoutSnapshot.Columns, GetNeutralContrastColor(nodeStyle.ShapeStyle.BackgroundColor), minorGridSize / 2.0f));
+        if (layoutSnapshot?.Columns.Count > 0)
+        {
+            var headerBottom = layoutSnapshot.HeaderBounds?.Bottom ?? nodeBounds.Top;
+            nodeVisual.AddChild(new NodeColumnHandlesVisual(
+                layoutSnapshot.Columns,
+                headerBottom,
+                nodeStyle.ShapeStyle.BackgroundColor.ToSkColor(),
+                NodeVisualDrawing.GetNeutralColor(nodeStyle.ShapeStyle.BackgroundColor),
+                handleWidth: minorGridSize * 4.0f,
+                handleHeight: minorGridSize,
+                strokeWidth: minorGridSize / 8.0f));
+        }
     }
 
     private static void AddComponentVisual(NodeVisual nodeVisual, NodeComponentVM component, NodeStyle nodeStyle, NodeCanvasStyleContext styleContext, float minorGridSize, Dictionary<NodeComponentVM, SKRect>? componentBounds, float inputLabelWidth, SKRect nodeBounds, bool isPreview, bool showDebugBounds)
@@ -101,8 +111,8 @@ public sealed class VisualTreeBuilder
         var bounds = componentBounds != null && componentBounds.TryGetValue(component, out var componentBound)
             ? componentBound
             : CreateFallbackBounds(component, styleContext, minorGridSize);
-        var selectionColor = GetSelectionColor(nodeStyle.ShapeStyle.BackgroundColor);
-        var selectionDashLength = minorGridSize / 4.0f;
+        var selectionColor = NodeVisualDrawing.GetSelectionColor(nodeStyle.ShapeStyle.BackgroundColor);
+        var selectionDashLength = NodeVisualDrawing.GetSelectionDashLength(minorGridSize);
         var selectionHorizontalPadding = minorGridSize * 0.5f;
 
         switch (component)
@@ -421,42 +431,14 @@ public sealed class VisualTreeBuilder
             : SKTypeface.FromFamilyName(fontFamily, skiaWeight, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
     }
 
-    private static SKColor GetSelectionColor(NodeColor backgroundColor)
-    {
-        var grayscale = ((backgroundColor.Red * 0.299f) + (backgroundColor.Green * 0.587f) + (backgroundColor.Blue * 0.114f));
-        SKColor baseColor;
-
-        if (grayscale <= 64.0f || grayscale >= 191.0f)
-            baseColor = new SKColor(128, 128, 128);
-        else if (grayscale <= 127.0f)
-            baseColor = new SKColor(192, 192, 192);
-        else
-            baseColor = new SKColor(72, 72, 72);
-
-        return baseColor.WithAlpha(216);
-    }
-
     private static SKColor GetSeparatorColor(NodeSeparatorColorMode colorMode, NodeColor nodeBackgroundColor, NodeColor borderColor, NodeColor textColor)
     {
         return colorMode switch
         {
             NodeSeparatorColorMode.Text => textColor.ToSkColor(),
-            NodeSeparatorColorMode.Neutral => GetNeutralContrastColor(nodeBackgroundColor),
+            NodeSeparatorColorMode.Neutral => NodeVisualDrawing.GetNeutralColor(nodeBackgroundColor),
             _ => borderColor.ToSkColor(),
         };
-    }
-
-    private static SKColor GetNeutralContrastColor(NodeColor backgroundColor)
-    {
-        var grayscale = ((backgroundColor.Red * 0.299f) + (backgroundColor.Green * 0.587f) + (backgroundColor.Blue * 0.114f));
-
-        if (grayscale <= 64.0f || grayscale >= 191.0f)
-            return new SKColor(128, 128, 128);
-
-        if (grayscale <= 127.0f)
-            return new SKColor(192, 192, 192);
-
-        return new SKColor(72, 72, 72);
     }
 
     #endregion Private Methods

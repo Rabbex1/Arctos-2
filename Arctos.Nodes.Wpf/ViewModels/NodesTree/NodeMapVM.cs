@@ -13,6 +13,7 @@ public sealed class NodeMapVM : NodeTreeParentVM<INodeTreeItemVM, object>
     private readonly NodeGraphVM _graph;
     private readonly NodeLibraryVM? _localLibrary;
     private readonly NodeReferencesVM _references;
+    private Action<string, Action, Action>? _recordHistory;
 
     public NodeMapVM(NodeMap map)
         : base(null)
@@ -54,19 +55,23 @@ public sealed class NodeMapVM : NodeTreeParentVM<INodeTreeItemVM, object>
 
     public Guid Id => _map.Id;
 
-    public string MapName
-    {
-        get => _map.Settings.Name ?? string.Empty;
-        set
-        {
-            if (string.Equals(_map.Settings.Name, value, StringComparison.Ordinal))
-                return;
-
-            _map.Settings.Name = value;
-            DisplayName = value;
-            OnPropertyChanged();
-        }
-    }
+    public string MapName => _map.Settings.Name ?? string.Empty;
+    //{
+    //    get => _map.Settings.Name ?? string.Empty;
+    //    set
+    //    {
+    //        ApplyMapChange(
+    //            "Change map name",
+    //            _map.Settings.Name,
+    //            value,
+    //            mapName =>
+    //            {
+    //                _map.Settings.Name = mapName;
+    //                DisplayName = mapName;
+    //                OnPropertyChanged();
+    //            });
+    //    }
+    //}
 
     public NodeLibraryVM? LocalLibrary => _localLibrary;
 
@@ -121,6 +126,16 @@ public sealed class NodeMapVM : NodeTreeParentVM<INodeTreeItemVM, object>
             library.SetDocumentChangedCallback(onDocumentChanged);
     }
 
+    public void SetHistoryRecorder(Action<string, Action, Action>? recordHistory)
+    {
+        _recordHistory = recordHistory;
+        _localLibrary?.SetHistoryRecorder(recordHistory);
+        _settings?.SetHistoryRecorder(recordHistory);
+
+        foreach (var library in _references.Children)
+            library.SetHistoryRecorder(recordHistory);
+    }
+
     public void ClearSelection()
     {
         _localLibrary?.ClearSelection();
@@ -148,5 +163,27 @@ public sealed class NodeMapVM : NodeTreeParentVM<INodeTreeItemVM, object>
     {
         if (e.PropertyName == nameof(NodeLibraryVM.SelectedHost))
             OnPropertyChanged(nameof(SelectedHost));
+    }
+
+    private bool ApplyMapChange<T>(string description, T oldValue, T newValue, Action<T> applyValue)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(description);
+        ArgumentNullException.ThrowIfNull(applyValue);
+
+        if (EqualityComparer<T>.Default.Equals(oldValue, newValue))
+            return false;
+
+        if (_recordHistory != null)
+        {
+            _recordHistory(
+                description,
+                () => applyValue(newValue),
+                () => applyValue(oldValue));
+            return true;
+        }
+
+        applyValue(newValue);
+        _settings.OnDocumentChanged?.Invoke();
+        return true;
     }
 }

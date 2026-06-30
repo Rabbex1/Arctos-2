@@ -15,4 +15,5 @@ public enum PaletteItemKind
     GridInput = 7,
     Indicator = 8,
     IconButton = 9,
+    Column = 10,
 }

@@ -110,6 +110,7 @@ namespace Arctos.Wpf.Inputs
         #region Properties
 
         public Action<T?>? OnChange { get; set; }
+        public Action<DataInputWrapperVM<T>, T?>? OnChangeWithSender { get; set; }
 
         #region Value
         // ReSharper disable once InconsistentNaming
@@ -119,8 +120,10 @@ namespace Arctos.Wpf.Inputs
             get => _value;
             set
             {
-                SetProperty(ref _value, value);
+                if (!SetProperty(ref _value, value))
+                    return; 
                 OnChange?.Invoke(value);
+                OnChangeWithSender?.Invoke(this, value);
                 NotifyInputChanged();
             }
         }
@@ -175,7 +178,19 @@ namespace Arctos.Wpf.Inputs
             _value = value;
         }
 
+        public DataInputWrapperVM(string description, T? value, Action<DataInputWrapperVM<T>, T?>? onChange)
+        {
+            Description = description;
+            OnChangeWithSender = onChange;
+            _value = value;
+        }
+
         #endregion Constructor
+
+        public void UpdateValue(T? value)
+        {
+            SetProperty(ref _value, value, nameof(Value));
+        }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
         #region Commands

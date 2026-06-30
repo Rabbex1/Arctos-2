@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Arctos.Nodes.Models;
 
@@ -56,9 +58,9 @@ public sealed class NodeDefinition
     public bool HasOverview { get; set; }
 
     /// <summary>
-    /// Gets or sets the number of layout columns available to the node definition.
+    /// Gets the persisted layout columns owned by the node definition.
     /// </summary>
-    public int ColumnCount { get; set; } = 1;
+    public List<NodeColumn> Columns { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the optional style override for the node definition. When <see langword="null"/>, the definition inherits the document style.
@@ -66,9 +68,20 @@ public sealed class NodeDefinition
     public NodeStyle? Style { get; set; }
 
     /// <summary>
-    /// Gets the persisted detailed-node components associated with the node definition.
+    /// Gets the number of layout columns available to the node definition.
     /// </summary>
-    public List<NodeComponent> Components { get; set; } = [];
+    [JsonIgnore]
+    public int ColumnCount => Math.Max(1, Columns.Count);
+
+    /// <summary>
+    /// Gets the flattened detailed-node components owned by the persisted column and row structure.
+    /// </summary>
+    [JsonIgnore]
+    public List<NodeComponent> Components => Columns
+        .OrderBy(column => column.XOrder)
+        .SelectMany(column => column.Rows.OrderBy(row => row.YOrder))
+        .SelectMany(row => row.Components)
+        .ToList();
 
     #endregion Properties
 }

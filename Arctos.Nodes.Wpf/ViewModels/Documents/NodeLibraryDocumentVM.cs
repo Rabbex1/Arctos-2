@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.IO;
+using Arctos.History;
 using Arctos.Nodes;
 using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.ViewModels;
@@ -45,6 +46,7 @@ public sealed class NodeLibraryDocumentVM : NodeDocumentVM, INodeLibraryDocument
             _nodeLibrary = value;
             _nodeLibrary.PropertyChanged += OnNodeLibraryPropertyChanged;
             _nodeLibrary.SetDocumentChangedCallback(MarkChanged);
+            _nodeLibrary.SetHistoryRecorder(CreateHistoryRecorder());
 
             OnPropertyChanged();
             OnPropertyChanged(nameof(DocumentName));
@@ -78,8 +80,8 @@ public sealed class NodeLibraryDocumentVM : NodeDocumentVM, INodeLibraryDocument
     /// </summary>
     /// <param name="nodesManager">The owning nodes manager.</param>
     /// <param name="session">The owning node session.</param>
-    public NodeLibraryDocumentVM(NodesManager nodesManager, NodeSession session)
-        : base(session)
+    public NodeLibraryDocumentVM(NodesManager nodesManager, NodeSession session, IHistoryService historyService, IHistoryContext history)
+        : base(session, historyService, history)
     {
         _nodesManager = nodesManager ?? throw new ArgumentNullException(nameof(nodesManager));
         DisplayName = "Untitled.nlib";
@@ -97,6 +99,8 @@ public sealed class NodeLibraryDocumentVM : NodeDocumentVM, INodeLibraryDocument
     /// <inheritdoc />
     public override void Closing()
     {
+        base.Closing();
+
         if (_nodeLibrary != null)
             _nodesManager.RemoveLibrary(_nodeLibrary.Library);
     }

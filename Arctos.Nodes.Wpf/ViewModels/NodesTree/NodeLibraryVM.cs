@@ -16,6 +16,7 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
     private NodeDefinitionVM? _selectedDefinition;
     private ICommand? _addDefinitionCommand;
     private Action? _onDocumentChanged;
+    private Action<string, Action, Action>? _recordHistory;
 
     public NodeLibraryVM(NodeLibrary library, INodeTreeItemVM? parent = null, bool isExternal = false)
         : base(parent)
@@ -30,6 +31,7 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
         {
             var definitionVm = new NodeDefinitionVM(definition, this, isExternal);
             definitionVm.SetDocumentChangedCallback(_onDocumentChanged);
+            definitionVm.SetHistoryRecorder(_recordHistory);
             AddChild(definitionVm);
         }
 
@@ -45,13 +47,17 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
         get => _library.Name ?? string.Empty;
         set
         {
-            if (string.Equals(_library.Name, value, StringComparison.Ordinal))
-                return;
-
-            _library.Name = value;
-            DisplayName = string.IsNullOrWhiteSpace(value) ? "Local Library" : value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(Name));
+            ApplyLibraryChange(
+                "Change library name",
+                _library.Name,
+                value,
+                libraryName =>
+                {
+                    _library.Name = libraryName;
+                    DisplayName = string.IsNullOrWhiteSpace(libraryName) ? "Local Library" : libraryName;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Name));
+                });
         }
     }
 
@@ -60,12 +66,16 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
         get => _library.Version ?? string.Empty;
         set
         {
-            if (string.Equals(_library.Version, value, StringComparison.Ordinal))
-                return;
-
-            _library.Version = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(Version));
+            ApplyLibraryChange(
+                "Change library version",
+                _library.Version,
+                value,
+                libraryVersion =>
+                {
+                    _library.Version = libraryVersion;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Version));
+                });
         }
     }
 
@@ -97,6 +107,14 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
 
         foreach (var definition in Children)
             definition.SetDocumentChangedCallback(onDocumentChanged);
+    }
+
+    public void SetHistoryRecorder(Action<string, Action, Action>? recordHistory)
+    {
+        _recordHistory = recordHistory;
+
+        foreach (var definition in Children)
+            definition.SetHistoryRecorder(recordHistory);
     }
 
     public void ClearSelection()
@@ -156,6 +174,7 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
 
         var definitionVm = new NodeDefinitionVM(definition, this, IsExternal);
         definitionVm.SetDocumentChangedCallback(_onDocumentChanged);
+        definitionVm.SetHistoryRecorder(_recordHistory);
         AddChild(definitionVm);
         IsExpanded = true;
 
@@ -234,5 +253,27 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
     private void NotifyDocumentChanged()
     {
         _onDocumentChanged?.Invoke();
+    }
+
+    private bool ApplyLibraryChange<T>(string description, T oldValue, T newValue, Action<T> applyValue)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(description);
+        ArgumentNullException.ThrowIfNull(applyValue);
+
+        if (EqualityComparer<T>.Default.Equals(oldValue, newValue))
+            return false;
+
+        if (_recordHistory != null)
+        {
+            _recordHistory(
+                description,
+                () => applyValue(newValue),
+                () => applyValue(oldValue));
+            return true;
+        }
+
+        applyValue(newValue);
+        NotifyDocumentChanged();
+        return true;
     }
 }

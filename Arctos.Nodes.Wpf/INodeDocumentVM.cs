@@ -1,3 +1,4 @@
+using Arctos.History;
 using Arctos.Shell.Documents;
 using Arctos.Nodes.Wpf.ViewModels.Documents;
 using Arctos.Nodes.Wpf.ViewModels;
@@ -25,6 +26,8 @@ public interface INodeDocumentVM : IDocumentVM
     IEnumerable<NavLinkVM> NavLinks { get; }
 
     SkiaHostVM CurrentCanvas { get; }
+
+    IHistoryContext History { get; }
 
     IModelHost? SelectedHost { get; }
 

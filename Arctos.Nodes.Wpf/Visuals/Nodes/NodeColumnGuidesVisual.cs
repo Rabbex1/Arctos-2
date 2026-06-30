@@ -1,4 +1,5 @@
 using Arctos.Nodes.Wpf.Layout;
+using Arctos.Nodes.Wpf.Rendering;
 using SkiaSharp;
 
 namespace Arctos.Nodes.Wpf.Visuals;
@@ -46,23 +47,17 @@ public sealed class NodeColumnGuidesVisual : IVisual
         if (_columns.Count <= 1)
             return;
 
-        using var paint = new SKPaint
-        {
-            Color = _strokeColor,
-            IsAntialias = true,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = 0.0f,
-            PathEffect = SKPathEffect.CreateDash(
-            [
-                _dashLength,
-                _dashLength,
-            ], 0.0f),
-        };
-
         foreach (var column in _columns)
         {
             if (!column.GuideBounds.IsEmpty)
-                canvas.DrawRect(column.GuideBounds, paint);
+            {
+                NodeVisualDrawing.DrawOutlineSelector(
+                    canvas,
+                    NodeVisualDrawing.OutlineSelectorMode.Dashed,
+                    column.GuideBounds,
+                    _strokeColor,
+                    _dashLength);
+            }
         }
     }
 

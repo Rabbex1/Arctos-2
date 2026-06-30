@@ -16,6 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Arctos.History\Arctos.History.csproj" />
 		<ProjectReference Include="..\Arctos.Wpf\Arctos.Wpf.csproj" />
 		<ProjectReference Include="..\Arctos\Arctos.csproj" />
 	</ItemGroup>

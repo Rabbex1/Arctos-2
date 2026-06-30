@@ -109,7 +109,6 @@
                             ItemsSource="{Binding ActiveNodeDocument.EditTabs}"
                             ItemContainerStyle="{StaticResource EditTabItemStyle}"
                             SelectedItem="{Binding ActiveNodeDocument.SelectedEditTab, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            SelectionChanged="OnEditTabsSelectionChanged"
                             Style="{StaticResource EditTabControlStyle}"
                             TabStripPlacement="Left">
                     <TabControl.ItemTemplate>

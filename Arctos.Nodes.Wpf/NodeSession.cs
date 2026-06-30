@@ -1,4 +1,5 @@
 using Arctos.Messenger;
+using Arctos.History;
 using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.ViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -39,6 +40,8 @@ public sealed class NodeSession : ObservableObject, IRecipient<DocumentMessage>
     public INodeMapDocumentVM? ActiveMapDocument => ActiveNodeDocument as INodeMapDocumentVM;
 
     public INodeLibraryDocumentVM? ActiveLibraryDocument => ActiveNodeDocument as INodeLibraryDocumentVM;
+
+    public IHistoryContext? ActiveHistoryContext => ActiveNodeDocument?.History;
 
     public NodeMap? ActiveMap => ActiveMapDocument?.NodeMap.Map;
 

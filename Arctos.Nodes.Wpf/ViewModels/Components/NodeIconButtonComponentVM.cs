@@ -18,12 +18,15 @@ public sealed class NodeIconButtonComponentVM : NodeComponentVM
         set
         {
             var svg = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-            if (string.Equals(IconButtonModel.Svg, svg, StringComparison.Ordinal))
-                return;
-
-            IconButtonModel.Svg = svg;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change icon button svg",
+                IconButtonModel.Svg,
+                svg,
+                resolvedSvg =>
+                {
+                    IconButtonModel.Svg = resolvedSvg;
+                    OnPropertyChanged();
+                });
         }
     }
 
@@ -35,12 +38,15 @@ public sealed class NodeIconButtonComponentVM : NodeComponentVM
         get => IconButtonModel.ColorMode;
         set
         {
-            if (IconButtonModel.ColorMode == value)
-                return;
-
-            IconButtonModel.ColorMode = value;
-            OnPropertyChanged();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change icon button color mode",
+                IconButtonModel.ColorMode,
+                value,
+                colorMode =>
+                {
+                    IconButtonModel.ColorMode = colorMode;
+                    OnPropertyChanged();
+                });
         }
     }
 

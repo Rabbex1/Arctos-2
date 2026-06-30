@@ -1,3 +1,4 @@
+using Arctos.Nodes.Wpf.Rendering;
 using SkiaSharp;
 
 namespace Arctos.Nodes.Wpf.Visuals;
@@ -79,29 +80,17 @@ public abstract class NodeComponentVisual : IVisual
     {
         ArgumentNullException.ThrowIfNull(canvas);
 
-        var resolvedDashLength = MathF.Max(1.0f, dashLength);
         var selectionBounds = horizontalPadding > 0.0f
             ? new SKRect(Bounds.Left - horizontalPadding, Bounds.Top, Bounds.Right + horizontalPadding, Bounds.Bottom)
             : Bounds;
 
-        using var selectionPaint = new SKPaint
-        {
-            Color = selectionColor,
-            IsAntialias = true,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = strokeWidth,
-        };
-
-        if (dashed)
-        {
-            selectionPaint.PathEffect = SKPathEffect.CreateDash(
-            [
-                resolvedDashLength,
-                resolvedDashLength,
-            ], 0.0f);
-        }
-
-        canvas.DrawRect(selectionBounds, selectionPaint);
+        NodeVisualDrawing.DrawOutlineSelector(
+            canvas,
+            dashed ? NodeVisualDrawing.OutlineSelectorMode.Dashed : NodeVisualDrawing.OutlineSelectorMode.Solid,
+            selectionBounds,
+            selectionColor,
+            dashLength,
+            strokeWidth);
     }
 
     #endregion Protected Methods

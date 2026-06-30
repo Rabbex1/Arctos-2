@@ -68,7 +68,8 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         var columnCount = Math.Max(1, definitionHost.ColumnCount);
         var inputLabelWidthNu = MeasureInputLabelWidthNu(definitionHost, styleContext, minorGridSize);
         var rows = BuildRows(definitionHost, styleContext, lineHeightNu, columnCount);
-        var requiredContentHeightNu = GetRequiredContentHeightNu(rows, rowSpacingNu);
+        var requiredContentHeightByColumn = GetRequiredContentHeightByColumn(rows, rowSpacingNu);
+        var requiredContentHeightNu = requiredContentHeightByColumn.Values.DefaultIfEmpty(0.0f).Max();
         var singleColumnContentWidthNu = GetRequiredContentWidthNu(rows, styleContext, minorGridSize, inputLabelWidthNu);
         var requiredHeightNu = MathF.Ceiling(topContentOffsetNu + requiredContentHeightNu + bottomBorderClearanceNu);
         var hasHeader = headerHeightNu > 0.0f;
@@ -77,9 +78,7 @@ public sealed class NodeLayoutEngine : ILayoutEngine
             ? MathF.Max(0.0f, styleContext.MinimumColumnWidth)
             : 0.0f;
         var columnContentWidthNu = MathF.Max(singleColumnContentWidthNu, minimumColumnWidthNu);
-        var columnPaddingNu = columnCount > 1
-            ? paddingNu
-            : 0.0f;
+        var columnPaddingNu = paddingNu;
         var columnGutterNu = columnPaddingNu * 2.0f;
         var requiredColumnsWidthNu = columnCount > 0
             ? (columnContentWidthNu * columnCount) + (columnGutterNu * MathF.Max(0, columnCount - 1))
@@ -102,7 +101,9 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         var contentTopNu = ((-size.Height) / 2.0f) + topContentOffsetNu;
         var contentRightNu = MathF.Floor((size.Width / 2.0f) - paddingNu);
         var contentBottomNu = MathF.Floor((size.Height / 2.0f) - bottomBorderClearanceNu);
-        var primaryContentRightNu = MathF.Min(contentRightNu, contentLeftNu + columnContentWidthNu);
+        var primaryContentRightNu = columnCount == 1
+            ? contentRightNu
+            : MathF.Min(contentRightNu, contentLeftNu + columnContentWidthNu);
         var columns = BuildColumns(contentLeftNu, contentTopNu, primaryContentRightNu, contentBottomNu, columnCount, columnPaddingNu, topContentPaddingNu, minorGridSize);
 
         SKRect? headerBounds = null;
@@ -127,6 +128,14 @@ public sealed class NodeLayoutEngine : ILayoutEngine
                 .Where(row => row.ColumnIndex == columnLayout.Index)
                 .OrderBy(row => row.YOrder)
                 .ToList();
+            var expandSpacerRows = columnRows
+                .Where(row => row.IsExpandSpacerRow)
+                .ToList();
+            var columnRequiredHeightNu = requiredContentHeightByColumn.GetValueOrDefault(columnLayout.Index, 0.0f);
+            var expandSpacerHeightsNu = expandSpacerRows.Count > 0
+                ? DistributeExpandSpacerHeights(requiredContentHeightNu - columnRequiredHeightNu, expandSpacerRows.Count)
+                : [];
+            var expandSpacerIndex = 0;
 
             foreach (var row in columnRows)
             {
@@ -155,7 +164,9 @@ public sealed class NodeLayoutEngine : ILayoutEngine
                     var component = item.Component;
                     component.SetColumn(columnLayout.Index, notifyComponentChanged: false);
 
-                    var componentHeightNu = GetComponentHeightNu(component, lineHeightNu, styleContext);
+                    var componentHeightNu = row.IsExpandSpacerRow
+                        ? expandSpacerHeightsNu[expandSpacerIndex]
+                        : GetComponentHeightNu(component, lineHeightNu, styleContext);
                     var resolvedX = row.IsButtonRow
                         ? nextColumnLeftNu
                         : columnLeftNu;
@@ -195,7 +206,10 @@ public sealed class NodeLayoutEngine : ILayoutEngine
                         nextColumnLeftNu = resolvedX + buttonWidthNu + buttonGapNu;
                 }
 
-                nextRowTopNu = resolvedY + row.HeightNu + rowSpacingNu;
+                var resolvedRowHeightNu = row.IsExpandSpacerRow
+                    ? expandSpacerHeightsNu[expandSpacerIndex++]
+                    : row.HeightNu;
+                nextRowTopNu = resolvedY + resolvedRowHeightNu + rowSpacingNu;
             }
         }
 
@@ -402,23 +416,21 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         return MathF.Ceiling(textWidth / minorGridSize);
     }
 
-    private static float GetRequiredContentHeightNu(IReadOnlyList<LayoutRow> rows, float rowSpacingNu)
+    private static Dictionary<int, float> GetRequiredContentHeightByColumn(IReadOnlyList<LayoutRow> rows, float rowSpacingNu)
     {
         if (rows.Count == 0)
-            return 0.0f;
+            return [];
 
         return rows
             .GroupBy(row => row.ColumnIndex)
-            .Select(group =>
+            .ToDictionary(group => group.Key, group =>
             {
                 var orderedRows = group
                     .OrderBy(row => row.YOrder)
                     .ToList();
                 var totalHeightNu = orderedRows.Sum(row => row.HeightNu);
                 return totalHeightNu + ((orderedRows.Count - 1) * rowSpacingNu);
-            })
-            .DefaultIfEmpty(0.0f)
-            .Max();
+            });
     }
 
     private static float GetRequiredContentWidthNu(IReadOnlyList<LayoutRow> rows, NodeCanvasStyleContext styleContext, float minorGridSize, float inputLabelWidthNu)
@@ -567,6 +579,25 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         return MathF.Max(0.0f, styleContext.Padding);
     }
 
+    private static int[] DistributeExpandSpacerHeights(float availableHeightNu, int spacerCount)
+    {
+        if (spacerCount <= 0)
+            return [];
+
+        var totalWholeNu = Math.Max(0, (int)MathF.Floor(availableHeightNu));
+        if (totalWholeNu == 0)
+            return new int[spacerCount];
+
+        var baseHeightNu = totalWholeNu / spacerCount;
+        var remainderNu = totalWholeNu % spacerCount;
+        var heights = new int[spacerCount];
+
+        for (var index = 0; index < spacerCount; index++)
+            heights[index] = baseHeightNu + (index < remainderNu ? 1 : 0);
+
+        return heights;
+    }
+
     private static float MeasureTextWidthNu(string? text, NodeCanvasStyleContext styleContext, float minorGridSize, float textScale = 1.0f)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -617,7 +648,7 @@ public sealed class NodeLayoutEngine : ILayoutEngine
     {
         return component switch
         {
-            NodeSpacerComponentVM spacerComponent => MathF.Max(1.0f, spacerComponent.Height),
+            NodeSpacerComponentVM spacerComponent => spacerComponent.Expand ? 0.0f : MathF.Max(1.0f, spacerComponent.Height),
             NodeGridInputComponentVM gridInputComponent => MathF.Max(lineHeightNu, gridInputComponent.Rows * lineHeightNu),
             NodePortComponentVM => MathF.Max(lineHeightNu, MathF.Max(1.0f, styleContext.PortSize)),
             NodeSeparatorComponentVM => 2.0f,
@@ -748,6 +779,7 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         public int YOrder { get; } = yOrder;
         public bool IsButtonRow { get; } = isButtonRow;
         public float HeightNu { get; } = heightNu;
+        public bool IsExpandSpacerRow => !IsButtonRow && Items.Count == 1 && Items[0].Component is NodeSpacerComponentVM { Expand: true };
         public List<LayoutRowItem> Items { get; init; } = [];
     }
 

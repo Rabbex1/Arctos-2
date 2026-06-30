@@ -1,0 +1,40 @@
+<UserControl x:Class="Arctos.Nodes.Wpf.Views.Dialogs.DeleteColumnDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource Grey10Brush}"
+             MinWidth="360">
+    <Border Padding="16"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+        <StackPanel>
+            <TextBlock FontSize="16"
+                       FontWeight="SemiBold"
+                       Text="Column Has Content" />
+            <TextBlock Margin="0 8 0 0"
+                       Text="Choose what to do with the selected column and its content."
+                       TextWrapping="Wrap" />
+
+            <StackPanel Margin="0 16 0 0"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button MinWidth="88"
+                        Margin="0 0 8 0"
+                        Command="{Binding DeleteCommand}"
+                        Content="Delete"
+                        IsEnabled="{Binding CanDelete}" />
+                <Button MinWidth="88"
+                        Margin="0 0 8 0"
+                        Command="{Binding MoveLeftCommand}"
+                        Content="Move Left"
+                        IsEnabled="{Binding CanMoveLeft}" />
+                <Button MinWidth="88"
+                        Margin="0 0 8 0"
+                        Command="{Binding MoveRightCommand}"
+                        Content="Move Right"
+                        IsEnabled="{Binding CanMoveRight}" />
+                <Button MinWidth="88"
+                        Command="{Binding CancelCommand}"
+                        Content="Cancel" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>
