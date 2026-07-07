@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace Arctos.Wpf.Inputs;
 
@@ -11,6 +14,7 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
     public sealed class StringListItemVM(Action onChanged) : BaseVM
     {
         private string _value = string.Empty;
+        private bool _suppressChange;
 
         public string Value
         {
@@ -18,8 +22,18 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
             set
             {
                 if (SetProperty(ref _value, value))
-                    onChanged();
+                {
+                    if (!_suppressChange)
+                        onChanged();
+                }
             }
+        }
+
+        public void SetValueSilently(string? value)
+        {
+            _suppressChange = true;
+            Value = value ?? string.Empty;
+            _suppressChange = false;
         }
     }
 
@@ -30,6 +44,7 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
 
     private StringListItemVM? _selectedItem;
     private readonly Action<string?>? _onSelectedItemChanged;
+    private bool _suppressNotifications;
 
     #endregion Fields
 
@@ -46,7 +61,8 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
             if (!SetProperty(ref _selectedItem, value))
                 return;
 
-            _onSelectedItemChanged?.Invoke(value?.Value);
+            if (!_suppressNotifications)
+                _onSelectedItemChanged?.Invoke(value?.Value);
             RaisePropertyChanged(nameof(CanRemove));
             RaisePropertyChanged(nameof(CanMoveUp));
             RaisePropertyChanged(nameof(CanMoveDown));
@@ -68,14 +84,40 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
         : base(description, value?.ToList() ?? [], onChange)
     {
         _onSelectedItemChanged = onSelectedItemChanged;
+        _suppressNotifications = true;
 
         foreach (var item in Value ?? [])
             Items.Add(CreateItem(item));
 
         SelectedItem = Items.FirstOrDefault(item => item.Value == (selectedValue ?? string.Empty)) ?? Items.FirstOrDefault();
+        _suppressNotifications = false;
     }
 
     #endregion Constructors
+
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    #region Public Methods
+
+    public void UpdateItems(IEnumerable<string>? items, string? selectedValue)
+    {
+        _suppressNotifications = true;
+
+        Items.Clear();
+        foreach (var item in items ?? [])
+            Items.Add(CreateItem(item));
+
+        var normalizedItems = Items.Select(item => item.Value).ToList();
+        UpdateValue(normalizedItems);
+
+        SelectedItem = Items.FirstOrDefault(item => item.Value == (selectedValue ?? string.Empty)) ?? Items.FirstOrDefault();
+
+        _suppressNotifications = false;
+        RaisePropertyChanged(nameof(CanRemove));
+        RaisePropertyChanged(nameof(CanMoveUp));
+        RaisePropertyChanged(nameof(CanMoveDown));
+    }
+
+    #endregion Public Methods
 
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Commands
@@ -99,14 +141,20 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
 
     private void AddItem()
     {
+        CommitFocusedItemEdit();
+
         var item = CreateItem(string.Empty);
         Items.Add(item);
+        _suppressNotifications = true;
         SelectedItem = item;
+        _suppressNotifications = false;
         SyncValueFromItems();
     }
 
     private void RemoveSelectedItem()
     {
+        CommitFocusedItemEdit();
+
         if (SelectedItem == null)
             return;
 
@@ -114,15 +162,21 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
         if (index < 0)
             return;
 
+        _suppressNotifications = true;
         Items.RemoveAt(index);
-        SelectedItem = index < Items.Count
-            ? Items[index]
-            : Items.LastOrDefault();
+        SelectedItem = Items.Count == 0
+            ? null
+            : index <= 0
+                ? Items[0]
+                : Items[index - 1];
+        _suppressNotifications = false;
         SyncValueFromItems();
     }
 
     private void MoveSelectedItemUp()
     {
+        CommitFocusedItemEdit();
+
         if (SelectedItem == null)
             return;
 
@@ -130,7 +184,9 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
         if (index <= 0)
             return;
 
+        _suppressNotifications = true;
         Items.Move(index, index - 1);
+        _suppressNotifications = false;
         SyncValueFromItems();
         RaisePropertyChanged(nameof(CanMoveUp));
         RaisePropertyChanged(nameof(CanMoveDown));
@@ -138,6 +194,8 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
 
     private void MoveSelectedItemDown()
     {
+        CommitFocusedItemEdit();
+
         if (SelectedItem == null)
             return;
 
@@ -145,7 +203,9 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
         if (index < 0 || index >= Items.Count - 1)
             return;
 
+        _suppressNotifications = true;
         Items.Move(index, index + 1);
+        _suppressNotifications = false;
         SyncValueFromItems();
         RaisePropertyChanged(nameof(CanMoveUp));
         RaisePropertyChanged(nameof(CanMoveDown));
@@ -153,19 +213,32 @@ public sealed class InputStringListVM : DataInputWrapperVM<List<string>>
 
     private StringListItemVM CreateItem(string? value)
     {
-        return new StringListItemVM(SyncValueFromItems)
-        {
-            Value = value ?? string.Empty,
-        };
+        var item = new StringListItemVM(SyncValueFromItems);
+        item.SetValueSilently(value);
+        return item;
     }
 
     private void SyncValueFromItems()
     {
+        if (!_suppressNotifications)
+            _onSelectedItemChanged?.Invoke(SelectedItem?.Value);
+
         Value = [.. Items.Select(item => item.Value)];
-        _onSelectedItemChanged?.Invoke(SelectedItem?.Value);
+
         RaisePropertyChanged(nameof(CanRemove));
         RaisePropertyChanged(nameof(CanMoveUp));
         RaisePropertyChanged(nameof(CanMoveDown));
+    }
+
+    private static void CommitFocusedItemEdit()
+    {
+        if (Keyboard.FocusedElement is not TextBox textBox)
+            return;
+
+        if (textBox.DataContext is not StringListItemVM)
+            return;
+
+        BindingOperations.GetBindingExpression(textBox, TextBox.TextProperty)?.UpdateSource();
     }
 
     #endregion Private Methods

@@ -30,6 +30,13 @@ namespace Arctos.Wpf.Inputs
             DisplayMember = displayMember;
         }
 
+        public InputObjectComboVM(string description, object value, IEnumerable<object> options, string displayMember, Action<DataInputWrapperVM<object>, object?> onChange)
+            : base(description, value, onChange)
+        {
+            Options = new ObservableCollection<object>(options);
+            DisplayMember = displayMember;
+        }
+
         #endregion Constructors
     }
 }

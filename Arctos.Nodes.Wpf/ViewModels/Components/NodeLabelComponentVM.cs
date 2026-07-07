@@ -31,9 +31,20 @@ public sealed class NodeLabelComponentVM : NodeComponentVM
     {
         return
         [
-            new InputStringVM("Text:", Label, label =>
+            new InputStringVM("Text:", Label, (wrapper, label) =>
             {
-                Label = label ?? string.Empty;
+                var value = label ?? string.Empty;
+                ApplyComponentChange(
+                    "Change component label",
+                    Model.Label,
+                    value,
+                    resolvedLabel =>
+                    {
+                        Model.Label = resolvedLabel;
+                        wrapper.UpdateValue(resolvedLabel);
+                        DisplayName = GetDisplayName();
+                        OnPropertyChanged(nameof(Label));
+                    });
             }),
         ];
     }

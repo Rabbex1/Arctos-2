@@ -42,42 +42,9 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
 
     public bool IsExternal { get; }
 
-    public string LibraryName
-    {
-        get => _library.Name ?? string.Empty;
-        set
-        {
-            ApplyLibraryChange(
-                "Change library name",
-                _library.Name,
-                value,
-                libraryName =>
-                {
-                    _library.Name = libraryName;
-                    DisplayName = string.IsNullOrWhiteSpace(libraryName) ? "Local Library" : libraryName;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(Name));
-                });
-        }
-    }
+    public string LibraryName => _library.Name ?? string.Empty;
 
-    public string LibraryVersion
-    {
-        get => _library.Version ?? string.Empty;
-        set
-        {
-            ApplyLibraryChange(
-                "Change library version",
-                _library.Version,
-                value,
-                libraryVersion =>
-                {
-                    _library.Version = libraryVersion;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(Version));
-                });
-        }
-    }
+    public string LibraryVersion => _library.Version ?? string.Empty;
 
     public string Name => LibraryName;
 
@@ -115,6 +82,14 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
 
         foreach (var definition in Children)
             definition.SetHistoryRecorder(recordHistory);
+    }
+
+    public void RefreshLibraryDisplay()
+    {
+        DisplayName = string.IsNullOrWhiteSpace(_library.Name) ? "Local Library" : _library.Name;
+        OnPropertyChanged(nameof(LibraryName));
+        OnPropertyChanged(nameof(Name));
+        OnPropertyChanged(nameof(Version));
     }
 
     public void ClearSelection()
@@ -203,14 +178,37 @@ public sealed class NodeLibraryVM : NodeTreeParentVM<NodeDefinitionVM, INodeTree
 
     private void MakePropertiesForm()
     {
-        PropertiesForm.Inputs.Add(new InputStringVM("Name:", _library.Name, name =>
+        PropertiesForm.Inputs.Add(new InputStringVM("Name:", _library.Name, (wrapper, name) =>
         {
-            LibraryName = name ?? string.Empty;
+            var value = name ?? string.Empty;
+            ApplyLibraryChange(
+                "Change library name",
+                _library.Name,
+                value,
+                libraryName =>
+                {
+                    _library.Name = libraryName;
+                    wrapper.UpdateValue(libraryName);
+                    DisplayName = string.IsNullOrWhiteSpace(libraryName) ? "Local Library" : libraryName;
+                    OnPropertyChanged(nameof(LibraryName));
+                    OnPropertyChanged(nameof(Name));
+                });
         }));
 
-        PropertiesForm.Inputs.Add(new InputStringVM("Version:", _library.Version, version =>
+        PropertiesForm.Inputs.Add(new InputStringVM("Version:", _library.Version, (wrapper, version) =>
         {
-            LibraryVersion = version ?? string.Empty;
+            var value = version ?? string.Empty;
+            ApplyLibraryChange(
+                "Change library version",
+                _library.Version,
+                value,
+                libraryVersion =>
+                {
+                    _library.Version = libraryVersion;
+                    wrapper.UpdateValue(libraryVersion);
+                    OnPropertyChanged(nameof(LibraryVersion));
+                    OnPropertyChanged(nameof(Version));
+                });
         }));
 
         PropertiesForm.Inputs.Add(new InputGroupVM(

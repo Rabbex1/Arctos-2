@@ -68,47 +68,12 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     /// <summary>
     /// Gets or sets the human-readable display name.
     /// </summary>
-    public string DisplayNameText
-    {
-        get => _definition.DisplayName ?? string.Empty;
-        set
-        {
-            ApplyDefinitionChange(
-                "Change node name",
-                _definition.DisplayName,
-                value,
-                displayName =>
-                {
-                    _definition.DisplayName = displayName;
-                    DisplayName = displayName;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(ResolvedHeaderText));
-                    OnPropertyChanged(nameof(CurrentEditTargetDisplayName));
-                });
-        }
-    }
+    public string DisplayNameText => _definition.DisplayName ?? string.Empty;
 
     /// <summary>
     /// Gets or sets the optional header text override.
     /// </summary>
-    public string HeaderText
-    {
-        get => _definition.HeaderText ?? string.Empty;
-        set
-        {
-            var headerText = string.IsNullOrWhiteSpace(value) ? null : value;
-            ApplyDefinitionChange(
-                "Change header text",
-                _definition.HeaderText,
-                headerText,
-                resolvedHeaderText =>
-                {
-                    _definition.HeaderText = resolvedHeaderText;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(ResolvedHeaderText));
-                });
-        }
-    }
+    public string HeaderText => _definition.HeaderText ?? string.Empty;
 
     /// <summary>
     /// Gets the effective header text, using the node name when no override is defined.
@@ -120,46 +85,12 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     /// <summary>
     /// Gets or sets the application-defined domain type for the definition.
     /// </summary>
-    public string DomainType
-    {
-        get => _definition.DomainType;
-        set
-        {
-            ApplyDefinitionChange(
-                "Change domain type",
-                _definition.DomainType,
-                value,
-                domainType =>
-                {
-                    _definition.DomainType = domainType;
-                    OnPropertyChanged();
-                });
-        }
-    }
+    public string DomainType => _definition.DomainType;
 
     /// <summary>
     /// Gets or sets the primitive editor shape used by the definition.
     /// </summary>
-    public NodeShape NodeShape
-    {
-        get => _definition.NodeShape;
-        set
-        {
-            ApplyDefinitionChange(
-                "Change node shape",
-                _definition.NodeShape,
-                value,
-                shape =>
-                {
-                    _definition.NodeShape = shape;
-                    _definition.Size = NodeSize.CreateDefault(shape);
-                    _definition.ShapeRules = ShapeRules.CreateDefault(shape);
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(Size));
-                    OnPropertyChanged(nameof(ShapeRules));
-                });
-        }
-    }
+    public NodeShape NodeShape => _definition.NodeShape;
 
     /// <summary>
     /// Gets the intrinsic node size associated with the current definition.
@@ -169,22 +100,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     /// <summary>
     /// Gets or sets a value indicating whether the definition supports an overview mode.
     /// </summary>
-    public bool HasOverview
-    {
-        get => _definition.HasOverview;
-        set
-        {
-            ApplyDefinitionChange(
-                "Change overview mode",
-                _definition.HasOverview,
-                value,
-                hasOverview =>
-                {
-                    _definition.HasOverview = hasOverview;
-                    OnPropertyChanged();
-                });
-        }
-    }
+    public bool HasOverview => _definition.HasOverview;
 
     /// <summary>
     /// Gets or sets the number of layout columns available to the definition.
@@ -980,6 +896,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         return component switch
         {
             NodeText text => new NodeLabelComponentVM(text),
+            NodeInput input when input.TypeId == InputTypeIds.StringSelection => new NodeDropdownComponentVM(input),
             NodeInput input => new NodeInputComponentVM(input),
             NodeValueDisplay valueDisplay => new NodeValueDisplayComponentVM(valueDisplay),
             NodeButton button => new NodeButtonComponentVM(button),
@@ -1187,27 +1104,72 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     {
         return
         [
-            new InputStringVM("Name:", _definition.DisplayName, displayName =>
+            new InputStringVM("Name:", _definition.DisplayName, (input, displayName) =>
             {
-                DisplayNameText = displayName ?? string.Empty;
+                var value = displayName ?? string.Empty;
+                ApplyDefinitionChange(
+                    "Change node name",
+                    _definition.DisplayName,
+                    value,
+                    resolvedDisplayName =>
+                    {
+                        _definition.DisplayName = resolvedDisplayName;
+                        input.UpdateValue(resolvedDisplayName);
+                        DisplayName = resolvedDisplayName;
+                        OnPropertyChanged(nameof(DisplayNameText));
+                        OnPropertyChanged(nameof(ResolvedHeaderText));
+                        OnPropertyChanged(nameof(CurrentEditTargetDisplayName));
+                    });
             }),
 
-            new InputStringVM("Domain Type:", _definition.DomainType, domainType =>
+            new InputStringVM("Domain Type:", _definition.DomainType, (input, domainType) =>
             {
-                DomainType = domainType ?? string.Empty;
+                var value = domainType ?? string.Empty;
+                ApplyDefinitionChange(
+                    "Change domain type",
+                    _definition.DomainType,
+                    value,
+                    resolvedDomainType =>
+                    {
+                        _definition.DomainType = resolvedDomainType;
+                        input.UpdateValue(resolvedDomainType);
+                        OnPropertyChanged(nameof(DomainType));
+                    });
             }),
 
-            new InputEnumVM("Node Shape:", _definition.NodeShape, shape =>
+            new InputEnumVM("Node Shape:", _definition.NodeShape, (input, shape) =>
             {
-                if (shape == null)
+                if (shape is not NodeShape resolvedShape)
                     return;
 
-                NodeShape = (NodeShape)shape;
+                ApplyDefinitionChange(
+                    "Change node shape",
+                    _definition.NodeShape,
+                    resolvedShape,
+                    nodeShape =>
+                    {
+                        _definition.NodeShape = nodeShape;
+                        _definition.Size = NodeSize.CreateDefault(nodeShape);
+                        _definition.ShapeRules = ShapeRules.CreateDefault(nodeShape);
+                        input.UpdateValue(nodeShape);
+                        OnPropertyChanged(nameof(NodeShape));
+                        OnPropertyChanged(nameof(Size));
+                        OnPropertyChanged(nameof(ShapeRules));
+                    });
             }),
 
-            new InputBoolVM("Has Overview:", _definition.HasOverview, hasOverview =>
+            new InputBoolVM("Has Overview:", _definition.HasOverview, (input, hasOverview) =>
             {
-                HasOverview = hasOverview;
+                ApplyDefinitionChange(
+                    "Change overview mode",
+                    _definition.HasOverview,
+                    hasOverview,
+                    resolvedHasOverview =>
+                    {
+                        _definition.HasOverview = resolvedHasOverview;
+                        input.UpdateValue(resolvedHasOverview);
+                        OnPropertyChanged(nameof(HasOverview));
+                    });
             }),
         ];
     }
@@ -1218,9 +1180,21 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
             return [];
 
         InputFloatVM? widthInput = null;
-        widthInput = new InputFloatVM("Width (nu):", SelectedColumn.WidthNu, widthNu =>
+        widthInput = new InputFloatVM("Width (nu):", SelectedColumn.WidthNu, (input, widthNu) =>
         {
-            SelectedColumn.WidthNu = MathF.Max(0.0f, widthNu);
+            var value = MathF.Max(0.0f, widthNu);
+            ApplyDefinitionChange(
+                "Change column width",
+                SelectedColumn.WidthNu,
+                value,
+                resolvedWidth =>
+                {
+                    if (SelectedColumn == null)
+                        return;
+
+                    SelectedColumn.WidthNu = resolvedWidth;
+                    input.UpdateValue(resolvedWidth);
+                });
         })
         {
             Hide = SelectedColumn.WidthMode != NodeColumnWidthMode.Fixed,
@@ -1228,14 +1202,26 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
 
         return
         [
-            new InputEnumVM("Width Mode:", SelectedColumn.WidthMode, widthMode =>
+            new InputEnumVM("Width Mode:", SelectedColumn.WidthMode, (input, widthMode) =>
             {
                 if (widthMode is not NodeColumnWidthMode resolvedWidthMode)
                     return;
 
-                SelectedColumn.WidthMode = resolvedWidthMode;
-                if (widthInput != null)
-                    widthInput.Hide = resolvedWidthMode != NodeColumnWidthMode.Fixed;
+                var previousWidthMode = SelectedColumn.WidthMode;
+                ApplyDefinitionChange(
+                    "Change column width mode",
+                    previousWidthMode,
+                    resolvedWidthMode,
+                    widthModeValue =>
+                    {
+                        if (SelectedColumn == null)
+                            return;
+
+                        SelectedColumn.WidthMode = widthModeValue;
+                        input.UpdateValue(widthModeValue);
+                        if (widthInput != null)
+                            widthInput.Hide = widthModeValue != NodeColumnWidthMode.Fixed;
+                    });
             }),
 
             widthInput,
@@ -1246,30 +1232,65 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     {
         return
         [
-            new InputStringVM("Header Text Override:", _definition.HeaderText, headerText =>
+            new InputStringVM("Header Text Override:", _definition.HeaderText, (input, headerText) =>
             {
-                HeaderText = headerText ?? string.Empty;
+                var value = string.IsNullOrWhiteSpace(headerText) ? null : headerText;
+                ApplyDefinitionChange(
+                    "Change header text",
+                    _definition.HeaderText,
+                    value,
+                    resolvedHeaderText =>
+                    {
+                        _definition.HeaderText = resolvedHeaderText;
+                        input.UpdateValue(resolvedHeaderText);
+                        OnPropertyChanged(nameof(HeaderText));
+                        OnPropertyChanged(nameof(ResolvedHeaderText));
+                    });
             }),
 
-            new InputColorVM("Background Color:", HeaderStyle.BackgroundColor.ToMediaColor(), color =>
+            new InputColorVM("Background Color:", HeaderStyle.BackgroundColor.ToMediaColor(), (input, color) =>
             {
-                HeaderStyle.BackgroundColor = color.ToNodeColor();
+                ApplyDefinitionChange(
+                    "Change header background color",
+                    HeaderStyle.BackgroundColor.ToMediaColor(),
+                    color,
+                    resolvedColor =>
+                    {
+                        HeaderStyle.BackgroundColor = resolvedColor.ToNodeColor();
+                        input.UpdateValue(resolvedColor);
+                    });
             }),
 
-            new InputEnumVM("Alignment:", HeaderStyle.Alignment, alignment =>
+            new InputEnumVM("Alignment:", HeaderStyle.Alignment, (input, alignment) =>
             {
-                if (alignment == null)
+                if (alignment is not NodeTextAlignment resolvedAlignment)
                     return;
 
-                HeaderStyle.Alignment = (NodeTextAlignment)alignment;
+                ApplyDefinitionChange(
+                    "Change header alignment",
+                    HeaderStyle.Alignment,
+                    resolvedAlignment,
+                    alignmentValue =>
+                    {
+                        HeaderStyle.Alignment = alignmentValue;
+                        input.UpdateValue(alignmentValue);
+                    });
             }),
 
-            new InputEnumVM("Font Weight:", HeaderStyle.FontWeight, fontWeight =>
+            new InputEnumVM("Font Weight:", HeaderStyle.FontWeight, (input, fontWeight) =>
             {
-                if (fontWeight == null)
+                if (fontWeight is not NodeFontWeight resolvedFontWeight)
                     return;
 
-                HeaderStyle.FontWeight = (NodeFontWeight)fontWeight;
+                ApplyDefinitionChange(
+                    "Change header font weight",
+                    HeaderStyle.FontWeight,
+                    resolvedFontWeight,
+                    fontWeightValue =>
+                    {
+                        HeaderStyle.FontWeight = fontWeightValue;
+                        input.UpdateValue(fontWeightValue);
+                    });
             }),
         ];
     }
@@ -1278,27 +1299,59 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     {
         return
         [
-            new InputColorVM("Background Color:", ShapeStyle.BackgroundColor.ToMediaColor(), color =>
+            new InputColorVM("Background Color:", ShapeStyle.BackgroundColor.ToMediaColor(), (input, color) =>
             {
-                ShapeStyle.BackgroundColor = color.ToNodeColor();
+                ApplyDefinitionChange(
+                    "Change node background color",
+                    ShapeStyle.BackgroundColor.ToMediaColor(),
+                    color,
+                    resolvedColor =>
+                    {
+                        ShapeStyle.BackgroundColor = resolvedColor.ToNodeColor();
+                        input.UpdateValue(resolvedColor);
+                    });
             }),
 
-            new InputColorVM("Border Color:", ShapeStyle.BorderColor.ToMediaColor(), color =>
+            new InputColorVM("Border Color:", ShapeStyle.BorderColor.ToMediaColor(), (input, color) =>
             {
-                ShapeStyle.BorderColor = color.ToNodeColor();
+                ApplyDefinitionChange(
+                    "Change node border color",
+                    ShapeStyle.BorderColor.ToMediaColor(),
+                    color,
+                    resolvedColor =>
+                    {
+                        ShapeStyle.BorderColor = resolvedColor.ToNodeColor();
+                        input.UpdateValue(resolvedColor);
+                    });
             }),
 
-            new InputFloatVM("Border Thickness:", ShapeStyle.BorderThickness, thickness =>
+            new InputFloatVM("Border Thickness:", ShapeStyle.BorderThickness, (input, thickness) =>
             {
-                ShapeStyle.BorderThickness = thickness;
+                ApplyDefinitionChange(
+                    "Change border thickness",
+                    ShapeStyle.BorderThickness,
+                    thickness,
+                    resolvedThickness =>
+                    {
+                        ShapeStyle.BorderThickness = resolvedThickness;
+                        input.UpdateValue(resolvedThickness);
+                    });
             }),
 
-            new InputEnumVM("Font Weight:", ShapeStyle.FontWeight, fontWeight =>
+            new InputEnumVM("Font Weight:", ShapeStyle.FontWeight, (input, fontWeight) =>
             {
-                if (fontWeight == null)
+                if (fontWeight is not NodeFontWeight resolvedFontWeight)
                     return;
 
-                ShapeStyle.FontWeight = (NodeFontWeight)fontWeight;
+                ApplyDefinitionChange(
+                    "Change node font weight",
+                    ShapeStyle.FontWeight,
+                    resolvedFontWeight,
+                    fontWeightValue =>
+                    {
+                        ShapeStyle.FontWeight = fontWeightValue;
+                        input.UpdateValue(fontWeightValue);
+                    });
             }),
         ];
     }

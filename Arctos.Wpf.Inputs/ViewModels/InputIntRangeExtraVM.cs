@@ -64,6 +64,12 @@ namespace Arctos.Wpf.Inputs
             _stringValue = initialValue;
         }
 
+        public InputIntRangeExtraVM(string description, string? value, int min, int max, Action<DataInputWrapperVM<string>, string?> onChange, params (char Key, string Text)[] specialValues)
+            : this(description, value, min, max, (Action<string?>?)null, specialValues)
+        {
+            OnChangeWithSender = onChange;
+        }
+
         #endregion Constructors
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -80,6 +86,15 @@ namespace Arctos.Wpf.Inputs
 
             error = AllowedValuesDescription;
             return false;
+        }
+
+        public void UpdateText(string? value)
+        {
+            var normalized = NormalizeInput(value);
+            if (TryGetCommittedValue(normalized, out var committedValue))
+                UpdateValue(committedValue);
+
+            SetProperty(ref _stringValue, normalized, nameof(StringValue));
         }
 
         #endregion Public Methods

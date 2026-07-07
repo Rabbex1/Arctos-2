@@ -8,12 +8,14 @@ namespace Arctos.Nodes.Wpf.ViewModels.Components;
 /// <summary>
 /// Represents a portable input component inside a node.
 /// </summary>
-public sealed class NodeInputComponentVM : NodeComponentVM
+public class NodeInputComponentVM : NodeComponentVM
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
 
     private readonly InputTypeRegistry _registry;
+
+    private readonly record struct InputState(InputTypeId TypeId, object? DefaultValue, DateTimeDisplayMode DateTimeDisplayMode);
     #endregion Fields
 
     //------------------------------------------------------------------------------------------------------------------------------------------
@@ -30,12 +32,17 @@ public sealed class NodeInputComponentVM : NodeComponentVM
             if (InputModel.TypeId == value)
                 return;
 
-            InputModel.TypeId = value;
-            InputModel.SetDefaultValue(CreateDefaultValue(CurrentInputType), _registry);
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(DefaultValue));
-            RebuildEditTabs();
-            NotifyComponentChanged();
+            if (!_registry.TryGetValue(value, out var definition) || definition == null)
+                return;
+
+            var previousState = CaptureState();
+            var nextState = new InputState(value, CloneInputValue(CreateDefaultValue(definition)), DateTimeDisplayMode);
+
+            ApplyComponentChange(
+                "Change input type",
+                previousState,
+                nextState,
+                ApplyState);
         }
     }
 
@@ -55,10 +62,16 @@ public sealed class NodeInputComponentVM : NodeComponentVM
             if (InputModel.DateTimeDisplayMode == value)
                 return;
 
-            InputModel.DateTimeDisplayMode = value;
-            OnPropertyChanged();
-            RebuildEditTabs();
-            NotifyComponentChanged();
+            ApplyComponentChange(
+                "Change date time display mode",
+                InputModel.DateTimeDisplayMode,
+                value,
+                displayMode =>
+                {
+                    InputModel.DateTimeDisplayMode = displayMode;
+                    OnPropertyChanged();
+                    RebuildEditTabs();
+                });
         }
     }
 
@@ -100,17 +113,28 @@ public sealed class NodeInputComponentVM : NodeComponentVM
     {
         List<DataInputWrapperVM> inputs =
         [
-            new InputStringVM("Label:", Label, label =>
+            new InputStringVM("Label:", Label, (wrapper, label) =>
             {
-                Label = label ?? string.Empty;
+                var value = label ?? string.Empty;
+                ApplyComponentChange(
+                    "Change component label",
+                    Model.Label,
+                    value,
+                    resolvedLabel =>
+                    {
+                        Model.Label = resolvedLabel;
+                        wrapper.UpdateValue(resolvedLabel);
+                        DisplayName = GetDisplayName();
+                        OnPropertyChanged(nameof(Label));
+                    });
             }),
 
             new InputObjectComboVM(
                 "Input Type:",
                 CurrentInputType,
-                _registry.Cast<object>().ToList(),
+                GetSelectableInputTypes().ToList(),
                 nameof(InputTypeDefinition.DisplayName),
-                selectedType =>
+                (_, selectedType) =>
                 {
                     if (selectedType is not InputTypeDefinition inputType)
                         return;
@@ -119,28 +143,37 @@ public sealed class NodeInputComponentVM : NodeComponentVM
                 }),
         ];
 
-        if (TypeId == InputTypeIds.StringSelection)
-        {
-            AddStringSelectionInputs(inputs);
-            return inputs;
-        }
-
         if (TypeId == InputTypeIds.DateTime)
         {
             inputs.Add(new InputStringComboVM(
                 "Display Mode:",
                 GetDateTimeDisplayModeLabel(DateTimeDisplayMode),
                 GetDateTimeDisplayModeLabels(),
-                selectedMode =>
+                (_, selectedMode) =>
                 {
                     if (TryParseDateTimeDisplayMode(selectedMode, out var displayMode))
                         DateTimeDisplayMode = displayMode;
                 }));
         }
 
-        var defaultValueWrapper = DataInputWrapperVM.CreateTypeWrapper("Default Value:", ConvertToEditorValue(DefaultValue), value =>
+        var defaultValueWrapper = DataInputWrapperVM.CreateTypeWrapper("Default Value:", ConvertToEditorValue(DefaultValue), (wrapper, value) =>
         {
-            SetDefaultValue(ConvertFromEditorValue(value));
+            var oldValue = CloneInputValue(DefaultValue);
+            var newValue = CloneInputValue(ConvertFromEditorValue(value));
+
+            if (InputValuesEqual(oldValue, newValue))
+                return;
+
+            ApplyComponentChange(
+                "Change input default value",
+                oldValue,
+                newValue,
+                currentValue =>
+                {
+                    InputModel.SetDefaultValue(CloneInputValue(currentValue), _registry);
+                    UpdateEditorWrapper(wrapper, ConvertToEditorValue(currentValue));
+                    OnPropertyChanged(nameof(DefaultValue));
+                });
         });
 
         if (defaultValueWrapper != null)
@@ -154,7 +187,16 @@ public sealed class NodeInputComponentVM : NodeComponentVM
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Private Methods
 
-    private InputTypeDefinition CurrentInputType
+    protected InputTypeRegistry Registry => _registry;
+
+    protected virtual IEnumerable<object> GetSelectableInputTypes()
+    {
+        return _registry
+            .Where(definition => definition.Id != InputTypeIds.StringSelection)
+            .Cast<object>();
+    }
+
+    protected InputTypeDefinition CurrentInputType
     {
         get
         {
@@ -165,7 +207,7 @@ public sealed class NodeInputComponentVM : NodeComponentVM
         }
     }
 
-    private static object CreateDefaultValue(InputTypeDefinition definition)
+    protected static object CreateDefaultValue(InputTypeDefinition definition)
     {
         return definition.ValueType switch
         {
@@ -186,7 +228,7 @@ public sealed class NodeInputComponentVM : NodeComponentVM
         };
     }
 
-    private object? ConvertFromEditorValue(object? value)
+    protected object? ConvertFromEditorValue(object? value)
     {
         return value switch
         {
@@ -212,7 +254,7 @@ public sealed class NodeInputComponentVM : NodeComponentVM
         };
     }
 
-    private object? ConvertToEditorValue(object? value)
+    protected object? ConvertToEditorValue(object? value)
     {
         return value switch
         {
@@ -237,71 +279,164 @@ public sealed class NodeInputComponentVM : NodeComponentVM
         };
     }
 
-    private void AddStringSelectionInputs(List<DataInputWrapperVM> inputs)
-    {
-        var selection = GetStringSelectionValue();
-
-        inputs.Add(new InputStringComboVM("Source:", selection.Source.ToString(), Enum.GetNames<StringSelectionSource>(), selectedSource =>
-        {
-            if (!Enum.TryParse<StringSelectionSource>(selectedSource, out var source))
-                return;
-
-            selection.Source = source;
-            NormalizeStringSelectionValue(selection);
-            SetDefaultValue(selection);
-            RebuildEditTabs();
-        }));
-
-        var optionsInput = new InputStringListVM("Options:", selection.Options, selection.Value,
-        options =>
-        {
-            selection.Options = options ?? [];
-            NormalizeStringSelectionValue(selection);
-            SetDefaultValue(selection);
-        },
-        selectedValue =>
-        {
-            selection.Value = selectedValue ?? string.Empty;
-            SetDefaultValue(selection);
-        })
-        {
-            Hide = selection.Source == StringSelectionSource.External,
-        };
-        inputs.Add(optionsInput);
-
-        inputs.Add(new InputLabelVM(string.Empty, "Selected option is the default.", "Center")
-        {
-            Hide = selection.Source == StringSelectionSource.External,
-        });
-    }
-
-    private void SetDefaultValue(object? value)
+    protected void SetDefaultValue(object? value)
     {
         InputModel.SetDefaultValue(value, _registry);
         OnPropertyChanged(nameof(DefaultValue));
         NotifyComponentChanged();
     }
 
-    private StringSelectionValue GetStringSelectionValue()
+    private InputState CaptureState()
     {
-        return DefaultValue as StringSelectionValue ?? new StringSelectionValue();
+        return new InputState(TypeId, CloneInputValue(DefaultValue), DateTimeDisplayMode);
     }
 
-    private static void NormalizeStringSelectionValue(StringSelectionValue selection)
+    private void ApplyState(InputState state)
     {
-        if (selection.Source == StringSelectionSource.External)
-            return;
+        InputModel.TypeId = state.TypeId;
+        InputModel.SetDefaultValue(CloneInputValue(state.DefaultValue), _registry);
+        InputModel.DateTimeDisplayMode = state.DateTimeDisplayMode;
+        OnPropertyChanged(nameof(TypeId));
+        OnPropertyChanged(nameof(DefaultValue));
+        OnPropertyChanged(nameof(DateTimeDisplayMode));
+        RebuildEditTabs();
+    }
 
-        selection.Options ??= [];
-
-        if (selection.Options.Count == 0)
+    protected static object? CloneInputValue(object? value)
+    {
+        return value switch
         {
-            selection.Value = string.Empty;
-            return;
-        }
+            null => null,
+            StringSelectionValue selection => new StringSelectionValue
+            {
+                Source = selection.Source,
+                Options = [.. selection.Options ?? []],
+                Value = selection.Value,
+            },
+            FloatRangeValue range => new FloatRangeValue
+            {
+                Min = range.Min,
+                Max = range.Max,
+                Value = range.Value,
+            },
+            IntRangeValue range => new IntRangeValue
+            {
+                Min = range.Min,
+                Max = range.Max,
+                Value = range.Value,
+            },
+            StringSelection selection => new StringSelection
+            {
+                Options = [.. selection.Options],
+                Value = selection.Value,
+            },
+            FloatRangeInput range => new FloatRangeInput
+            {
+                Min = range.Min,
+                Max = range.Max,
+                Value = range.Value,
+            },
+            IntRangeInput range => new IntRangeInput
+            {
+                Min = range.Min,
+                Max = range.Max,
+                Value = range.Value,
+            },
+            _ => value,
+        };
+    }
 
-        if (string.IsNullOrWhiteSpace(selection.Value) || !selection.Options.Contains(selection.Value))
-            selection.Value = selection.Options.First();
+    protected static bool InputValuesEqual(object? left, object? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (left == null || right == null)
+            return false;
+
+        return (left, right) switch
+        {
+            (StringSelectionValue a, StringSelectionValue b) => a.Source == b.Source
+                && string.Equals(a.Value, b.Value, StringComparison.Ordinal)
+                && (a.Options ?? []).SequenceEqual(b.Options ?? []),
+            (FloatRangeValue a, FloatRangeValue b) => a.Min.Equals(b.Min)
+                && a.Max.Equals(b.Max)
+                && a.Value.Equals(b.Value),
+            (IntRangeValue a, IntRangeValue b) => a.Min == b.Min
+                && a.Max == b.Max
+                && a.Value == b.Value,
+            (StringSelection a, StringSelection b) => string.Equals(a.Value, b.Value, StringComparison.Ordinal)
+                && a.Options.SequenceEqual(b.Options),
+            (FloatRangeInput a, FloatRangeInput b) => a.Min.Equals(b.Min)
+                && a.Max.Equals(b.Max)
+                && a.Value.Equals(b.Value),
+            (IntRangeInput a, IntRangeInput b) => a.Min == b.Min
+                && a.Max == b.Max
+                && a.Value == b.Value,
+            _ => Equals(left, right),
+        };
+    }
+
+    protected static void UpdateEditorWrapper(DataInputWrapperVM wrapper, object? value)
+    {
+        switch (wrapper)
+        {
+            case InputBoolVM boolWrapper when value is bool boolValue:
+                boolWrapper.UpdateValue(boolValue);
+                break;
+
+            case InputColorVM colorWrapper when value is System.Windows.Media.Color colorValue:
+                colorWrapper.UpdateColor(colorValue);
+                break;
+
+            case InputDateTimeVM dateTimeWrapper when value is DateTime dateTimeValue:
+                dateTimeWrapper.UpdateDateTime(dateTimeValue);
+                break;
+
+            case InputDoubleVM doubleWrapper when value is double doubleValue:
+                doubleWrapper.UpdateValue(doubleValue);
+                break;
+
+            case InputEnumVM enumWrapper when value is Enum enumValue:
+                enumWrapper.UpdateValue(enumValue);
+                break;
+
+            case InputFloatRangeVM floatRangeWrapper when value is FloatRangeInput floatRangeValue:
+                floatRangeWrapper.UpdateRange(floatRangeValue);
+                break;
+
+            case InputFloatVM floatWrapper when value is float floatValue:
+                floatWrapper.UpdateValue(floatValue);
+                break;
+
+            case InputIntegerVM integerWrapper when value is int intValue:
+                integerWrapper.UpdateValue(intValue);
+                break;
+
+            case InputIntRangeVM intRangeWrapper when value is IntRangeInput intRangeValue:
+                intRangeWrapper.UpdateRange(intRangeValue);
+                break;
+
+            case InputObjectComboVM objectWrapper:
+                objectWrapper.UpdateValue(value);
+                break;
+
+            case InputStringComboVM stringComboWrapper when value is string stringComboValue:
+                stringComboWrapper.UpdateValue(stringComboValue);
+                break;
+
+            case InputStringVM stringWrapper when value is string stringValue:
+                stringWrapper.UpdateValue(stringValue);
+                break;
+
+            case InputTimeSpanVM timeSpanWrapper when value is TimeSpan timeSpanValue:
+                timeSpanWrapper.UpdateValue(timeSpanValue);
+                break;
+
+            case InputUnsignedIntegerVM unsignedIntegerWrapper when value is uint uintValue:
+                unsignedIntegerWrapper.UpdateValue(uintValue);
+                break;
+        }
     }
 
     private static IEnumerable<string> GetDateTimeDisplayModeLabels()
@@ -346,7 +481,7 @@ public sealed class NodeInputComponentVM : NodeComponentVM
         }
     }
 
-    private NodeInput InputModel => (NodeInput)Model;
+    protected NodeInput InputModel => (NodeInput)Model;
 
     #endregion Private Methods
 }

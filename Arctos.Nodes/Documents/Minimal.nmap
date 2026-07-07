@@ -123,7 +123,7 @@
         "NodeShape": 0,
         "Size": {
           "Width": 79,
-          "Height": 86
+          "Height": 82
         },
         "ShapeRules": {
           "Shape": 0,
@@ -156,7 +156,7 @@
                     "Label": "Toggle",
                     "Position": {
                       "X": -38,
-                      "Y": -37
+                      "Y": -35
                     },
                     "Column": 0,
                     "ParentId": "561faff5c6374e2b87675f2ae575de2a",
@@ -177,7 +177,7 @@
                     "Label": "One",
                     "Position": {
                       "X": -38,
-                      "Y": -33
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
@@ -191,7 +191,7 @@
                     "Label": "Two",
                     "Position": {
                       "X": -28.5,
-                      "Y": -33
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
@@ -205,7 +205,7 @@
                     "Label": "Three",
                     "Position": {
                       "X": -19,
-                      "Y": -33
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
@@ -219,7 +219,7 @@
                     "Label": "Four",
                     "Position": {
                       "X": -9.5,
-                      "Y": -33
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
@@ -248,7 +248,7 @@
                     "Label": "Date Time",
                     "Position": {
                       "X": -38,
-                      "Y": -29
+                      "Y": -27
                     },
                     "Column": 0,
                     "ParentId": "21dad2d76c0441acaccc7bd72aec5c98",
@@ -281,7 +281,7 @@
                     "Label": "IP Address",
                     "Position": {
                       "X": -38,
-                      "Y": -25
+                      "Y": -23
                     },
                     "Column": 0,
                     "ParentId": "3fea108a8bcc4a65b93d71365945fecc",
@@ -314,7 +314,7 @@
                     "Label": "Net Mask",
                     "Position": {
                       "X": -38,
-                      "Y": -21
+                      "Y": -19
                     },
                     "Column": 0,
                     "ParentId": "41566497b33e4a86bbf7314c392984e2",
@@ -347,7 +347,7 @@
                     "Label": "Gateway",
                     "Position": {
                       "X": -38,
-                      "Y": -17
+                      "Y": -15
                     },
                     "Column": 0,
                     "ParentId": "c301204846db4e7ca22439892888b229",
@@ -376,7 +376,7 @@
                     "Label": "Port",
                     "Position": {
                       "X": -38,
-                      "Y": -13
+                      "Y": -11
                     },
                     "Column": 0,
                     "ParentId": "f753ad6d26bb415c949a3116218bb900",
@@ -398,7 +398,7 @@
                     "Label": "Separator",
                     "Position": {
                       "X": -38,
-                      "Y": -9
+                      "Y": -7
                     },
                     "Column": 0,
                     "ParentId": "a8895cfa1ab5441a8580ce48922ce786",
@@ -426,7 +426,7 @@
                     "Label": "Connection",
                     "Position": {
                       "X": -38,
-                      "Y": -7
+                      "Y": -5
                     },
                     "Column": 0,
                     "ParentId": "c1d29fa191ef41e4a3e17d2448f00426",
@@ -454,7 +454,7 @@
                     "Label": "Indicator",
                     "Position": {
                       "X": -38,
-                      "Y": -3
+                      "Y": -1
                     },
                     "Column": 0,
                     "ParentId": "ebfad4106a244a70bafea2bbd21e88e1",
@@ -476,7 +476,7 @@
                     "Label": "Separator",
                     "Position": {
                       "X": -38,
-                      "Y": 1
+                      "Y": 3
                     },
                     "Column": 0,
                     "ParentId": "eb27e432cf71469ea9d8d11066a1cf98",
@@ -497,7 +497,7 @@
                     "Label": "Text",
                     "Position": {
                       "X": -38,
-                      "Y": 3
+                      "Y": 5
                     },
                     "Column": 0,
                     "ParentId": "6de2916158b14ee791486498ef93e3db",
@@ -526,7 +526,7 @@
                     "Label": "String Input",
                     "Position": {
                       "X": -38,
-                      "Y": 7
+                      "Y": 9
                     },
                     "Column": 0,
                     "ParentId": "9e8156735d0644f4b04f1e4bd61a0016",
@@ -555,7 +555,7 @@
                     "Label": "Numeric",
                     "Position": {
                       "X": -38,
-                      "Y": 11
+                      "Y": 13
                     },
                     "Column": 0,
                     "ParentId": "d601feb8e3294dbfb1d782b9cb72378c",
@@ -566,40 +566,8 @@
                 ]
               },
               {
-                "Id": "9aa4833e465b4b34a75027824661f2ac",
-                "YOrder": 14,
-                "ColumnSpan": 1,
-                "Components": [
-                  {
-                    "$type": "Input",
-                    "DisplayName": "Dropdown",
-                    "Description": null,
-                    "TypeId": "StringSelection",
-                    "IsReadOnly": false,
-                    "IsVisible": true,
-                    "GroupId": null,
-                    "DateTimeDisplayMode": 2,
-                    "DefaultValue": {
-                      "Options": [],
-                      "Value": null
-                    },
-                    "Id": null,
-                    "Label": "Dropdown",
-                    "Position": {
-                      "X": -38,
-                      "Y": 15
-                    },
-                    "Column": 0,
-                    "ParentId": "9aa4833e465b4b34a75027824661f2ac",
-                    "YOrder": 14,
-                    "XOrder": 0,
-                    "FixedWidth": 0
-                  }
-                ]
-              },
-              {
                 "Id": "777c1e5a2f404d50bd1b1c28c35222c6",
-                "YOrder": 15,
+                "YOrder": 14,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -608,11 +576,11 @@
                     "Label": "Text",
                     "Position": {
                       "X": -38,
-                      "Y": 19
+                      "Y": 17
                     },
                     "Column": 0,
                     "ParentId": "777c1e5a2f404d50bd1b1c28c35222c6",
-                    "YOrder": 15,
+                    "YOrder": 14,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -620,7 +588,7 @@
               },
               {
                 "Id": "6094f527068345f3bd214f09855ebbd5",
-                "YOrder": 16,
+                "YOrder": 15,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -629,11 +597,11 @@
                     "Label": "1",
                     "Position": {
                       "X": -38,
-                      "Y": 23
+                      "Y": 21
                     },
                     "Column": 0,
                     "ParentId": "6094f527068345f3bd214f09855ebbd5",
-                    "YOrder": 16,
+                    "YOrder": 15,
                     "XOrder": 0,
                     "FixedWidth": 0
                   },
@@ -643,11 +611,11 @@
                     "Label": "2",
                     "Position": {
                       "X": -25.333332,
-                      "Y": 23
+                      "Y": 21
                     },
                     "Column": 0,
                     "ParentId": "6094f527068345f3bd214f09855ebbd5",
-                    "YOrder": 16,
+                    "YOrder": 15,
                     "XOrder": 1,
                     "FixedWidth": 0
                   },
@@ -657,11 +625,11 @@
                     "Label": "3",
                     "Position": {
                       "X": -12.666665,
-                      "Y": 23
+                      "Y": 21
                     },
                     "Column": 0,
                     "ParentId": "6094f527068345f3bd214f09855ebbd5",
-                    "YOrder": 16,
+                    "YOrder": 15,
                     "XOrder": 2,
                     "FixedWidth": 0
                   }
@@ -669,6 +637,29 @@
               },
               {
                 "Id": "e867145148da45d59ab1ee615e63052d",
+                "YOrder": 16,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Spacer",
+                    "Height": 4,
+                    "Expand": true,
+                    "Id": null,
+                    "Label": "Spacer",
+                    "Position": {
+                      "X": -38,
+                      "Y": 25
+                    },
+                    "Column": 0,
+                    "ParentId": "e867145148da45d59ab1ee615e63052d",
+                    "YOrder": 16,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "63c55bd02d7f4e5ca2342630098599ac",
                 "YOrder": 17,
                 "ColumnSpan": 1,
                 "Components": [
@@ -680,10 +671,10 @@
                     "Label": "Spacer",
                     "Position": {
                       "X": -38,
-                      "Y": 27
+                      "Y": 25
                     },
                     "Column": 0,
-                    "ParentId": "e867145148da45d59ab1ee615e63052d",
+                    "ParentId": "63c55bd02d7f4e5ca2342630098599ac",
                     "YOrder": 17,
                     "XOrder": 0,
                     "FixedWidth": 0
@@ -691,31 +682,8 @@
                 ]
               },
               {
-                "Id": "63c55bd02d7f4e5ca2342630098599ac",
-                "YOrder": 18,
-                "ColumnSpan": 1,
-                "Components": [
-                  {
-                    "$type": "Spacer",
-                    "Height": 4,
-                    "Expand": true,
-                    "Id": null,
-                    "Label": "Spacer",
-                    "Position": {
-                      "X": -38,
-                      "Y": 27
-                    },
-                    "Column": 0,
-                    "ParentId": "63c55bd02d7f4e5ca2342630098599ac",
-                    "YOrder": 18,
-                    "XOrder": 0,
-                    "FixedWidth": 0
-                  }
-                ]
-              },
-              {
                 "Id": "14880a2fcb1748e3935517ec83fc2d14",
-                "YOrder": 19,
+                "YOrder": 18,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -725,11 +693,11 @@
                     "Label": "Separator",
                     "Position": {
                       "X": -38,
-                      "Y": 27
+                      "Y": 25
                     },
                     "Column": 0,
                     "ParentId": "14880a2fcb1748e3935517ec83fc2d14",
-                    "YOrder": 19,
+                    "YOrder": 18,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -737,6 +705,27 @@
               },
               {
                 "Id": "5a110852f26a4adf875cda6fb21334f6",
+                "YOrder": 19,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Button",
+                    "Id": null,
+                    "Label": "Button",
+                    "Position": {
+                      "X": -38,
+                      "Y": 27
+                    },
+                    "Column": 0,
+                    "ParentId": "5a110852f26a4adf875cda6fb21334f6",
+                    "YOrder": 19,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "348e668009fe4f8081a13af2441c5e31",
                 "YOrder": 20,
                 "ColumnSpan": 1,
                 "Components": [
@@ -746,10 +735,10 @@
                     "Label": "Button",
                     "Position": {
                       "X": -38,
-                      "Y": 29
+                      "Y": 31
                     },
                     "Column": 0,
-                    "ParentId": "5a110852f26a4adf875cda6fb21334f6",
+                    "ParentId": "348e668009fe4f8081a13af2441c5e31",
                     "YOrder": 20,
                     "XOrder": 0,
                     "FixedWidth": 0
@@ -757,29 +746,8 @@
                 ]
               },
               {
-                "Id": "348e668009fe4f8081a13af2441c5e31",
-                "YOrder": 21,
-                "ColumnSpan": 1,
-                "Components": [
-                  {
-                    "$type": "Button",
-                    "Id": null,
-                    "Label": "Button",
-                    "Position": {
-                      "X": -38,
-                      "Y": 33
-                    },
-                    "Column": 0,
-                    "ParentId": "348e668009fe4f8081a13af2441c5e31",
-                    "YOrder": 21,
-                    "XOrder": 0,
-                    "FixedWidth": 0
-                  }
-                ]
-              },
-              {
                 "Id": "8ac3e428216845a087728fec50d68d8e",
-                "YOrder": 22,
+                "YOrder": 21,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -796,11 +764,11 @@
                     "Label": "Bool Input",
                     "Position": {
                       "X": -38,
-                      "Y": 37
+                      "Y": 35
                     },
                     "Column": 0,
                     "ParentId": "8ac3e428216845a087728fec50d68d8e",
-                    "YOrder": 22,
+                    "YOrder": 21,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -808,7 +776,7 @@
               },
               {
                 "Id": "bae1bcf649ae4265b682740820bb06a1",
-                "YOrder": 23,
+                "YOrder": 22,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -819,11 +787,11 @@
                     "Label": "Spacer",
                     "Position": {
                       "X": -38,
-                      "Y": 41
+                      "Y": 39
                     },
                     "Column": 0,
                     "ParentId": "bae1bcf649ae4265b682740820bb06a1",
-                    "YOrder": 23,
+                    "YOrder": 22,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -872,11 +840,48 @@
                     "Label": "Grid Input",
                     "Position": {
                       "X": 1,
-                      "Y": -37
+                      "Y": -35
                     },
                     "Column": 1,
                     "ParentId": "149b594255e240369737809eb0d9e507",
                     "YOrder": 0,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "b8a781b5599e4527a76af08a808d843b",
+                "YOrder": 1,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Input",
+                    "DisplayName": "Dropdown",
+                    "Description": null,
+                    "TypeId": "StringSelection",
+                    "IsReadOnly": false,
+                    "IsVisible": true,
+                    "GroupId": null,
+                    "DateTimeDisplayMode": 2,
+                    "DefaultValue": {
+                      "Source": 0,
+                      "Options": [
+                        "one",
+                        "two",
+                        "three"
+                      ],
+                      "Value": "two"
+                    },
+                    "Id": null,
+                    "Label": "Dropdown",
+                    "Position": {
+                      "X": 1,
+                      "Y": -19
+                    },
+                    "Column": 1,
+                    "ParentId": "b8a781b5599e4527a76af08a808d843b",
+                    "YOrder": 1,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }

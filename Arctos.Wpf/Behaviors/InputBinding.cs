@@ -1,7 +1,9 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using WpfTextBox = System.Windows.Controls.TextBox;
 
 namespace Arctos.Wpf.Behaviors
 {
@@ -48,10 +50,20 @@ namespace Arctos.Wpf.Behaviors
 
         private static void HandlePreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key != Key.Enter)
+                return;
+
+            if (sender is WpfTextBox { AcceptsReturn: true } textBox)
             {
-                DoUpdateSource(e.Source);
+                if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                    return;
+
+                DoUpdateSource(textBox);
+                e.Handled = true;
+                return;
             }
+
+            DoUpdateSource(e.Source);
         }
 
         private static void DoUpdateSource(object source)

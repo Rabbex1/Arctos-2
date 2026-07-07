@@ -39,6 +39,21 @@ namespace Arctos.Wpf.Inputs
             StringValue = value.Value.ToString();
         }
 
+        public InputIntRangeVM(string description, IntRangeInput value, Action<DataInputWrapperVM<IntRangeInput>, IntRangeInput?> onChange)
+            : base(description, value, onChange)
+        {
+            value.Wrapper = this;
+            OnChange = input => OnChangeWithSender?.Invoke(this, input);
+            StringValue = value.Value.ToString();
+        }
+
         #endregion Constructors
+
+        public void UpdateRange(IntRangeInput value)
+        {
+            value.Wrapper = this;
+            UpdateValue(value);
+            SetProperty(ref _stringValue, value.Value.ToString(), nameof(StringValue));
+        }
     }
 }

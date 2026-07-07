@@ -29,6 +29,8 @@ public sealed class NodeMapSettingsVM : ObservableObject
 
     public Action? OnDocumentChanged { get; set; }
 
+    public Action<string>? OnMapNameChanged { get; set; }
+
     #endregion Properties
 
     #region Constructors
@@ -67,35 +69,77 @@ public sealed class NodeMapSettingsVM : ObservableObject
                 {
                     _settings.Name = mapName;
                     wrapper.UpdateValue(mapName);
-                    OnPropertyChanged(nameof(Settings));
+                    OnMapNameChanged?.Invoke(mapName ?? string.Empty);
                 });
         }));
 
-        PropertiesForm.Inputs.Add(new InputStringVM("Document Type:", _settings.DocumentType, (docType) =>
+        PropertiesForm.Inputs.Add(new InputStringVM("Document Type:", _settings.DocumentType, (wrapper, docType) =>
         {
-            _settings.DocumentType = docType ?? string.Empty;
+            var value = docType ?? string.Empty;
+            ApplyMapChange(
+                "Change document type",
+                _settings.DocumentType,
+                value,
+                documentType =>
+                {
+                    _settings.DocumentType = documentType;
+                    wrapper.UpdateValue(documentType);
+                });
         }));
 
-        PropertiesForm.Inputs.Add(new InputEnumVM("Startup Mode:", _settings.StartupMode, (mode) =>
+        PropertiesForm.Inputs.Add(new InputEnumVM("Startup Mode:", _settings.StartupMode, (wrapper, mode) =>
         {
-            if (mode == null)
+            if (mode is not OperationMode startupMode)
                 return;
-            _settings.StartupMode = (OperationMode) mode;
+
+            ApplyMapChange(
+                "Change startup mode",
+                _settings.StartupMode,
+                startupMode,
+                resolvedMode =>
+                {
+                    _settings.StartupMode = resolvedMode;
+                    wrapper.UpdateValue(resolvedMode);
+                });
         }));
 
-        PropertiesForm.Inputs.Add(new InputColorVM("Canvas Color:", _settings.CanvasColor.ToMediaColor(), (color) =>
+        PropertiesForm.Inputs.Add(new InputColorVM("Canvas Color:", _settings.CanvasColor.ToMediaColor(), (wrapper, color) =>
         {
-            _settings.CanvasColor = color.ToNodeColor();
+            ApplyMapChange(
+                "Change canvas color",
+                _settings.CanvasColor.ToMediaColor(),
+                color,
+                resolvedColor =>
+                {
+                    _settings.CanvasColor = resolvedColor.ToNodeColor();
+                    wrapper.UpdateValue(resolvedColor);
+                });
         }));
 
-        PropertiesForm.Inputs.Add(new InputBoolVM("Runtime Library Edit:", _settings.RuntimeLibraryEdit, (rle) =>
+        PropertiesForm.Inputs.Add(new InputBoolVM("Runtime Library Edit:", _settings.RuntimeLibraryEdit, (wrapper, rle) =>
         {
-            _settings.RuntimeLibraryEdit = rle;
+            ApplyMapChange(
+                "Change runtime library edit",
+                _settings.RuntimeLibraryEdit,
+                rle,
+                runtimeLibraryEdit =>
+                {
+                    _settings.RuntimeLibraryEdit = runtimeLibraryEdit;
+                    wrapper.UpdateValue(runtimeLibraryEdit);
+                });
         }));
 
-        PropertiesForm.Inputs.Add(new InputBoolVM("Runtime Graph Edit:", _settings.RuntimeGraphEdit, (rge) =>
+        PropertiesForm.Inputs.Add(new InputBoolVM("Runtime Graph Edit:", _settings.RuntimeGraphEdit, (wrapper, rge) =>
         {
-            _settings.RuntimeGraphEdit = rge;
+            ApplyMapChange(
+                "Change runtime graph edit",
+                _settings.RuntimeGraphEdit,
+                rge,
+                runtimeGraphEdit =>
+                {
+                    _settings.RuntimeGraphEdit = runtimeGraphEdit;
+                    wrapper.UpdateValue(runtimeGraphEdit);
+                });
         }));
 
         PropertiesForm.Inputs.Add(new InputGroupVM(
@@ -115,23 +159,55 @@ public sealed class NodeMapSettingsVM : ObservableObject
         [
             new InputStringVM("Font Family:", _style.FontFamily, (input, fontFamily) =>
             {
-                _style.FontFamily = string.IsNullOrWhiteSpace(fontFamily) ? null : fontFamily;
-                input.UpdateValue(_style.FontFamily);
+                var value = string.IsNullOrWhiteSpace(fontFamily) ? null : fontFamily;
+                ApplyMapChange(
+                    "Change font family",
+                    _style.FontFamily,
+                    value,
+                    resolvedFontFamily =>
+                    {
+                        _style.FontFamily = resolvedFontFamily;
+                        input.UpdateValue(resolvedFontFamily);
+                    });
             }),
 
-            new InputFloatVM("Font Size:", _style.FontSize, fontSize =>
+            new InputFloatVM("Font Size:", _style.FontSize, (input, fontSize) =>
             {
-                _style.FontSize = fontSize;
+                ApplyMapChange(
+                    "Change font size",
+                    _style.FontSize,
+                    fontSize,
+                    resolvedFontSize =>
+                    {
+                        _style.FontSize = resolvedFontSize;
+                        input.UpdateValue(resolvedFontSize);
+                    });
             }),
 
-            new InputFloatVM("Header Font Size:", _style.HeaderFontSize, headerFontSize =>
+            new InputFloatVM("Header Font Size:", _style.HeaderFontSize, (input, headerFontSize) =>
             {
-                _style.HeaderFontSize = headerFontSize;
+                ApplyMapChange(
+                    "Change header font size",
+                    _style.HeaderFontSize,
+                    headerFontSize,
+                    resolvedHeaderFontSize =>
+                    {
+                        _style.HeaderFontSize = resolvedHeaderFontSize;
+                        input.UpdateValue(resolvedHeaderFontSize);
+                    });
             }),
 
-            new InputColorVM("Font Color:", _style.FontColor.ToMediaColor(), color =>
+            new InputColorVM("Font Color:", _style.FontColor.ToMediaColor(), (input, color) =>
             {
-                _style.FontColor = color.ToNodeColor();
+                ApplyMapChange(
+                    "Change font color",
+                    _style.FontColor.ToMediaColor(),
+                    color,
+                    resolvedColor =>
+                    {
+                        _style.FontColor = resolvedColor.ToNodeColor();
+                        input.UpdateValue(resolvedColor);
+                    });
             }),
         ];
     }
@@ -140,47 +216,111 @@ public sealed class NodeMapSettingsVM : ObservableObject
     {
         return
         [
-            new InputFloatVM("Padding:", _style.Padding, padding =>
+            new InputFloatVM("Padding:", _style.Padding, (input, padding) =>
             {
-                _style.Padding = padding;
+                ApplyMapChange(
+                    "Change padding",
+                    _style.Padding,
+                    padding,
+                    resolvedPadding =>
+                    {
+                        _style.Padding = resolvedPadding;
+                        input.UpdateValue(resolvedPadding);
+                    });
             }),
 
-            new InputFloatVM("Row Spacing:", _style.RowSpacing, rowSpacing =>
+            new InputFloatVM("Row Spacing:", _style.RowSpacing, (input, rowSpacing) =>
             {
-                _style.RowSpacing = rowSpacing;
+                ApplyMapChange(
+                    "Change row spacing",
+                    _style.RowSpacing,
+                    rowSpacing,
+                    resolvedRowSpacing =>
+                    {
+                        _style.RowSpacing = resolvedRowSpacing;
+                        input.UpdateValue(resolvedRowSpacing);
+                    });
             }),
 
-            new InputFloatVM("Column Spacing:", _style.ColumnSpacing, columnSpacing =>
+            new InputFloatVM("Column Spacing:", _style.ColumnSpacing, (input, columnSpacing) =>
             {
-                _style.ColumnSpacing = columnSpacing;
+                ApplyMapChange(
+                    "Change column spacing",
+                    _style.ColumnSpacing,
+                    columnSpacing,
+                    resolvedColumnSpacing =>
+                    {
+                        _style.ColumnSpacing = resolvedColumnSpacing;
+                        input.UpdateValue(resolvedColumnSpacing);
+                    });
             }),
 
-            new InputFloatVM("Rounded Corner Radius:", _style.RoundedCornerRadius, radius =>
+            new InputFloatVM("Rounded Corner Radius:", _style.RoundedCornerRadius, (input, radius) =>
             {
-                _style.RoundedCornerRadius = radius;
+                ApplyMapChange(
+                    "Change rounded corner radius",
+                    _style.RoundedCornerRadius,
+                    radius,
+                    resolvedRadius =>
+                    {
+                        _style.RoundedCornerRadius = resolvedRadius;
+                        input.UpdateValue(resolvedRadius);
+                    });
             }),
 
-            new InputFloatVM("Control Corner Radius:", _style.ControlCornerRadius, radius =>
+            new InputFloatVM("Control Corner Radius:", _style.ControlCornerRadius, (input, radius) =>
             {
-                _style.ControlCornerRadius = radius;
+                ApplyMapChange(
+                    "Change control corner radius",
+                    _style.ControlCornerRadius,
+                    radius,
+                    resolvedRadius =>
+                    {
+                        _style.ControlCornerRadius = resolvedRadius;
+                        input.UpdateValue(resolvedRadius);
+                    });
             }),
 
-            new InputFloatVM("Minimum Column Width:", _style.MinimumColumnWidth, width =>
+            new InputFloatVM("Minimum Column Width:", _style.MinimumColumnWidth, (input, width) =>
             {
-                _style.MinimumColumnWidth = width;
+                ApplyMapChange(
+                    "Change minimum column width",
+                    _style.MinimumColumnWidth,
+                    width,
+                    resolvedWidth =>
+                    {
+                        _style.MinimumColumnWidth = resolvedWidth;
+                        input.UpdateValue(resolvedWidth);
+                    });
             }),
 
-            new InputFloatVM("Port Size:", _style.PortSize, size =>
+            new InputFloatVM("Port Size:", _style.PortSize, (input, size) =>
             {
-                _style.PortSize = size;
+                ApplyMapChange(
+                    "Change port size",
+                    _style.PortSize,
+                    size,
+                    resolvedSize =>
+                    {
+                        _style.PortSize = resolvedSize;
+                        input.UpdateValue(resolvedSize);
+                    });
             }),
 
-            new InputEnumVM("Port Placement:", _style.PortPlacement, placement =>
+            new InputEnumVM("Port Placement:", _style.PortPlacement, (input, placement) =>
             {
-                if (placement == null)
+                if (placement is not NodePortPlacement resolvedPlacement)
                     return;
 
-                _style.PortPlacement = (NodePortPlacement)placement;
+                ApplyMapChange(
+                    "Change port placement",
+                    _style.PortPlacement,
+                    resolvedPlacement,
+                    placementValue =>
+                    {
+                        _style.PortPlacement = placementValue;
+                        input.UpdateValue(placementValue);
+                    });
             }),
         ];
 

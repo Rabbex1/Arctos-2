@@ -28,7 +28,22 @@ namespace Arctos.Wpf.Inputs
             OnButtonClicked = OpenDialog;
         }
 
+        public InputColorVM(string description, Color color, Action<DataInputWrapperVM<Color>, Color> onChange)
+        {
+            Description = description;
+            OnChangeWithSender = onChange;
+            _value = color;
+            Brush = new SolidColorBrush(color);
+            OnButtonClicked = OpenDialog;
+        }
+
         #endregion Constructors
+
+        public void UpdateColor(Color color)
+        {
+            UpdateValue(color);
+            Brush = new SolidColorBrush(color);
+        }
 
         protected void OpenDialog(DataInputWrapperVM<Color> wrapper)
         {

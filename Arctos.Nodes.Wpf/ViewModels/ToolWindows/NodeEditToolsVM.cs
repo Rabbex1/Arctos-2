@@ -70,6 +70,7 @@ public sealed class NodeEditToolsVM : ToolWindowVM
             [
                 new PaletteItemVM(PaletteItemKind.Text, "Text", () => new NodeLabelComponentVM()),
                 new PaletteItemVM(PaletteItemKind.Input, "Input", () => new NodeInputComponentVM()),
+                new PaletteItemVM(PaletteItemKind.Input, "Dropdown", CreatePaletteDropdownComponent),
                 new PaletteItemVM(PaletteItemKind.ValueDisplay, "Value Display", () => new NodeValueDisplayComponentVM()),
                 new PaletteItemVM(PaletteItemKind.GridInput, "Grid Input", () => new NodeGridInputComponentVM()),
                 new PaletteItemVM(PaletteItemKind.Button, "Button", () => new NodeButtonComponentVM()),
@@ -95,6 +96,16 @@ public sealed class NodeEditToolsVM : ToolWindowVM
             Side = NodePortSide.Left,
             Shape = NodePortShape.Circle,
             FillColor = CreateNeutralColor(GetCurrentNodeBorderColor()),
+        });
+    }
+
+    private NodeDropdownComponentVM CreatePaletteDropdownComponent()
+    {
+        return new NodeDropdownComponentVM(new NodeInput
+        {
+            Label = "Dropdown",
+            DisplayName = "Dropdown",
+            TypeId = InputTypeIds.StringSelection,
         });
     }
 

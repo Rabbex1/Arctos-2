@@ -56,10 +56,21 @@ public sealed class NodeSeparatorComponentVM : NodeComponentVM
     {
         return
         [
-            new InputEnumVM("Color:", ColorMode, colorMode =>
+            new InputEnumVM("Color:", ColorMode, (wrapper, colorMode) =>
             {
-                if (colorMode is NodeSeparatorColorMode separatorColorMode)
-                    ColorMode = separatorColorMode;
+                if (colorMode is not NodeSeparatorColorMode separatorColorMode)
+                    return;
+
+                ApplyComponentChange(
+                    "Change separator color mode",
+                    SeparatorModel.ColorMode,
+                    separatorColorMode,
+                    resolvedColorMode =>
+                    {
+                        SeparatorModel.ColorMode = resolvedColorMode;
+                        wrapper.UpdateValue(resolvedColorMode);
+                        OnPropertyChanged(nameof(ColorMode));
+                    });
             }),
         ];
     }

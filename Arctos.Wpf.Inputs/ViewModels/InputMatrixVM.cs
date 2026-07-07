@@ -59,6 +59,12 @@ namespace Arctos.Wpf.Inputs
         {
         }
 
+        public InputMatrixVM(string description, int rows, int columns, T[]? data, Action<DataInputWrapperVM<T[]>, T[]?> onChange)
+            : this(description, rows, columns, data, (Action<T[]?>?)null, null, null)
+        {
+            OnChangeWithSender = onChange;
+        }
+
         public InputMatrixVM(
             string description,
             int rows,
@@ -84,6 +90,13 @@ namespace Arctos.Wpf.Inputs
         }
 
         #endregion Constructors
+
+        public void UpdateMatrix(T[]? values)
+        {
+            var normalized = Normalize(values, Rows, Columns);
+            UpdateValue(normalized);
+            SyncCellsFromValue(normalized);
+        }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
         #region Private Methods

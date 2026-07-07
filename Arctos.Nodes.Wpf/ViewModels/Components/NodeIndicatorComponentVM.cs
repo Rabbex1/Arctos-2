@@ -80,22 +80,56 @@ public sealed class NodeIndicatorComponentVM : NodeComponentVM
     {
         return
         [
-            new InputStringVM("Label:", Label, label =>
+            new InputStringVM("Label:", Label, (wrapper, label) =>
             {
-                Label = label ?? string.Empty;
+                var value = label ?? string.Empty;
+                ApplyComponentChange(
+                    "Change component label",
+                    Model.Label,
+                    value,
+                    resolvedLabel =>
+                    {
+                        Model.Label = resolvedLabel;
+                        wrapper.UpdateValue(resolvedLabel);
+                        DisplayName = GetDisplayName();
+                        OnPropertyChanged(nameof(Label));
+                    });
             }),
 
-            new InputEnumVM("Shape:", Shape, shape =>
+            new InputEnumVM("Shape:", Shape, (wrapper, shape) =>
             {
                 if (shape == null)
                     return;
 
-                Shape = (NodeIndicatorShape)shape;
+                var value = (NodeIndicatorShape)shape;
+                ApplyComponentChange(
+                    "Change indicator shape",
+                    IndicatorModel.Shape,
+                    value,
+                    resolvedShape =>
+                    {
+                        IndicatorModel.Shape = resolvedShape;
+                        wrapper.UpdateValue(resolvedShape);
+                        OnPropertyChanged(nameof(Shape));
+                    });
             }),
 
-            new InputColorVM("Default Color:", Color.ToMediaColor(), color =>
+            new InputColorVM("Default Color:", Color.ToMediaColor(), (wrapper, color) =>
             {
-                Color = color.ToNodeColor();
+                var value = color.ToNodeColor();
+                ApplyComponentChange(
+                    "Change indicator color",
+                    IndicatorModel.Color,
+                    value,
+                    resolvedColor =>
+                    {
+                        IndicatorModel.Color = resolvedColor;
+                        if (wrapper is InputColorVM colorWrapper)
+                            colorWrapper.UpdateColor(resolvedColor.ToMediaColor());
+                        else
+                            wrapper.UpdateValue(resolvedColor.ToMediaColor());
+                        OnPropertyChanged(nameof(Color));
+                    });
             }),
         ];
     }

@@ -97,6 +97,41 @@ namespace Arctos.Wpf.Inputs
                 .FirstOrDefault(result => result != null);
         }
 
+        public static DataInputWrapperVM? CreateTypeWrapper<T>(string description, T value, Action<DataInputWrapperVM, object?> action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+
+            DataInputWrapperVM? wrapper = value switch
+            {
+                bool b => new InputBoolVM(description, b, (input, v) => action(input, v)),
+                Color c => new InputColorVM(description, c, (input, v) => action(input, v)),
+                double d => new InputDoubleVM(description, d, (input, v) => action(input, v)),
+                Enum e => new InputEnumVM(description, e, (input, v) => action(input, v)),
+                float f => new InputFloatVM(description, f, (input, v) => action(input, v)),
+                int i => new InputIntegerVM(description, i, (input, v) => action(input, v)),
+                uint u => new InputUnsignedIntegerVM(description, u, (input, v) => action(input, v)),
+                string s => new InputStringVM(description, s, (input, v) => action(input, v)),
+                DateTime dt => new InputDateTimeVM(description, dt, dt.Kind, (input, v) => action(input, v)),
+                TimeSpan ts => new InputTimeSpanVM(description, ts, (input, v) => action(input, v)),
+                FloatRangeInput fr => new InputFloatRangeVM(description, fr, (input, v) => action(input, v)),
+                IntRangeInput ir => new InputIntRangeVM(description, ir, (input, v) => action(input, v)),
+                StringSelection ss => new InputStringComboVM(description, ss.Value, ss.Options, (input, v) =>
+                {
+                    ss.Value = v ?? string.Empty;
+                    action(input, ss);
+                }),
+                DirectoryInfo di => new InputFolderVM(description, di, v => action(null!, v)),
+                _ => null
+            };
+
+            if (wrapper != null)
+                return wrapper;
+
+            return _extensions
+                .Select(ext => ext(description, value, v => action(null!, v)))
+                .FirstOrDefault(result => result != null);
+        }
+
     }
 
     public interface IDataInputWrapperVM

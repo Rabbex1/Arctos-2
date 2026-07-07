@@ -2291,13 +2291,8 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         NodeComponentVM previewComponent = component switch
         {
             NodeLabelComponentVM labelComponent => new NodeLabelComponentVM(new NodeText { Label = labelComponent.Label }),
-            NodeInputComponentVM inputComponent => new NodeInputComponentVM(new NodeInput
-            {
-                Label = inputComponent.Label,
-                DisplayName = inputComponent.Label,
-                TypeId = inputComponent.TypeId,
-                DateTimeDisplayMode = inputComponent.DateTimeDisplayMode,
-            }),
+            NodeDropdownComponentVM dropdownComponent => CreatePreviewDropdownComponent(dropdownComponent),
+            NodeInputComponentVM inputComponent => CreatePreviewInputComponent(inputComponent),
             NodeValueDisplayComponentVM valueDisplayComponent => new NodeValueDisplayComponentVM(new NodeValueDisplay
             {
                 Label = valueDisplayComponent.Label,
@@ -2347,6 +2342,38 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         previewComponent.SetYOrder(component.YOrder, notifyComponentChanged: false);
         previewComponent.SetXOrder(component.XOrder, notifyComponentChanged: false);
         return previewComponent;
+    }
+
+    private static NodeInputComponentVM CreatePreviewInputComponent(NodeInputComponentVM inputComponent)
+    {
+        var previewModel = new NodeInput
+        {
+            Label = inputComponent.Label,
+            DisplayName = inputComponent.Label,
+            TypeId = inputComponent.TypeId,
+            DateTimeDisplayMode = inputComponent.DateTimeDisplayMode,
+        };
+
+        if (inputComponent.DefaultValue != null)
+            previewModel.SetDefaultValue(inputComponent.DefaultValue, InputTypeRegistry.Default);
+
+        return new NodeInputComponentVM(previewModel);
+    }
+
+    private static NodeDropdownComponentVM CreatePreviewDropdownComponent(NodeDropdownComponentVM dropdownComponent)
+    {
+        var previewModel = new NodeInput
+        {
+            Label = dropdownComponent.Label,
+            DisplayName = dropdownComponent.Label,
+            TypeId = InputTypeIds.StringSelection,
+            DateTimeDisplayMode = dropdownComponent.DateTimeDisplayMode,
+        };
+
+        if (dropdownComponent.DefaultValue != null)
+            previewModel.SetDefaultValue(dropdownComponent.DefaultValue, InputTypeRegistry.Default);
+
+        return new NodeDropdownComponentVM(previewModel);
     }
 
     private void ApplyPreviewComponentPlacement(NodeComponentVM component, NodeLayoutSnapshot? layoutSnapshot, HitTestResult hitResult)

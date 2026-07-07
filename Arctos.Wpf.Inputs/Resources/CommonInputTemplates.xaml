@@ -44,9 +44,31 @@
     <!--- Inputs -->
 
     <DataTemplate DataType="{x:Type inputs:InputStringVM}">
-        <TextBox Style="{StaticResource InputTextBox}"
-                 Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
-                 IsReadOnly="{Binding IsReadOnly}"/>
+        <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
+                 IsReadOnly="{Binding IsReadOnly}"
+                 MaxLines="{Binding ShowMaxLines}">
+            <TextBox.Style>
+                <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource InputTextBox}">
+                    <Setter Property="TextWrapping" Value="NoWrap"/>
+                    <Setter Property="AcceptsReturn" Value="False"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="VerticalScrollBarVisibility" Value="Disabled"/>
+                    <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsMultiLine}" Value="True">
+                            <Setter Property="Height" Value="Auto"/>
+                            <Setter Property="AcceptsReturn" Value="True"/>
+                            <Setter Property="VerticalContentAlignment" Value="Top"/>
+                            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+                            <Setter Property="TextWrapping" Value="NoWrap"/>
+                            <Setter Property="MinLines" Value="1"/>
+                            <Setter Property="MaxLines" Value="{Binding ShowMaxLines}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type inputs:InputTextAreaVM}">
@@ -248,25 +270,25 @@
                     </Style>
                 </StackPanel.Resources>
 
-                <Button Content="+"
-                        Command="{Binding AddCommand}"/>
-                <Button Content="-"
-                        Command="{Binding RemoveCommand}"
-                        IsEnabled="{Binding CanRemove}"/>
-                <Button Content="^"
-                        Command="{Binding MoveUpCommand}"
-                        IsEnabled="{Binding CanMoveUp}"/>
-                <Button Content="v"
-                        Margin="0"
-                        Command="{Binding MoveDownCommand}"
-                        IsEnabled="{Binding CanMoveDown}"/>
+                  <Button Content="+"
+                          Command="{Binding AddCommand}"/>
+                  <Button Content="-"
+                          Command="{Binding RemoveCommand}"
+                          IsEnabled="{Binding CanRemove}"/>
+                  <Button Content="^"
+                          Command="{Binding MoveUpCommand}"
+                          IsEnabled="{Binding CanMoveUp}"/>
+                  <Button Content="v"
+                          Margin="0"
+                          Command="{Binding MoveDownCommand}"
+                          IsEnabled="{Binding CanMoveDown}"/>
             </StackPanel>
 
-            <ListBox Grid.Row="1"
-                     ItemsSource="{Binding Items}"
-                     SelectedItem="{Binding SelectedItem}"
-                     attached:SelectedItem.Highlight="Outline"
-                     MinHeight="72">
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding Items}"
+                         SelectedItem="{Binding SelectedItem}"
+                         attached:SelectedItem.Highlight="Outline"
+                         MinHeight="72">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
                         <Setter Property="attached:SelectedItem.Highlight" Value="{Binding Path=(attached:SelectedItem.Highlight),
@@ -276,11 +298,11 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBox Style="{StaticResource InputTextBox}"
-                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="0 1"
-                                 IsReadOnly="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
-                        </DataTemplate>
+                          <TextBox Style="{StaticResource InputTextBox}"
+                                   Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
+                                   Margin="0 1"
+                                   IsReadOnly="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                          </DataTemplate>
                     </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
@@ -345,11 +367,11 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBox Grid.Column="0"
-                                     Style="{StaticResource InputTextBox}"
-                                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="0 0 6 0"
-                                     IsReadOnly="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                              <TextBox Grid.Column="0"
+                                       Style="{StaticResource InputTextBox}"
+                                       Text="{Binding Name, UpdateSourceTrigger=LostFocus}"
+                                       Margin="0 0 6 0"
+                                       IsReadOnly="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
 
                             <Border Grid.Column="1"
                                     BorderBrush="{StaticResource ToolWindowBorderBrush}"

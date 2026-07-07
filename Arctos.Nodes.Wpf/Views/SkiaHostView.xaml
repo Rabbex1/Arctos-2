@@ -4,7 +4,16 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
              xmlns:dragDrop="clr-namespace:Arctos.Wpf.DragDrop;assembly=Arctos.Wpf"
-             Background="Transparent">
+             Background="Transparent"
+             Focusable="True">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Z"
+                    Modifiers="Control"
+                    Command="{Binding UndoCommand}" />
+        <KeyBinding Key="Y"
+                    Modifiers="Control"
+                    Command="{Binding RedoCommand}" />
+    </UserControl.InputBindings>
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />

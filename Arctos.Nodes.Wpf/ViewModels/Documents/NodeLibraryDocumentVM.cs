@@ -135,7 +135,10 @@ public sealed class NodeLibraryDocumentVM : NodeDocumentVM, INodeLibraryDocument
             return;
 
         if (string.IsNullOrWhiteSpace(_nodeLibrary.LibraryName))
-            _nodeLibrary.LibraryName = Path.GetFileNameWithoutExtension(value);
+        {
+            _nodeLibrary.Library.Name = Path.GetFileNameWithoutExtension(value);
+            _nodeLibrary.RefreshLibraryDisplay();
+        }
 
         OnPropertyChanged(nameof(DocumentName));
     }

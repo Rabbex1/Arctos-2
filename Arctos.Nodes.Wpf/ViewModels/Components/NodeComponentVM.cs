@@ -332,9 +332,21 @@ public abstract class NodeComponentVM : BaseVM, IEditTabs
 
         if (SupportsId)
         {
-            inputs.Add(new InputStringVM("Id:", Id, id =>
+            inputs.Add(new InputStringVM("Id:", Id, (wrapper, id) =>
             {
-                Id = id ?? string.Empty;
+                var value = id ?? string.Empty;
+                var resolvedId = string.IsNullOrWhiteSpace(value) ? null : value;
+
+                ApplyComponentChange(
+                    "Change component id",
+                    Model.Id,
+                    resolvedId,
+                    componentId =>
+                    {
+                        Model.Id = componentId;
+                        wrapper.UpdateValue(componentId ?? string.Empty);
+                        OnPropertyChanged(nameof(Id));
+                    });
             }));
         }
 

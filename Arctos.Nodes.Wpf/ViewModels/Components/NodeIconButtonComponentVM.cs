@@ -63,20 +63,52 @@ public sealed class NodeIconButtonComponentVM : NodeComponentVM
     {
         return
         [
-            new InputStringVM("Name:", Label, label =>
+            new InputStringVM("Name:", Label, (wrapper, label) =>
             {
-                Label = label ?? string.Empty;
+                var value = label ?? string.Empty;
+                ApplyComponentChange(
+                    "Change component label",
+                    Model.Label,
+                    value,
+                    resolvedLabel =>
+                    {
+                        Model.Label = resolvedLabel;
+                        wrapper.UpdateValue(resolvedLabel);
+                        DisplayName = GetDisplayName();
+                        OnPropertyChanged(nameof(Label));
+                    });
             }),
 
-            new InputEnumVM("Color:", ColorMode, colorMode =>
+            new InputEnumVM("Color:", ColorMode, (wrapper, colorMode) =>
             {
-                if (colorMode is NodeIconButtonColorMode iconColorMode)
-                    ColorMode = iconColorMode;
+                if (colorMode is not NodeIconButtonColorMode iconColorMode)
+                    return;
+
+                ApplyComponentChange(
+                    "Change icon button color mode",
+                    IconButtonModel.ColorMode,
+                    iconColorMode,
+                    resolvedColorMode =>
+                    {
+                        IconButtonModel.ColorMode = resolvedColorMode;
+                        wrapper.UpdateValue(resolvedColorMode);
+                        OnPropertyChanged(nameof(ColorMode));
+                    });
             }),
 
-            new InputTextAreaVM("SVG:", Svg, svg =>
+            new InputTextAreaVM("SVG:", Svg, (wrapper, svg) =>
             {
-                Svg = svg ?? string.Empty;
+                var value = string.IsNullOrWhiteSpace(svg) ? null : svg.Trim();
+                ApplyComponentChange(
+                    "Change icon button svg",
+                    IconButtonModel.Svg,
+                    value,
+                    resolvedSvg =>
+                    {
+                        IconButtonModel.Svg = resolvedSvg;
+                        wrapper.UpdateValue(resolvedSvg ?? string.Empty);
+                        OnPropertyChanged(nameof(Svg));
+                    });
             }),
         ];
     }

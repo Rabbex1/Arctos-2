@@ -79,22 +79,53 @@ public sealed class NodeSpacerComponentVM : NodeComponentVM
     {
         return
         [
-            new InputIntRangeExtraVM("Size:", Expand ? "e" : Height.ToString(), NodeSpacer.SizeRange.Minimum, NodeSpacer.SizeRange.Maximum, value =>
+            new InputIntRangeExtraVM("Size:", Expand ? "e" : Height.ToString(), NodeSpacer.SizeRange.Minimum, NodeSpacer.SizeRange.Maximum, (wrapper, value) =>
             {
                 if (string.IsNullOrWhiteSpace(value))
                     return;
 
                 if (string.Equals(value, "e", StringComparison.OrdinalIgnoreCase))
                 {
-                    Expand = true;
+                    ApplyComponentChange(
+                        "Change spacer expand mode",
+                        SpacerModel.Expand,
+                        true,
+                        expand =>
+                        {
+                            SpacerModel.Expand = expand;
+                            if (wrapper is InputIntRangeExtraVM rangeWrapper)
+                                rangeWrapper.UpdateText("e");
+                            else
+                                wrapper.UpdateValue("e");
+                            DisplayName = GetDisplayName();
+                            OnPropertyChanged(nameof(Expand));
+                        });
                     return;
                 }
 
                 if (!int.TryParse(value, out var parsedHeight))
                     return;
 
-                Expand = false;
-                Height = parsedHeight;
+                var resolvedHeight = NodeSpacer.SizeRange.Clamp(parsedHeight);
+                var previousState = (Height: SpacerModel.Height, Expand: SpacerModel.Expand);
+                var nextState = (Height: resolvedHeight, Expand: false);
+
+                ApplyComponentChange(
+                    "Change spacer size",
+                    previousState,
+                    nextState,
+                    state =>
+                    {
+                        SpacerModel.Height = state.Height;
+                        SpacerModel.Expand = state.Expand;
+                        if (wrapper is InputIntRangeExtraVM rangeWrapper)
+                            rangeWrapper.UpdateText(state.Expand ? "e" : state.Height.ToString());
+                        else
+                            wrapper.UpdateValue(state.Expand ? "e" : state.Height.ToString());
+                        DisplayName = GetDisplayName();
+                        OnPropertyChanged(nameof(Height));
+                        OnPropertyChanged(nameof(Expand));
+                    });
             }, ('e', "Expand")),
         ];
     }

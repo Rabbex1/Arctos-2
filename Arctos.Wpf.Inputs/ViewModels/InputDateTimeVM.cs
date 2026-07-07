@@ -54,6 +54,7 @@ namespace Arctos.Wpf.Inputs
                 SetProperty(ref _dateTimeString, formatted, nameof(DateTimeString));
                 OnPropertyChanged();
                 OnChange?.Invoke(value);
+                OnChangeWithSender?.Invoke(this, value);
                 NotifyInputChanged();
             }
         }
@@ -64,6 +65,21 @@ namespace Arctos.Wpf.Inputs
             _kind = kind;
             _value = DateTime.SpecifyKind(value, _kind);
             _dateTimeString = _value.ToString("dd/MM/yyyy hh:mm tt");
+        }
+
+        public InputDateTimeVM(string description, DateTime value, DateTimeKind kind, Action<DataInputWrapperVM<DateTime>, DateTime> onChange)
+            : base(description, value, (Action<DateTime>?)null)
+        {
+            _kind = kind;
+            OnChangeWithSender = onChange;
+            _value = DateTime.SpecifyKind(value, _kind);
+            _dateTimeString = _value.ToString("dd/MM/yyyy hh:mm tt");
+        }
+
+        public void UpdateDateTime(DateTime value)
+        {
+            UpdateValue(value);
+            SetProperty(ref _dateTimeString, value.ToString("dd/MM/yyyy hh:mm tt"), nameof(DateTimeString));
         }
     }
 }

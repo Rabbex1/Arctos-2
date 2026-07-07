@@ -105,28 +105,74 @@ public sealed class NodeValueDisplayComponentVM : NodeComponentVM
     {
         var inputs = new List<DataInputWrapperVM>
         {
-            new InputStringVM("Label:", Label, label =>
+            new InputStringVM("Label:", Label, (wrapper, label) =>
             {
-                Label = label ?? string.Empty;
+                var value = label ?? string.Empty;
+                ApplyComponentChange(
+                    "Change component label",
+                    Model.Label,
+                    value,
+                    resolvedLabel =>
+                    {
+                        Model.Label = resolvedLabel;
+                        wrapper.UpdateValue(resolvedLabel);
+                        DisplayName = GetDisplayName();
+                        OnPropertyChanged(nameof(Label));
+                    });
             }),
 
-            new InputStringVM("Default Value:", DefaultValue, value =>
+            new InputStringVM("Default Value:", DefaultValue, (wrapper, value) =>
             {
-                DefaultValue = value ?? string.Empty;
+                var resolvedValue = value ?? string.Empty;
+                ApplyComponentChange(
+                    "Change display value",
+                    ValueDisplayModel.DefaultValue,
+                    resolvedValue,
+                    defaultValue =>
+                    {
+                        ValueDisplayModel.DefaultValue = defaultValue;
+                        wrapper.UpdateValue(defaultValue);
+                        OnPropertyChanged(nameof(DefaultValue));
+                    });
             }),
 
-            new InputEnumVM("Value Color Mode:", ValueColorMode, mode =>
+            new InputEnumVM("Value Color Mode:", ValueColorMode, (wrapper, mode) =>
             {
-                if (mode is NodeValueDisplayColorMode valueColorMode)
-                    ValueColorMode = valueColorMode;
+                if (mode is not NodeValueDisplayColorMode valueColorMode)
+                    return;
+
+                ApplyComponentChange(
+                    "Change display value color mode",
+                    ValueDisplayModel.ValueColorMode,
+                    valueColorMode,
+                    resolvedValueColorMode =>
+                    {
+                        ValueDisplayModel.ValueColorMode = resolvedValueColorMode;
+                        wrapper.UpdateValue(resolvedValueColorMode);
+                        OnPropertyChanged(nameof(ValueColorMode));
+                        Application.Current?.Dispatcher.BeginInvoke(new Action(RebuildEditTabs), DispatcherPriority.Background);
+                    });
             }),
         };
 
         if (ValueColorMode == NodeValueDisplayColorMode.Custom)
         {
-            inputs.Add(new InputColorVM("Custom Color:", ValueColor.ToMediaColor(), color =>
+            inputs.Add(new InputColorVM("Custom Color:", ValueColor.ToMediaColor(), (wrapper, color) =>
             {
-                ValueColor = color.ToNodeColor();
+                var value = color.ToNodeColor();
+                ApplyComponentChange(
+                    "Change display value color",
+                    ValueDisplayModel.ValueColor,
+                    value,
+                    resolvedValueColor =>
+                    {
+                        ValueDisplayModel.ValueColor = resolvedValueColor;
+                        if (wrapper is InputColorVM colorWrapper)
+                            colorWrapper.UpdateColor(resolvedValueColor.ToMediaColor());
+                        else
+                            wrapper.UpdateValue(resolvedValueColor.ToMediaColor());
+                        OnPropertyChanged(nameof(ValueColor));
+                    });
             }));
         }
 

@@ -15,6 +15,7 @@ public sealed class NodeGridInputComponentVM : NodeComponentVM
     #region Fields
 
     private readonly InputTypeRegistry _registry;
+    private readonly record struct GridState(int Rows, int Columns, InputTypeId CellTypeId, float CellWidth, double MinValue, double MaxValue, double[] DefaultValues);
 
     #endregion Fields
 
@@ -176,26 +177,67 @@ public sealed class NodeGridInputComponentVM : NodeComponentVM
 
         List<DataInputWrapperVM> inputs =
         [
-            new InputStringVM("Label:", Label, label =>
+            new InputStringVM("Label:", Label, (wrapper, label) =>
             {
-                Label = label ?? string.Empty;
+                var value = label ?? string.Empty;
+                ApplyComponentChange(
+                    "Change component label",
+                    Model.Label,
+                    value,
+                    resolvedLabel =>
+                    {
+                        Model.Label = resolvedLabel;
+                        wrapper.UpdateValue(resolvedLabel);
+                        DisplayName = GetDisplayName();
+                        OnPropertyChanged(nameof(Label));
+                    });
             }),
 
-            new InputIntRangeVM("Rows:", rowInput, input =>
+            new InputIntRangeVM("Rows:", rowInput, (_, input) =>
             {
-                if (input != null)
-                    Rows = input.Value;
+                if (input == null || input.Value == Rows)
+                    return;
+
+                var previousState = CaptureState();
+                var nextState = new GridState(
+                    input.Value,
+                    previousState.Columns,
+                    previousState.CellTypeId,
+                    previousState.CellWidth,
+                    previousState.MinValue,
+                    previousState.MaxValue,
+                    ResizePreservingOverlap(previousState.DefaultValues, previousState.Rows, previousState.Columns, input.Value, previousState.Columns));
+
+                ApplyComponentChange("Change grid rows", previousState, nextState, ApplyState);
             }),
 
-            new InputIntRangeVM("Columns:", columnInput, input =>
+            new InputIntRangeVM("Columns:", columnInput, (_, input) =>
             {
-                if (input != null)
-                    Columns = input.Value;
+                if (input == null || input.Value == Columns)
+                    return;
+
+                var previousState = CaptureState();
+                var nextState = new GridState(
+                    previousState.Rows,
+                    input.Value,
+                    previousState.CellTypeId,
+                    previousState.CellWidth,
+                    previousState.MinValue,
+                    previousState.MaxValue,
+                    ResizePreservingOverlap(previousState.DefaultValues, previousState.Rows, previousState.Columns, previousState.Rows, input.Value));
+
+                ApplyComponentChange("Change grid columns", previousState, nextState, ApplyState);
             }),
 
-            new InputFloatVM("Cell Width (nu):", CellWidth, width =>
+            new InputFloatVM("Cell Width (nu):", CellWidth, (_, width) =>
             {
-                CellWidth = width;
+                var cellWidth = MathF.Max(NodeGridInput.MinimumCellWidth, width);
+                if (Math.Abs(CellWidth - cellWidth) < 0.0001f)
+                    return;
+
+                var previousState = CaptureState();
+                var nextState = previousState with { CellWidth = cellWidth };
+                ApplyComponentChange("Change grid cell width", previousState, nextState, ApplyState);
             }),
 
             new InputObjectComboVM(
@@ -203,37 +245,119 @@ public sealed class NodeGridInputComponentVM : NodeComponentVM
                 CurrentCellType,
                 AllowedCellTypes.Cast<object>().ToList(),
                 nameof(InputTypeDefinition.DisplayName),
-                selectedType =>
+                (_, selectedType) =>
                 {
-                    if (selectedType is InputTypeDefinition inputType)
-                        CellTypeId = inputType.Id;
+                    if (selectedType is not InputTypeDefinition inputType || inputType.Id == CellTypeId)
+                        return;
+
+                    var previousState = CaptureState();
+                    var nextState = previousState with
+                    {
+                        CellTypeId = inputType.Id,
+                        MinValue = inputType.Id == InputTypeIds.Integer ? 0.0d : 0.0d,
+                        MaxValue = inputType.Id == InputTypeIds.Integer ? 255.0d : 1.0d,
+                    };
+                    nextState = nextState with
+                    {
+                        DefaultValues = NormalizeAndClampValues(previousState.DefaultValues, nextState.Rows, nextState.Columns, nextState.CellTypeId, nextState.MinValue, nextState.MaxValue),
+                    };
+
+                    ApplyComponentChange("Change grid cell type", previousState, nextState, ApplyState);
                 }),
         ];
 
         if (IsIntegerCellType)
         {
-            inputs.Add(new InputIntegerVM("Min:", (int)Math.Round(MinValue), min => MinValue = min));
-            inputs.Add(new InputIntegerVM("Max:", (int)Math.Round(MaxValue), max => MaxValue = max));
-            inputs.Add(new InputMatrixVM<int>("Default Values:", Rows, Columns, BuildIntegerValues(), values =>
+            inputs.Add(new InputIntegerVM("Min:", (int)Math.Round(MinValue), (_, min) =>
+            {
+                var nextMin = min;
+                var nextMax = Math.Max(nextMin, MaxValue);
+                if (Math.Abs(MinValue - nextMin) < 0.000001d && Math.Abs(MaxValue - nextMax) < 0.000001d)
+                    return;
+
+                var previousState = CaptureState();
+                var nextState = previousState with
+                {
+                    MinValue = nextMin,
+                    MaxValue = nextMax,
+                    DefaultValues = NormalizeAndClampValues(previousState.DefaultValues, previousState.Rows, previousState.Columns, previousState.CellTypeId, nextMin, nextMax),
+                };
+                ApplyComponentChange("Change grid minimum", previousState, nextState, ApplyState);
+            }));
+
+            inputs.Add(new InputIntegerVM("Max:", (int)Math.Round(MaxValue), (_, max) =>
+            {
+                var nextMax = Math.Max(max, MinValue);
+                if (Math.Abs(MaxValue - nextMax) < 0.000001d)
+                    return;
+
+                var previousState = CaptureState();
+                var nextState = previousState with
+                {
+                    MaxValue = nextMax,
+                    DefaultValues = NormalizeAndClampValues(previousState.DefaultValues, previousState.Rows, previousState.Columns, previousState.CellTypeId, previousState.MinValue, nextMax),
+                };
+                ApplyComponentChange("Change grid maximum", previousState, nextState, ApplyState);
+            }));
+
+            inputs.Add(new InputMatrixVM<int>("Default Values:", Rows, Columns, BuildIntegerValues(), (_, values) =>
             {
                 if (values == null)
                     return;
 
-                DefaultValues = values.Select(value => (double)value).ToArray();
-                RebuildEditTabs();
+                var previousState = CaptureState();
+                var nextState = previousState with
+                {
+                    DefaultValues = NormalizeAndClampValues(values.Select(value => (double)value).ToArray(), previousState.Rows, previousState.Columns, previousState.CellTypeId, previousState.MinValue, previousState.MaxValue),
+                };
+                ApplyComponentChange("Change grid default values", previousState, nextState, ApplyState);
             }));
             return inputs;
         }
 
-        inputs.Add(new InputDoubleVM("Min:", MinValue, min => MinValue = min));
-        inputs.Add(new InputDoubleVM("Max:", MaxValue, max => MaxValue = max));
-        inputs.Add(new InputMatrixVM<double>("Default Values:", Rows, Columns, BuildNumericValues(), values =>
+        inputs.Add(new InputDoubleVM("Min:", MinValue, (_, min) =>
+        {
+            var nextMin = min;
+            var nextMax = Math.Max(nextMin, MaxValue);
+            if (Math.Abs(MinValue - nextMin) < 0.000001d && Math.Abs(MaxValue - nextMax) < 0.000001d)
+                return;
+
+            var previousState = CaptureState();
+            var nextState = previousState with
+            {
+                MinValue = nextMin,
+                MaxValue = nextMax,
+                DefaultValues = NormalizeAndClampValues(previousState.DefaultValues, previousState.Rows, previousState.Columns, previousState.CellTypeId, nextMin, nextMax),
+            };
+            ApplyComponentChange("Change grid minimum", previousState, nextState, ApplyState);
+        }));
+
+        inputs.Add(new InputDoubleVM("Max:", MaxValue, (_, max) =>
+        {
+            var nextMax = Math.Max(max, MinValue);
+            if (Math.Abs(MaxValue - nextMax) < 0.000001d)
+                return;
+
+            var previousState = CaptureState();
+            var nextState = previousState with
+            {
+                MaxValue = nextMax,
+                DefaultValues = NormalizeAndClampValues(previousState.DefaultValues, previousState.Rows, previousState.Columns, previousState.CellTypeId, previousState.MinValue, nextMax),
+            };
+            ApplyComponentChange("Change grid maximum", previousState, nextState, ApplyState);
+        }));
+
+        inputs.Add(new InputMatrixVM<double>("Default Values:", Rows, Columns, BuildNumericValues(), (_, values) =>
         {
             if (values == null)
                 return;
 
-            DefaultValues = values;
-            RebuildEditTabs();
+            var previousState = CaptureState();
+            var nextState = previousState with
+            {
+                DefaultValues = NormalizeAndClampValues(values, previousState.Rows, previousState.Columns, previousState.CellTypeId, previousState.MinValue, previousState.MaxValue),
+            };
+            ApplyComponentChange("Change grid default values", previousState, nextState, ApplyState);
         }));
         return inputs;
     }
@@ -260,6 +384,37 @@ public sealed class NodeGridInputComponentVM : NodeComponentVM
 
     private bool IsIntegerCellType => CellTypeId == InputTypeIds.Integer;
 
+    private GridState CaptureState()
+    {
+        return new GridState(Rows, Columns, CellTypeId, CellWidth, MinValue, MaxValue, [.. DefaultValues]);
+    }
+
+    private void ApplyState(GridState state)
+    {
+        GridInputModel.Rows = NodeGridInput.RowRange.Clamp(state.Rows);
+        GridInputModel.Columns = NodeGridInput.ColumnRange.Clamp(state.Columns);
+        GridInputModel.CellTypeId = state.CellTypeId;
+        GridInputModel.CellWidth = MathF.Max(NodeGridInput.MinimumCellWidth, state.CellWidth);
+        GridInputModel.MinValue = state.MinValue;
+        GridInputModel.MaxValue = Math.Max(state.MinValue, state.MaxValue);
+        GridInputModel.DefaultValues = NormalizeAndClampValues(
+            state.DefaultValues,
+            GridInputModel.Rows,
+            GridInputModel.Columns,
+            GridInputModel.CellTypeId,
+            GridInputModel.MinValue,
+            GridInputModel.MaxValue);
+
+        OnPropertyChanged(nameof(Rows));
+        OnPropertyChanged(nameof(Columns));
+        OnPropertyChanged(nameof(CellTypeId));
+        OnPropertyChanged(nameof(CellWidth));
+        OnPropertyChanged(nameof(MinValue));
+        OnPropertyChanged(nameof(MaxValue));
+        OnPropertyChanged(nameof(DefaultValues));
+        RebuildEditTabs();
+    }
+
     private void ResizeGrid(int newRows, int newColumns)
     {
         var resized = ResizePreservingOverlap(DefaultValues, Rows, Columns, newRows, newColumns);
@@ -281,9 +436,14 @@ public sealed class NodeGridInputComponentVM : NodeComponentVM
 
     private double[] NormalizeAndClampValues(double[]? values, int rows, int columns)
     {
+        return NormalizeAndClampValues(values, rows, columns, CellTypeId, MinValue, MaxValue);
+    }
+
+    private static double[] NormalizeAndClampValues(double[]? values, int rows, int columns, InputTypeId cellTypeId, double minValue, double maxValue)
+    {
         var normalized = NormalizeDefaultValues(values, rows, columns);
         for (var index = 0; index < normalized.Length; index++)
-            normalized[index] = ClampToCellType(normalized[index]);
+            normalized[index] = ClampToCellType(normalized[index], cellTypeId, minValue, maxValue);
 
         return normalized;
     }
@@ -348,8 +508,13 @@ public sealed class NodeGridInputComponentVM : NodeComponentVM
 
     private double ClampToCellType(double value)
     {
-        var clamped = Math.Clamp(value, MinValue, MaxValue);
-        return IsIntegerCellType
+        return ClampToCellType(value, CellTypeId, MinValue, MaxValue);
+    }
+
+    private static double ClampToCellType(double value, InputTypeId cellTypeId, double minValue, double maxValue)
+    {
+        var clamped = Math.Clamp(value, minValue, maxValue);
+        return cellTypeId == InputTypeIds.Integer
             ? Math.Round(clamped, MidpointRounding.AwayFromZero)
             : clamped;
     }
