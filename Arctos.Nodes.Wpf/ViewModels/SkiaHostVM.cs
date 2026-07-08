@@ -722,7 +722,15 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         }
 
         MarkHitTestLayerDirty();
-        SetVisualRoot(VisualTreeBuilder.Build(Host, Overview, BackgroundColor, GetMinorGridSize(), canvasStyle, LayoutSnapshot, showDebugBounds: ShowDebugBounds));
+        SetVisualRoot(VisualTreeBuilder.Build(
+            Host,
+            Overview,
+            BackgroundColor,
+            GetMinorGridSize(),
+            canvasStyle,
+            LayoutSnapshot,
+            ghostedComponents: GetGhostedComponents(),
+            showDebugBounds: ShowDebugBounds));
 
         if (_viewportWidth > 0.0f && _viewportHeight > 0.0f)
             ApplyHostViewStateIfNeeded();
@@ -903,9 +911,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             component.Position = new NodePoint(component.Position.X, _previewDropYNu);
         }
 
-        ApplyPreviewComponentPlacement(component, (NodeLayoutSnapshot?)LayoutSnapshot, HitTestResult.None);
-        definitionHost.AddComponent(component, notifyDocumentChanged: false);
-        definitionHost.PlaceComponent(component, _previewDropColumnIndex, _previewDropRowIndex, _previewInlineWithRow, _previewDropXOrder, parentId: component.ParentId, notifyDocumentChanged: true);
+        CommitPreviewDrop(definitionHost, component, isNewComponent: true);
         SetSelectedColumnIndex(null);
         SetDragFeedbackEffectOverride(paletteItem, null);
         ClearPreview(false);
@@ -1344,11 +1350,10 @@ public sealed class SkiaHostVM : BaseVM, IDropable
                         ? previewComponent.Position.X
                         : _dragSourceComponent.Position.X;
                     _dragSourceComponent.Position = new NodePoint(resolvedX, _previewDropYNu);
-                    ApplyPreviewComponentPlacement(_dragSourceComponent, (NodeLayoutSnapshot?)LayoutSnapshot, HitTestResult.None);
                 }
 
                 if (Host is NodeDefinitionVM definitionHost)
-                    definitionHost.PlaceComponent(_dragSourceComponent, _previewDropColumnIndex, _previewDropRowIndex, _previewInlineWithRow, _previewDropXOrder, parentId: _dragSourceComponent.ParentId, notifyDocumentChanged: true);
+                    CommitPreviewDrop(definitionHost, _dragSourceComponent, isNewComponent: false);
             }
 
             ClearSelectedComponentDrag();
@@ -1380,6 +1385,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             _previewColumnInsert = true;
             SetHoveredComponent(null);
             SetHoveredColumnIndex(null);
+            RebuildVisualTree();
             BeginColumnDragImage(definitionHost, screenPosition);
         }
 
@@ -1410,6 +1416,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             _dragSourceComponent = _pressedComponent;
             SetHoveredComponent(null);
             _previewComponent = CreatePreviewComponent(_pressedComponent);
+            RebuildVisualTree();
             BeginEditorDragImage(definitionHost, screenPosition);
         }
 
@@ -1668,24 +1675,20 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
     private void UpdateProjectedPlacement(NodeLayoutSnapshot layoutSnapshot, HitTestResult hitResult)
     {
+        if (Host is not NodeDefinitionVM definitionHost)
+            return;
+
         var lineHeight = layoutSnapshot.LineHeight;
+        var dragProjection = BuildDragProjection(definitionHost);
         var previewColumn = GetPreviewColumnLayout(layoutSnapshot);
+        var projectedColumn = dragProjection.GetColumn(previewColumn.Index);
         _previewDropColumnIndex = previewColumn.Index;
         _previewDropXOrder = 0;
         _previewInlineWithRow = false;
-        var targetRowIds = GetProjectedTargetRowIds(previewColumn.Index);
-        var components = layoutSnapshot.Components
-            .Where(component => !ReferenceEquals(component.Component, _dragSourceComponent))
-            .Where(component => component.ColumnIndex == previewColumn.Index)
-            .Where(component => targetRowIds.Count == 0
-                                || (!string.IsNullOrWhiteSpace(component.Component.ParentId)
-                                    && targetRowIds.Contains(component.Component.ParentId)))
-            .OrderBy(component => component.Bounds.Top)
-            .ToList();
-        var rows = BuildPreviewRows(components);
+        var rows = BuildPreviewRows(projectedColumn, layoutSnapshot);
         var minorGridSize = GetMinorGridSize();
 
-        if (components.Count == 0)
+        if (rows.Count == 0)
         {
             _previewInsertionY = null;
             _previewInsertionX = null;
@@ -1703,8 +1706,9 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
         if (hitResult.Component != null)
         {
-            var hitLayout = components.FirstOrDefault(component => ReferenceEquals(component.Component, hitResult.Component));
-            if (hitLayout != null)
+            var hitRow = rows.FirstOrDefault(row => row.Components.Any(component => ReferenceEquals(component.Component, hitResult.Component)));
+            var hitLayout = hitRow?.Components.FirstOrDefault(component => ReferenceEquals(component.Component, hitResult.Component));
+            if (hitRow != null && hitLayout != null)
             {
                 if (IsButtonLikeComponent(_previewComponent) && IsButtonLikeComponent(hitLayout.Component))
                 {
@@ -1718,12 +1722,8 @@ public sealed class SkiaHostVM : BaseVM, IDropable
                     if (inlineBefore || inlineAfter)
                     {
                         var previewComponent = _previewComponent;
-                        var inlineHitRow = rows.FirstOrDefault(row => row.YOrder == hitLayout.YOrder);
-                        if (inlineHitRow == null)
-                            return;
-
                         _previewInsertionY = null;
-                        _previewInsertionX = TryGetButtonInsertionIndicatorX(layoutSnapshot, hitLayout, inlineBefore, out var insertionX)
+                        _previewInsertionX = TryGetButtonInsertionIndicatorX(layoutSnapshot, hitRow, hitLayout, inlineBefore, out var insertionX)
                             ? insertionX
                             : inlineBefore
                                 ? hitLayout.Bounds.Left
@@ -1731,8 +1731,8 @@ public sealed class SkiaHostVM : BaseVM, IDropable
                         _previewInlineBounds = hitLayout.Bounds;
                         _previewPlacementBounds = SKRect.Empty;
                         _previewDropYNu = hitLayout.PositionNu.Y;
-                        _previewDropRowIndex = inlineHitRow.RowIndex;
-                        _previewDropXOrder = GetInlineDropXOrder(layoutSnapshot, hitLayout, inlineBefore);
+                        _previewDropRowIndex = hitRow.RowIndex;
+                        _previewDropXOrder = GetInlineDropXOrder(hitRow, hitLayout, inlineBefore);
                         _previewInlineWithRow = true;
                         previewComponent!.Position = new NodePoint(hitLayout.PositionNu.X + (inlineBefore ? -0.5f : 0.5f), hitLayout.PositionNu.Y);
                         return;
@@ -1741,7 +1741,6 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
                 var insertAbove = hitResult.Flags.HasFlag(HitRegionFlags.Top) && !hitResult.Flags.HasFlag(HitRegionFlags.Bottom);
                 var insertBelow = hitResult.Flags.HasFlag(HitRegionFlags.Bottom) && !hitResult.Flags.HasFlag(HitRegionFlags.Top);
-                var hitRow = rows.FirstOrDefault(row => row.YOrder == hitLayout.YOrder);
 
                 if ((insertAbove || insertBelow) && hitRow != null)
                 {
@@ -2002,6 +2001,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         _isDraggingSelectedComponent = false;
         EndEditorDragImage();
         ClearPreview();
+        RebuildVisualTree();
     }
 
     private void ClearSelectedColumnDrag()
@@ -2010,6 +2010,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         _isDraggingSelectedColumn = false;
         EndEditorDragImage();
         ClearPreview();
+        RebuildVisualTree();
     }
 
     private void BeginEditorDragImage(NodeDefinitionVM definitionHost, SKPoint screenPosition)
@@ -2239,14 +2240,11 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         _previewDropYNu = _dragSourceComponent.Position.Y;
     }
 
-    private static bool TryGetButtonInsertionIndicatorX(NodeLayoutSnapshot layoutSnapshot, NodeComponentLayoutSnapshot hitLayout, bool inlineBefore, out float insertionX)
+    private static bool TryGetButtonInsertionIndicatorX(NodeLayoutSnapshot layoutSnapshot, PreviewRowLayout row, NodeComponentLayoutSnapshot hitLayout, bool inlineBefore, out float insertionX)
     {
-        var rowButtons = layoutSnapshot.Components
-            .Where(component => IsButtonLikeComponent(component.Component)
-                                && component.ColumnIndex == hitLayout.ColumnIndex
-                                && AreClose(component.Bounds.Top, hitLayout.Bounds.Top)
-                                && AreClose(component.Bounds.Bottom, hitLayout.Bounds.Bottom))
-            .OrderBy(component => component.Bounds.Left)
+        var rowButtons = row.Components
+            .OrderBy(component => component.XOrder)
+            .ThenBy(component => component.Bounds.Left)
             .ToList();
         var hitIndex = rowButtons.FindIndex(component => ReferenceEquals(component.Component, hitLayout.Component));
         if (hitIndex < 0)
@@ -2761,56 +2759,42 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             .Index;
     }
 
-    private static List<PreviewRowLayout> BuildPreviewRows(IReadOnlyList<NodeComponentLayoutSnapshot> components)
+    private static List<PreviewRowLayout> BuildPreviewRows(NodeDragProjectedColumn column, NodeLayoutSnapshot layoutSnapshot)
     {
-        return components
-            .GroupBy(component => component.YOrder)
-            .OrderBy(group => group.Key)
-            .Select((group, index) =>
-            {
-                var orderedGroup = group
-                    .OrderBy(component => component.XOrder)
-                    .ThenBy(component => component.Bounds.Left)
-                    .ToList();
-                var primaryComponent = orderedGroup[0];
-                var bounds = orderedGroup
-                    .Skip(1)
-                    .Aggregate(primaryComponent.Bounds, (current, component) => new SKRect(
-                        MathF.Min(current.Left, component.Bounds.Left),
-                        MathF.Min(current.Top, component.Bounds.Top),
-                        MathF.Max(current.Right, component.Bounds.Right),
-                        MathF.Max(current.Bottom, component.Bounds.Bottom)));
+        var componentLayouts = layoutSnapshot.Components.ToDictionary(component => component.Component);
+        var rows = new List<PreviewRowLayout>();
 
-                return new PreviewRowLayout(index, group.Key, primaryComponent, bounds);
-            })
-            .ToList();
+        foreach (var row in column.Rows)
+        {
+            var orderedComponents = row.Components
+                .Select(component => componentLayouts.TryGetValue(component, out var componentLayout) ? componentLayout : null)
+                .Where(componentLayout => componentLayout != null)
+                .Cast<NodeComponentLayoutSnapshot>()
+                .OrderBy(component => component.XOrder)
+                .ThenBy(component => component.Bounds.Left)
+                .ToList();
+            if (orderedComponents.Count == 0)
+                continue;
+
+            var primaryComponent = orderedComponents[0];
+            var bounds = orderedComponents
+                .Skip(1)
+                .Aggregate(primaryComponent.Bounds, (current, component) => new SKRect(
+                    MathF.Min(current.Left, component.Bounds.Left),
+                    MathF.Min(current.Top, component.Bounds.Top),
+                    MathF.Max(current.Right, component.Bounds.Right),
+                    MathF.Max(current.Bottom, component.Bounds.Bottom)));
+
+            rows.Add(new PreviewRowLayout(rows.Count, row.Id, row.YOrder, orderedComponents, primaryComponent, bounds));
+        }
+
+        return rows;
     }
 
-    private HashSet<string> GetProjectedTargetRowIds(int columnIndex)
+    private static int GetInlineDropXOrder(PreviewRowLayout row, NodeComponentLayoutSnapshot hitLayout, bool inlineBefore)
     {
-        if (Host is not NodeDefinitionVM definitionHost)
-            return [];
-
-        var orderedColumns = definitionHost.Model.Columns
-            .OrderBy(column => column.XOrder)
-            .ThenBy(column => column.Id, StringComparer.Ordinal)
-            .ToList();
-        if (columnIndex < 0 || columnIndex >= orderedColumns.Count)
-            return [];
-
-        return orderedColumns[columnIndex].Rows
-            .Where(row => !string.IsNullOrWhiteSpace(row.Id))
-            .Select(row => row.Id!)
-            .ToHashSet(StringComparer.Ordinal);
-    }
-
-    private int GetInlineDropXOrder(NodeLayoutSnapshot layoutSnapshot, NodeComponentLayoutSnapshot hitLayout, bool inlineBefore)
-    {
-        var rowButtons = layoutSnapshot.Components
-            .Where(component => IsButtonLikeComponent(component.Component)
-                                && component.ColumnIndex == hitLayout.ColumnIndex
-                                && component.YOrder == hitLayout.YOrder)
-            .Where(component => !ReferenceEquals(component.Component, _dragSourceComponent))
+        var rowButtons = row.Components
+            .Where(component => IsButtonLikeComponent(component.Component))
             .OrderBy(component => component.XOrder)
             .ToList();
         var hitIndex = rowButtons.FindIndex(component => ReferenceEquals(component.Component, hitLayout.Component));
@@ -2820,7 +2804,68 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         return inlineBefore ? hitIndex : hitIndex + 1;
     }
 
-    private sealed record PreviewRowLayout(int RowIndex, int YOrder, NodeComponentLayoutSnapshot PrimaryComponent, SKRect Bounds);
+    private NodeDragProjection BuildDragProjection(NodeDefinitionVM definitionHost)
+    {
+        return NodeDragProjectionBuilder.Build(
+            definitionHost,
+            _dragSourceComponent != null ? [_dragSourceComponent] : null);
+    }
+
+    private IReadOnlySet<NodeComponentVM>? GetGhostedComponents()
+    {
+        if (_isDraggingSelectedComponent && _dragSourceComponent != null)
+            return new HashSet<NodeComponentVM> { _dragSourceComponent };
+
+        if (_isDraggingSelectedColumn
+            && _dragSourceColumnIndex.HasValue
+            && Host is NodeDefinitionVM definitionHost)
+        {
+            var orderedColumns = definitionHost.Model.Columns
+                .OrderBy(column => column.XOrder)
+                .ThenBy(column => column.Id, StringComparer.Ordinal)
+                .ToList();
+            if (_dragSourceColumnIndex.Value >= 0 && _dragSourceColumnIndex.Value < orderedColumns.Count)
+            {
+                var draggedColumn = orderedColumns[_dragSourceColumnIndex.Value];
+                var draggedComponents = draggedColumn.Rows
+                    .SelectMany(row => row.Components)
+                    .ToHashSet();
+                return definitionHost.NodeComponents
+                    .Where(component => draggedComponents.Contains(component.Model))
+                    .ToHashSet();
+            }
+        }
+
+        return null;
+    }
+
+    private void CommitPreviewDrop(NodeDefinitionVM definitionHost, NodeComponentVM component, bool isNewComponent)
+    {
+        ArgumentNullException.ThrowIfNull(definitionHost);
+        ArgumentNullException.ThrowIfNull(component);
+
+        ApplyPreviewComponentPlacement(component, (NodeLayoutSnapshot?)LayoutSnapshot, HitTestResult.None);
+
+        if (isNewComponent)
+            definitionHost.AddComponent(component, notifyDocumentChanged: false);
+
+        var projection = NodeDragProjectionBuilder.Build(definitionHost, [component]);
+        projection = NodeDragProjectionBuilder.InsertTransfer(
+            projection,
+            _previewDropColumnIndex,
+            _previewDropRowIndex,
+            _previewInlineWithRow,
+            _previewDropXOrder);
+        definitionHost.ApplyDragProjection(projection, notifyDocumentChanged: true);
+    }
+
+    private sealed record PreviewRowLayout(
+        int RowIndex,
+        string RowId,
+        int YOrder,
+        IReadOnlyList<NodeComponentLayoutSnapshot> Components,
+        NodeComponentLayoutSnapshot PrimaryComponent,
+        SKRect Bounds);
 
     private void MarkHitTestLayerDirty(bool resetBitmap = false)
     {

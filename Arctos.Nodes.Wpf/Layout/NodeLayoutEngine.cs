@@ -163,6 +163,9 @@ public sealed class NodeLayoutEngine : ILayoutEngine
                 {
                     var component = item.Component;
                     component.SetColumn(columnLayout.Index, notifyComponentChanged: false);
+                    component.SetParentId(row.RowId, notifyComponentChanged: false);
+                    component.SetYOrder(row.YOrder, notifyComponentChanged: false);
+                    component.SetXOrder(item.XOrder, notifyComponentChanged: false);
 
                     var componentHeightNu = row.IsExpandSpacerRow
                         ? expandSpacerHeightsNu[expandSpacerIndex]
@@ -194,8 +197,8 @@ public sealed class NodeLayoutEngine : ILayoutEngine
                         Component = component,
                         PositionNu = resolvedPosition,
                         ColumnIndex = columnLayout.Index,
-                        YOrder = component.YOrder,
-                        XOrder = component.XOrder,
+                        YOrder = row.YOrder,
+                        XOrder = item.XOrder,
                         Bounds = bounds,
                         VisualBounds = componentVisualBounds,
                     });
@@ -658,54 +661,64 @@ public sealed class NodeLayoutEngine : ILayoutEngine
 
     private static IReadOnlyList<LayoutRow> BuildRows(NodeDefinitionVM definitionHost, NodeCanvasStyleContext styleContext, float lineHeightNu, int columnCount)
     {
-        var orderedComponents = definitionHost.NodeComponents
-            .Select((component, index) => new OrderedComponent(component, index))
-            .OrderBy(item => ResolveLayoutColumnIndex(item.Component, columnCount))
-            .ThenBy(item => item.Component.YOrder)
-            .ThenBy(item => IsButtonLikeComponent(item.Component) ? item.Component.XOrder : 0)
-            .ThenBy(item => item.Index)
+        var componentByModel = definitionHost.NodeComponents
+            .GroupBy(component => component.Model)
+            .ToDictionary(group => group.Key, group => group.First());
+        var orderedColumns = definitionHost.Model.Columns
+            .OrderBy(column => column.XOrder)
+            .ThenBy(column => column.Id, StringComparer.Ordinal)
             .ToList();
-
         var rows = new List<LayoutRow>();
 
-        foreach (var item in orderedComponents)
+        for (var storedColumnIndex = 0; storedColumnIndex < orderedColumns.Count; storedColumnIndex++)
         {
-            var columnIndex = ResolveLayoutColumnIndex(item.Component, columnCount);
-            if (IsButtonLikeComponent(item.Component))
+            var column = orderedColumns[storedColumnIndex];
+            var orderedRows = column.Rows
+                .OrderBy(row => row.YOrder)
+                .ThenBy(row => row.Id, StringComparer.Ordinal)
+                .ToList();
+
+            foreach (var row in orderedRows)
             {
-                var existingRow = rows.LastOrDefault();
-                if (existingRow != null
-                    && existingRow.ColumnIndex == columnIndex
-                    && existingRow.IsButtonRow
-                    && existingRow.YOrder == item.Component.YOrder)
-                {
-                    existingRow.Items.Add(new LayoutRowItem(item.Component, MeasureButtonWidthNu(item.Component, styleContext, 1.0f)));
+                var resolvedItems = row.Components
+                    .Select((component, index) => new OrderedRowComponent(component, index))
+                    .OrderBy(item => IsButtonLikeComponent(item.Component) ? item.Component.XOrder : 0)
+                    .ThenBy(item => item.Index)
+                    .Select((item, resolvedIndex) =>
+                    {
+                        return componentByModel.TryGetValue(item.Component, out var componentVm)
+                            ? new ResolvedRowComponent(componentVm, resolvedIndex)
+                            : null;
+                    })
+                    .Where(item => item != null)
+                    .Cast<ResolvedRowComponent>()
+                    .ToList();
+                if (resolvedItems.Count == 0)
                     continue;
+
+                var columnIndex = ResolveLayoutColumnIndex(resolvedItems[0].Component, storedColumnIndex, columnCount);
+                var isButtonRow = resolvedItems.All(item => IsButtonLikeComponent(item.Component));
+                var rowHeightNu = isButtonRow
+                    ? resolvedItems.Max(item => GetComponentHeightNu(item.Component, lineHeightNu, styleContext))
+                    : GetComponentHeightNu(resolvedItems[0].Component, lineHeightNu, styleContext);
+                var layoutRow = new LayoutRow(columnIndex, row.YOrder, row.Id, isButtonRow, rowHeightNu);
+
+                foreach (var item in resolvedItems)
+                {
+                    layoutRow.Items.Add(new LayoutRowItem(
+                        item.Component,
+                        isButtonRow ? MeasureButtonWidthNu(item.Component, styleContext, 1.0f) : 0.0f,
+                        isButtonRow ? item.XOrder : 0));
                 }
 
-                rows.Add(new LayoutRow(columnIndex, item.Component.YOrder, true, GetComponentHeightNu(item.Component, lineHeightNu, styleContext))
-                {
-                    Items =
-                    [
-                        new LayoutRowItem(item.Component, MeasureButtonWidthNu(item.Component, styleContext, 1.0f))
-                    ]
-                });
-                continue;
+                rows.Add(layoutRow);
             }
-
-            rows.Add(new LayoutRow(columnIndex, item.Component.YOrder, false, GetComponentHeightNu(item.Component, lineHeightNu, styleContext))
-            {
-                Items =
-                [
-                    new LayoutRowItem(item.Component, 0.0f)
-                ]
-            });
         }
 
         return rows;
     }
 
-    private static int ResolveLayoutColumnIndex(NodeComponentVM component, int columnCount)
+    private static int ResolveLayoutColumnIndex(NodeComponentVM component, int storedColumnIndex, int columnCount)
     {
         var resolvedColumnCount = Math.Max(1, columnCount);
 
@@ -716,12 +729,17 @@ public sealed class NodeLayoutEngine : ILayoutEngine
                 : resolvedColumnCount - 1;
         }
 
-        return Math.Clamp(component.Column, 0, resolvedColumnCount - 1);
+        return Math.Clamp(storedColumnIndex, 0, resolvedColumnCount - 1);
     }
 
     private static bool IsButtonLikeComponent(NodeComponentVM component)
     {
         return component is NodeButtonComponentVM or NodeIconButtonComponentVM;
+    }
+
+    private static bool IsButtonLikeComponent(NodeComponent component)
+    {
+        return component is NodeButton or NodeIconButton;
     }
 
     private static float GetBottomBorderClearanceNu(NodeDefinitionVM definitionHost, float minorGridSize)
@@ -771,19 +789,22 @@ public sealed class NodeLayoutEngine : ILayoutEngine
         return MathF.Abs(left - right) < 0.01f;
     }
 
-    private sealed record OrderedComponent(NodeComponentVM Component, int Index);
+    private sealed record OrderedRowComponent(NodeComponent Component, int Index);
 
-    private sealed class LayoutRow(int columnIndex, int yOrder, bool isButtonRow, float heightNu)
+    private sealed record ResolvedRowComponent(NodeComponentVM Component, int XOrder);
+
+    private sealed class LayoutRow(int columnIndex, int yOrder, string rowId, bool isButtonRow, float heightNu)
     {
         public int ColumnIndex { get; } = columnIndex;
         public int YOrder { get; } = yOrder;
+        public string RowId { get; } = rowId;
         public bool IsButtonRow { get; } = isButtonRow;
         public float HeightNu { get; } = heightNu;
         public bool IsExpandSpacerRow => !IsButtonRow && Items.Count == 1 && Items[0].Component is NodeSpacerComponentVM { Expand: true };
         public List<LayoutRowItem> Items { get; init; } = [];
     }
 
-    private sealed record LayoutRowItem(NodeComponentVM Component, float WidthNu);
+    private sealed record LayoutRowItem(NodeComponentVM Component, float WidthNu, int XOrder);
 
     #endregion Private Methods
 }

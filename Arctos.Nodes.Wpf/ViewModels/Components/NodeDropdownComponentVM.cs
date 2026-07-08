@@ -93,6 +93,7 @@ public sealed class NodeDropdownComponentVM : NodeInputComponentVM
             },
 
             new InputLabelVM(string.Empty, "Enter one option per line (Shift + Enter).", "Center")
+
             {
                 Hide = selection.Source == StringSelectionSource.External,
             },

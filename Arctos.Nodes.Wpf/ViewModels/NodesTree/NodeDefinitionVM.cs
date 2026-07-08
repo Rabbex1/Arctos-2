@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using Arctos.Nodes.Models;
+using Arctos.Nodes.Wpf.Layout;
 using Arctos.Nodes.Wpf.DragImage;
 using Arctos.Nodes.Wpf.ViewModels.Components;
 using Arctos.Wpf;
@@ -129,6 +130,8 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
                 SynchronizeComponentPlacementFromModel();
             }
 
+            NormalizePortRowsToEdges();
+
             if (SelectedColumn != null && !_definition.Columns.Contains(SelectedColumn))
                 SetSelectedColumn(null);
 
@@ -145,22 +148,19 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     public void InsertColumn(int columnIndex, bool notifyDocumentChanged = true)
     {
         EnsureModelStructure();
-
-        var orderedColumns = GetOrderedColumns();
-        var insertIndex = Math.Clamp(columnIndex, 0, orderedColumns.Count);
-        var newColumn = CreateColumn(insertIndex);
-        orderedColumns.Insert(insertIndex, newColumn);
-
-        for (var index = 0; index < orderedColumns.Count; index++)
-            orderedColumns[index].XOrder = index;
-
-        _definition.Columns = orderedColumns;
-        NormalizeColumns();
-        SynchronizeComponentPlacementFromModel();
+        var projection = NodeDragProjectionBuilder.Build(this);
+        projection = NodeDragProjectionBuilder.InsertColumn(projection, columnIndex);
+        var insertedColumnId = projection.Columns
+            .OrderBy(column => column.Index)
+            .ElementAt(Math.Clamp(columnIndex, 0, projection.Columns.Count - 1))
+            .Id;
+        ApplyDragProjection(projection, notifyDocumentChanged: false);
+        NormalizePortRowsToEdges();
         if (SelectedComponent != null)
             SelectComponent(null);
 
-        SetSelectedColumn(newColumn);
+        var newColumn = GetOrderedColumns().FirstOrDefault(column => column.Id == insertedColumnId);
+        SetSelectedColumn(newColumn ?? GetOrderedColumns()[Math.Clamp(columnIndex, 0, GetOrderedColumns().Count - 1)]);
         OnPropertyChanged(nameof(ColumnCount));
 
         if (notifyDocumentChanged)
@@ -186,13 +186,13 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         if (resolvedSourceIndex == resolvedTargetIndex)
             return false;
 
-        var movedColumn = orderedColumns[resolvedSourceIndex];
-        orderedColumns.RemoveAt(resolvedSourceIndex);
-        orderedColumns.Insert(resolvedTargetIndex, movedColumn);
-
-        _definition.Columns = orderedColumns;
-        NormalizeColumns();
-        SynchronizeComponentPlacementFromModel();
+        var movedColumnId = orderedColumns[resolvedSourceIndex].Id;
+        var targetSide = ResolveOppositeEdgePortSide(orderedColumns.Count, resolvedSourceIndex, resolvedTargetIndex);
+        var projection = NodeDragProjectionBuilder.Build(this);
+        projection = NodeDragProjectionBuilder.MoveColumn(projection, resolvedSourceIndex, resolvedTargetIndex);
+        ApplyDragProjection(projection, notifyDocumentChanged: false);
+        NormalizeMovedColumnPorts(movedColumnId, targetSide);
+        NormalizePortRowsToEdges();
 
         if (SelectedColumn != null)
         {
@@ -417,59 +417,71 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     }
 
     /// <summary>
-    /// Places the supplied component into the requested column and row slot, normalizing sibling row orders as needed.
+    /// Replaces the persisted row/component structure from a projected drag result.
     /// </summary>
-    /// <param name="component">The component to place.</param>
-    /// <param name="column">The zero-based target column.</param>
-    /// <param name="rowIndex">The zero-based target row index within the parent container.</param>
-    /// <param name="inlineWithExistingRow"><see langword="true"/> to place the component into an existing row; otherwise, <see langword="false"/> to insert a new row.</param>
-    /// <param name="parentId">The target parent identifier, or <see langword="null"/> for the root container.</param>
+    /// <param name="projection">The projected drag structure to apply.</param>
     /// <param name="notifyDocumentChanged"><see langword="true"/> to notify the owning document; otherwise, <see langword="false"/>.</param>
-    public void PlaceComponent(NodeComponentVM component, int column, int rowIndex, bool inlineWithExistingRow, int xOrder = 0, string? parentId = null, bool notifyDocumentChanged = true)
+    internal void ApplyDragProjection(NodeDragProjection projection, bool notifyDocumentChanged = true)
     {
-        ArgumentNullException.ThrowIfNull(component);
+        ArgumentNullException.ThrowIfNull(projection);
         EnsureModelStructure();
 
-        var resolvedColumn = Math.Max(0, column);
         var orderedColumns = GetOrderedColumns();
-        var targetColumn = orderedColumns[Math.Clamp(resolvedColumn, 0, orderedColumns.Count - 1)];
+        var columnsById = orderedColumns.ToDictionary(column => column.Id, StringComparer.Ordinal);
+        var rewrittenColumns = projection.Columns
+            .OrderBy(column => column.Index)
+            .Select(projectedColumn =>
+            {
+                if (!columnsById.TryGetValue(projectedColumn.Id, out var existingColumn))
+                {
+                    existingColumn = new NodeColumn
+                    {
+                        Id = projectedColumn.Id,
+                        WidthMode = NodeColumnWidthMode.Auto,
+                        Rows = [],
+                    };
+                }
 
-        RemoveComponentFromStructure(component.Model, out var sourceColumn);
-
-        NormalizeRows(targetColumn);
-        if (sourceColumn != null && !ReferenceEquals(sourceColumn, targetColumn))
-            NormalizeRows(sourceColumn);
-
-        var targetRows = targetColumn.Rows
-            .OrderBy(row => row.YOrder)
+                existingColumn.XOrder = projectedColumn.Index;
+                return existingColumn;
+            })
             .ToList();
+        _definition.Columns = rewrittenColumns;
+        columnsById = rewrittenColumns.ToDictionary(column => column.Id, StringComparer.Ordinal);
 
-        if (inlineWithExistingRow && targetRows.Count > 0)
+        foreach (var projectedColumn in projection.Columns.OrderBy(column => column.Index))
         {
-            var targetRowIndex = Math.Clamp(rowIndex, 0, targetRows.Count - 1);
-            var targetRow = targetRows[targetRowIndex];
-            var orderedRowComponents = targetRow.Components
-                .OrderBy(candidate => IsButtonLikeComponent(candidate) ? candidate.XOrder : 0)
-                .ToList();
-            var targetXOrder = Math.Clamp(xOrder, 0, orderedRowComponents.Count);
-            orderedRowComponents.Insert(targetXOrder, component.Model);
-            for (var index = 0; index < orderedRowComponents.Count; index++)
-                orderedRowComponents[index].XOrder = IsButtonLikeComponent(orderedRowComponents[index]) ? index : 0;
+            if (!columnsById.TryGetValue(projectedColumn.Id, out var targetColumn))
+                continue;
 
-            targetRow.Components = orderedRowComponents;
-            NormalizeRow(targetRow);
+            var existingRowsById = targetColumn.Rows.ToDictionary(row => row.Id, StringComparer.Ordinal);
+            var rewrittenRows = new List<NodeRow>();
+
+            foreach (var projectedRow in projectedColumn.Rows.OrderBy(row => row.YOrder))
+            {
+                var targetRow = existingRowsById.TryGetValue(projectedRow.Id, out var existingRow)
+                    ? existingRow
+                    : new NodeRow
+                    {
+                        Id = projectedRow.Id,
+                        ColumnSpan = 1,
+                    };
+
+                targetRow.Id = projectedRow.Id;
+                targetRow.YOrder = rewrittenRows.Count;
+                targetRow.ColumnSpan = Math.Max(1, targetRow.ColumnSpan);
+                targetRow.Components = projectedRow.Components
+                    .Select(component => component.Model)
+                    .ToList();
+                NormalizeRow(targetRow);
+                rewrittenRows.Add(targetRow);
+            }
+
+            targetColumn.Rows = rewrittenRows;
+            NormalizeRows(targetColumn);
         }
-        else
-        {
-            var targetRowIndex = Math.Clamp(rowIndex, 0, targetRows.Count);
-            targetRows.Insert(targetRowIndex, CreateRow([component.Model]));
-            for (var index = 0; index < targetRows.Count; index++)
-                targetRows[index].YOrder = index;
 
-            targetColumn.Rows = targetRows;
-        }
-
-        NormalizeRows(targetColumn);
+        NormalizeColumns();
         SynchronizeComponentPlacementFromModel();
 
         if (notifyDocumentChanged)
@@ -694,7 +706,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
             orderedColumns.RemoveAt(columnIndex);
             _definition.Columns = orderedColumns;
             NormalizeColumns();
-            SetSelectedColumn(targetColumn);
+            SetSelectedColumn(null);
         }
         else
         {
@@ -706,13 +718,10 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
             orderedColumns.RemoveAt(columnIndex);
             _definition.Columns = orderedColumns;
             NormalizeColumns();
-
-            var fallbackIndex = orderedColumns.Count == 0
-                ? -1
-                : Math.Clamp(columnIndex, 0, orderedColumns.Count - 1);
-            SetSelectedColumn(fallbackIndex >= 0 ? orderedColumns[fallbackIndex] : null);
+            SetSelectedColumn(null);
         }
 
+        NormalizePortRowsToEdges();
         SynchronizeComponentPlacementFromModel();
         OnPropertyChanged(nameof(ColumnCount));
         NotifyDocumentChanged();
@@ -933,6 +942,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         NormalizeColumns();
         NormalizeRows(targetColumn);
         SynchronizeComponentPlacementFromModel();
+        NormalizePortRowsToEdges();
     }
 
     private void EnsureModelStructure()
@@ -977,16 +987,6 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
             Id = Guid.NewGuid().ToString("N"),
             XOrder = Math.Max(0, xOrder),
             WidthMode = NodeColumnWidthMode.Auto,
-        };
-    }
-
-    private static NodeRow CreateRow(IEnumerable<NodeComponent> components)
-    {
-        return new NodeRow
-        {
-            Id = Guid.NewGuid().ToString("N"),
-            ColumnSpan = 1,
-            Components = components.ToList(),
         };
     }
 
@@ -1099,6 +1099,140 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     }
 
     private static bool IsButtonLikeComponent(NodeComponent component) => component is NodeButton or NodeIconButton;
+
+    private static NodePortSide? ResolveOppositeEdgePortSide(int columnCount, int sourceIndex, int targetIndex)
+    {
+        var lastColumnIndex = Math.Max(0, columnCount - 1);
+
+        if (sourceIndex == 0 && targetIndex == lastColumnIndex)
+            return NodePortSide.Right;
+
+        if (sourceIndex == lastColumnIndex && targetIndex == 0)
+            return NodePortSide.Left;
+
+        return null;
+    }
+
+    private void NormalizeMovedColumnPorts(string movedColumnId, NodePortSide? targetSide)
+    {
+        if (string.IsNullOrWhiteSpace(movedColumnId) || targetSide == null)
+            return;
+
+        var targetColumn = _definition.Columns.FirstOrDefault(column => string.Equals(column.Id, movedColumnId, StringComparison.Ordinal));
+        if (targetColumn == null)
+            return;
+
+        var componentVms = _nodeComponents.ToDictionary(componentVm => componentVm.Model);
+
+        foreach (var port in targetColumn.Rows
+                     .SelectMany(row => row.Components)
+                     .OfType<NodePort>())
+        {
+            if (port.Side == targetSide.Value)
+                continue;
+
+            port.Side = targetSide.Value;
+
+            if (componentVms.TryGetValue(port, out var componentVm)
+                && componentVm is NodePortComponentVM portVm)
+            {
+                portVm.SetSide(targetSide.Value, notifyComponentChanged: false);
+            }
+        }
+    }
+
+    private void NormalizePortRowsToEdges()
+    {
+        var orderedColumns = GetOrderedColumns();
+        if (orderedColumns.Count <= 1)
+            return;
+
+        var leftColumn = orderedColumns[0];
+        var rightColumn = orderedColumns[^1];
+        var leftRowsToMove = new List<NodeRow>();
+        var rightRowsToMove = new List<NodeRow>();
+        var componentVms = _nodeComponents.ToDictionary(componentVm => componentVm.Model);
+
+        foreach (var column in orderedColumns)
+        {
+            foreach (var row in column.Rows.OrderBy(row => row.YOrder).ToList())
+            {
+                var portSide = GetOwnedPortSide(row);
+                if (portSide == null)
+                    continue;
+
+                if (ReferenceEquals(column, leftColumn))
+                {
+                    SetPortSide(row, NodePortSide.Left, componentVms);
+                    continue;
+                }
+
+                if (ReferenceEquals(column, rightColumn))
+                {
+                    SetPortSide(row, NodePortSide.Right, componentVms);
+                    continue;
+                }
+
+                if (portSide == NodePortSide.Left)
+                {
+                    column.Rows.Remove(row);
+                    leftRowsToMove.Add(row);
+                }
+                else if (portSide == NodePortSide.Right)
+                {
+                    column.Rows.Remove(row);
+                    rightRowsToMove.Add(row);
+                }
+            }
+        }
+
+        if (leftRowsToMove.Count == 0 && rightRowsToMove.Count == 0)
+            return;
+
+        leftColumn.Rows.AddRange(leftRowsToMove);
+        if (!ReferenceEquals(leftColumn, rightColumn))
+            rightColumn.Rows.AddRange(rightRowsToMove);
+
+        foreach (var row in leftRowsToMove)
+            SetPortSide(row, NodePortSide.Left, componentVms);
+
+        foreach (var row in rightRowsToMove)
+            SetPortSide(row, NodePortSide.Right, componentVms);
+
+        foreach (var column in orderedColumns)
+            NormalizeRows(column);
+
+        SynchronizeComponentPlacementFromModel();
+    }
+
+    private static NodePortSide? GetOwnedPortSide(NodeRow row)
+    {
+        var ports = row.Components.OfType<NodePort>().ToList();
+        if (ports.Count == 0)
+            return null;
+
+        var side = ports[0].Side;
+        return ports.All(port => port.Side == side)
+            ? side
+            : null;
+    }
+
+    private static void SetPortSide(NodeRow row, NodePortSide side, IReadOnlyDictionary<NodeComponent, NodeComponentVM> componentVms)
+    {
+        foreach (var port in row.Components.OfType<NodePort>())
+        {
+            if (port.Side == side)
+                continue;
+
+            port.Side = side;
+
+            if (componentVms.TryGetValue(port, out var componentVm)
+                && componentVm is NodePortComponentVM portVm)
+            {
+                portVm.SetSide(side, notifyComponentChanged: false);
+            }
+        }
+    }
 
     private List<DataInputWrapperVM> CreateGeneralInputs()
     {

@@ -124,6 +124,32 @@ public sealed class NodePortComponentVM : NodeComponentVM
     #endregion Constructors
 
     //------------------------------------------------------------------------------------------------------------------------------------------
+    #region Public Methods
+
+    /// <summary>
+    /// Updates the port side, optionally suppressing the component changed callback.
+    /// </summary>
+    /// <param name="side">The new edge side.</param>
+    /// <param name="notifyComponentChanged"><see langword="true"/> to notify the owner that the component changed; otherwise, <see langword="false"/>.</param>
+    /// <returns><see langword="true"/> when the side changed; otherwise, <see langword="false"/>.</returns>
+    public bool SetSide(NodePortSide side, bool notifyComponentChanged = true)
+    {
+        if (_side == side)
+            return false;
+
+        _side = side;
+        PortModel.Side = side;
+        OnPropertyChanged(nameof(Side));
+
+        if (notifyComponentChanged)
+            NotifyComponentChanged();
+
+        return true;
+    }
+
+    #endregion Public Methods
+
+    //------------------------------------------------------------------------------------------------------------------------------------------
     #region Protected Methods
 
     protected override List<DataInputWrapperVM> CreateGeneralInputs()

@@ -25,7 +25,7 @@ public sealed class VisualTreeBuilder
     /// <param name="backgroundColor">The effective background color for the root canvas.</param>
     /// <param name="minorGridSize">The current minor grid spacing in node-space units.</param>
     /// <returns>The built root visual for the current canvas scene.</returns>
-    public CanvasVisual Build(IModelHost? host, bool overview, NodeColor backgroundColor, float minorGridSize, NodeCanvasStyleContext styleContext, ILayoutSnapshot? layoutSnapshot = null, NodeComponentVM? previewComponent = null, bool showDebugBounds = false)
+    public CanvasVisual Build(IModelHost? host, bool overview, NodeColor backgroundColor, float minorGridSize, NodeCanvasStyleContext styleContext, ILayoutSnapshot? layoutSnapshot = null, NodeComponentVM? previewComponent = null, IReadOnlySet<NodeComponentVM>? ghostedComponents = null, bool showDebugBounds = false)
     {
         var rootVisual = new CanvasVisual
         {
@@ -33,7 +33,7 @@ public sealed class VisualTreeBuilder
         };
 
         if (host is NodeDefinitionVM definitionHost)
-            rootVisual.AddChild(CreateNodeVisual(definitionHost, minorGridSize, styleContext, layoutSnapshot as NodeLayoutSnapshot, previewComponent, showDebugBounds));
+            rootVisual.AddChild(CreateNodeVisual(definitionHost, minorGridSize, styleContext, layoutSnapshot as NodeLayoutSnapshot, previewComponent, ghostedComponents, showDebugBounds));
 
         return rootVisual;
     }
@@ -43,7 +43,7 @@ public sealed class VisualTreeBuilder
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Private Methods
 
-    private static NodeVisual CreateNodeVisual(NodeDefinitionVM definitionHost, float minorGridSize, NodeCanvasStyleContext styleContext, NodeLayoutSnapshot? layoutSnapshot, NodeComponentVM? previewComponent, bool showDebugBounds)
+    private static NodeVisual CreateNodeVisual(NodeDefinitionVM definitionHost, float minorGridSize, NodeCanvasStyleContext styleContext, NodeLayoutSnapshot? layoutSnapshot, NodeComponentVM? previewComponent, IReadOnlySet<NodeComponentVM>? ghostedComponents, bool showDebugBounds)
     {
         ArgumentNullException.ThrowIfNull(definitionHost);
 
@@ -69,11 +69,11 @@ public sealed class VisualTreeBuilder
         };
 
         nodeVisual.Bounds = CreateOverviewBounds(definitionHost.Size, minorGridSize);
-        AddComponentVisuals(nodeVisual, definitionHost, nodeStyle, styleContext, minorGridSize, layoutSnapshot, previewComponent, showDebugBounds);
+        AddComponentVisuals(nodeVisual, definitionHost, nodeStyle, styleContext, minorGridSize, layoutSnapshot, previewComponent, ghostedComponents, showDebugBounds);
         return nodeVisual;
     }
 
-    private static void AddComponentVisuals(NodeVisual nodeVisual, NodeDefinitionVM definitionHost, NodeStyle nodeStyle, NodeCanvasStyleContext styleContext, float minorGridSize, NodeLayoutSnapshot? layoutSnapshot, NodeComponentVM? previewComponent, bool showDebugBounds)
+    private static void AddComponentVisuals(NodeVisual nodeVisual, NodeDefinitionVM definitionHost, NodeStyle nodeStyle, NodeCanvasStyleContext styleContext, float minorGridSize, NodeLayoutSnapshot? layoutSnapshot, NodeComponentVM? previewComponent, IReadOnlySet<NodeComponentVM>? ghostedComponents, bool showDebugBounds)
     {
         ArgumentNullException.ThrowIfNull(nodeVisual);
         ArgumentNullException.ThrowIfNull(definitionHost);
@@ -86,11 +86,12 @@ public sealed class VisualTreeBuilder
 
         foreach (var component in definitionHost.NodeComponents)
         {
-            AddComponentVisual(nodeVisual, component, nodeStyle, styleContext, minorGridSize, componentBounds, inputLabelWidth, nodeBounds, false, showDebugBounds);
+            var isGhosted = ghostedComponents?.Contains(component) == true;
+            AddComponentVisual(nodeVisual, component, nodeStyle, styleContext, minorGridSize, componentBounds, inputLabelWidth, nodeBounds, false, isGhosted ? 0.5f : 1.0f, showDebugBounds);
         }
 
         if (previewComponent != null)
-            AddComponentVisual(nodeVisual, previewComponent, nodeStyle, styleContext, minorGridSize, componentBounds, inputLabelWidth, nodeBounds, true, showDebugBounds);
+            AddComponentVisual(nodeVisual, previewComponent, nodeStyle, styleContext, minorGridSize, componentBounds, inputLabelWidth, nodeBounds, true, 1.0f, showDebugBounds);
 
         if (layoutSnapshot?.Columns.Count > 0)
         {
@@ -106,7 +107,7 @@ public sealed class VisualTreeBuilder
         }
     }
 
-    private static void AddComponentVisual(NodeVisual nodeVisual, NodeComponentVM component, NodeStyle nodeStyle, NodeCanvasStyleContext styleContext, float minorGridSize, Dictionary<NodeComponentVM, SKRect>? componentBounds, float inputLabelWidth, SKRect nodeBounds, bool isPreview, bool showDebugBounds)
+    private static void AddComponentVisual(NodeVisual nodeVisual, NodeComponentVM component, NodeStyle nodeStyle, NodeCanvasStyleContext styleContext, float minorGridSize, Dictionary<NodeComponentVM, SKRect>? componentBounds, float inputLabelWidth, SKRect nodeBounds, bool isPreview, float opacity, bool showDebugBounds)
     {
         var bounds = componentBounds != null && componentBounds.TryGetValue(component, out var componentBound)
             ? componentBound
@@ -114,11 +115,12 @@ public sealed class VisualTreeBuilder
         var selectionColor = NodeVisualDrawing.GetSelectionColor(nodeStyle.ShapeStyle.BackgroundColor);
         var selectionDashLength = NodeVisualDrawing.GetSelectionDashLength(minorGridSize);
         var selectionHorizontalPadding = minorGridSize * 0.5f;
+        IVisual? componentVisual = null;
 
         switch (component)
         {
             case NodeLabelComponentVM labelComponent:
-                var labelVisual = new NodeLabelComponentVisual(
+                componentVisual = new NodeLabelComponentVisual(
                     labelComponent.Label,
                     styleContext.FontFamily,
                     styleContext.FontSize,
@@ -134,11 +136,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(labelVisual);
                 break;
 
             case NodeInputComponentVM inputComponent:
-                var inputVisual = new NodeInputComponentVisual(
+                componentVisual = new NodeInputComponentVisual(
                     inputComponent.Label,
                     inputComponent.TypeId,
                     inputComponent.DefaultValue,
@@ -162,11 +163,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(inputVisual);
                 break;
 
             case NodeValueDisplayComponentVM valueDisplayComponent:
-                var valueDisplayVisual = new NodeInputComponentVisual(
+                componentVisual = new NodeInputComponentVisual(
                     valueDisplayComponent.Label,
                     InputTypeIds.String,
                     valueDisplayComponent.DefaultValue,
@@ -192,11 +192,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(valueDisplayVisual);
                 break;
 
             case NodeButtonComponentVM buttonComponent:
-                var buttonVisual = new NodeButtonComponentVisual(
+                componentVisual = new NodeButtonComponentVisual(
                     buttonComponent.Label,
                     styleContext.FontFamily,
                     styleContext.FontSize,
@@ -216,11 +215,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(buttonVisual);
                 break;
 
             case NodeIconButtonComponentVM iconButtonComponent:
-                var iconButtonVisual = new NodeIconButtonComponentVisual(
+                componentVisual = new NodeIconButtonComponentVisual(
                     iconButtonComponent.Svg,
                     iconButtonComponent.ColorMode,
                     nodeStyle.ShapeStyle.BackgroundColor,
@@ -239,11 +237,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(iconButtonVisual);
                 break;
 
             case NodeIndicatorComponentVM indicatorComponent:
-                var indicatorVisual = new NodeIndicatorComponentVisual(
+                componentVisual = new NodeIndicatorComponentVisual(
                     indicatorComponent.Label,
                     indicatorComponent.Shape,
                     indicatorComponent.Color,
@@ -264,11 +261,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(indicatorVisual);
                 break;
 
             case NodeGridInputComponentVM gridInputComponent:
-                var gridInputVisual = new NodeGridInputComponentVisual(
+                componentVisual = new NodeGridInputComponentVisual(
                     gridInputComponent.Label,
                     gridInputComponent.Rows,
                     gridInputComponent.Columns,
@@ -292,11 +288,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(gridInputVisual);
                 break;
 
             case NodeSeparatorComponentVM separatorComponent:
-                var separatorVisual = new NodeSeparatorComponentVisual(
+                componentVisual = new NodeSeparatorComponentVisual(
                     GetSeparatorColor(separatorComponent.ColorMode, nodeStyle.ShapeStyle.BackgroundColor, nodeStyle.ShapeStyle.BorderColor, styleContext.FontColor)
                         .WithAlpha((byte)(isPreview ? 153 : 255)),
                     minorGridSize / 8.0f,
@@ -309,11 +304,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(separatorVisual);
                 break;
 
             case NodePortComponentVM portComponent:
-                var portVisual = new NodePortComponentVisual(
+                componentVisual = new NodePortComponentVisual(
                     portComponent.Label,
                     portComponent.Side,
                     portComponent.Shape,
@@ -340,11 +334,10 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(portVisual);
                 break;
 
             case NodeSpacerComponentVM spacerComponent:
-                var spacerVisual = new NodeSpacerComponentVisual(
+                componentVisual = new NodeSpacerComponentVisual(
                     showDebugBounds,
                     spacerComponent.IsHovered && !isPreview,
                     spacerComponent.IsSelected && !isPreview,
@@ -354,9 +347,15 @@ public sealed class VisualTreeBuilder
                 {
                     Bounds = bounds,
                 };
-                nodeVisual.AddChild(spacerVisual);
                 break;
         }
+
+        if (componentVisual == null)
+            return;
+
+        nodeVisual.AddChild(opacity < 1.0f
+            ? new OpacityVisual(componentVisual, opacity)
+            : componentVisual);
     }
 
     private static SKRect CreateFallbackBounds(NodeComponentVM component, NodeCanvasStyleContext styleContext, float minorGridSize)
