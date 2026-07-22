@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.IO;
+using System.Text.Json;
 using Arctos.History;
 using Arctos.Nodes;
 using Arctos.Nodes.Models;
@@ -86,6 +87,7 @@ public sealed class NodeLibraryDocumentVM : NodeDocumentVM, INodeLibraryDocument
         _nodesManager = nodesManager ?? throw new ArgumentNullException(nameof(nodesManager));
         DisplayName = "Untitled.nlib";
         FilePath = string.Empty;
+        RefreshCanvasSurfaceMode();
         RefreshCanvasBackgroundColor();
         UpdateNavLinksFromSelection(null);
         OnPropertyChanged(nameof(ShowOverviewToggle));
@@ -113,6 +115,14 @@ public sealed class NodeLibraryDocumentVM : NodeDocumentVM, INodeLibraryDocument
     /// <inheritdoc />
     protected override bool DoLoad()
     {
+        if (!ValidateAndAutoFixComponentUids(
+                FilePath,
+                json => JsonSerializer.Deserialize<NodeLibraryFile>(json),
+                file => _nodesManager.SaveLibraryFile(file, FilePath)))
+        {
+            return false;
+        }
+
         NodeLibrary = new NodeLibraryVM(_nodesManager.LoadLibraryAndAdd(FilePath));
         return true;
     }

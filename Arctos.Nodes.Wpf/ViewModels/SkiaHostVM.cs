@@ -81,6 +81,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     private readonly Dictionary<int, HitTestResult> _hitEntries = [];
     private bool _hitTestLayerDirty = true;
     private bool _pendingHostViewState = true;
+    private int _pendingAutoFitValidationPasses;
     private readonly DragImageRenderer _dragImageRenderer = new();
 
     #endregion Fields
@@ -106,6 +107,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             _hoveredColumnIndex = null;
             _selectedColumnIndex = null;
             _pendingHostViewState = true;
+            _pendingAutoFitValidationPasses = 0;
             OnPropertyChanged(nameof(Model));
             RebuildVisualTree();
         }
@@ -116,6 +118,24 @@ public sealed class SkiaHostVM : BaseVM, IDropable
     /// Gets the raw current model being shown by the canvas.
     /// </summary>
     public object? Model => _host?.Model;
+
+    #region IsDesignMode
+    private bool _isDesignMode = true;
+    /// <summary>
+    /// Gets or sets a value indicating whether the canvas is rendering the editable design surface.
+    /// </summary>
+    public bool IsDesignMode
+    {
+        get => _isDesignMode;
+        set
+        {
+            if (!SetProperty(ref _isDesignMode, value))
+                return;
+
+            InvalidateCanvas();
+        }
+    }
+    #endregion
 
     #region HistoryContext
     private IHistoryContext? _historyContext;
@@ -654,7 +674,13 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         if (VisualRoot == null)
             throw new InvalidOperationException("The visual root was not built before the Skia surface requested a paint.");
 
-        ApplyHostViewStateIfNeeded();
+        var appliedAutoFit = ApplyHostViewStateIfNeeded();
+
+        if (!appliedAutoFit && _pendingAutoFitValidationPasses > 0)
+        {
+            _pendingAutoFitValidationPasses--;
+            FitToView();
+        }
 
         VisualRoot.Bounds = nodeSpace.GetVisibleBounds(Pan, Zoom);
         var viewMatrix = nodeSpace.CreateViewMatrix(Pan, Zoom);
@@ -683,7 +709,9 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         var viewMatrix = nodeSpace.CreateViewMatrix(Pan, Zoom);
         canvas.Save();
         canvas.SetMatrix(viewMatrix);
-        RenderColumnOverlay(canvas, definitionHost, layoutSnapshot);
+        if (IsDesignMode)
+            RenderColumnOverlay(canvas, definitionHost, layoutSnapshot);
+
         if (_previewComponent != null || _previewColumnInsert)
             RenderPreviewOverlay(canvas, definitionHost, layoutSnapshot);
         canvas.Restore();
@@ -708,6 +736,9 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
         if (LayoutSnapshot is NodeLayoutSnapshot nodeLayoutSnapshot)
         {
+            if (Host is NodeDefinitionVM definitionHost)
+                SyncSelectedColumnOverlay(definitionHost);
+
             if (_hoveredColumnIndex is int hoveredColumnIndex
                 && !nodeLayoutSnapshot.Columns.Any(column => column.Index == hoveredColumnIndex))
             {
@@ -733,7 +764,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             showDebugBounds: ShowDebugBounds));
 
         if (_viewportWidth > 0.0f && _viewportHeight > 0.0f)
-            ApplyHostViewStateIfNeeded();
+            _ = ApplyHostViewStateIfNeeded();
     }
 
     /// <summary>
@@ -1221,29 +1252,32 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         SetSelectedColumnIndex(definitionHost.SelectedColumnIndex);
     }
 
-    private void ApplyHostViewStateIfNeeded()
+    private bool ApplyHostViewStateIfNeeded()
     {
         if (!_pendingHostViewState)
-            return;
+            return false;
 
         _pendingHostViewState = false;
 
         if (Host is not ICanvasViewStateHost viewStateHost)
-            return;
+            return false;
 
         if (viewStateHost.CanvasZoom > 0.0f)
         {
+            _pendingAutoFitValidationPasses = 0;
             SetViewportState(viewStateHost.CanvasPan, viewStateHost.CanvasZoom, persistToHost: false);
-            return;
+            return false;
         }
 
         if (!CanFitToView())
         {
             _pendingHostViewState = true;
-            return;
+            return false;
         }
 
         FitToView();
+        _pendingAutoFitValidationPasses = 1;
+        return true;
     }
 
     private void SaveHostViewState()
@@ -1343,15 +1377,6 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         {
             if (_previewDropValid)
             {
-                var previewComponent = _previewComponent;
-                if (previewComponent != null)
-                {
-                    var resolvedX = IsButtonLikeComponent(previewComponent)
-                        ? previewComponent.Position.X
-                        : _dragSourceComponent.Position.X;
-                    _dragSourceComponent.Position = new NodePoint(resolvedX, _previewDropYNu);
-                }
-
                 if (Host is NodeDefinitionVM definitionHost)
                     CommitPreviewDrop(definitionHost, _dragSourceComponent, isNewComponent: false);
             }
@@ -1500,7 +1525,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
 
         canvas.Clear(canvasVisual.BackgroundColor.ToSkColor());
 
-        if (ShowGrid)
+        if (IsDesignMode && ShowGrid)
             DrawGrid(canvas, canvasVisual.Bounds);
 
         foreach (var child in canvasVisual.Children)
@@ -2120,12 +2145,14 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         ArgumentNullException.ThrowIfNull(canvas);
         ArgumentNullException.ThrowIfNull(definitionHost);
 
-        if (_hoveredColumnIndex is null && _selectedColumnIndex is null)
-            return;
-
-        var strokeColor = NodeVisualDrawing.GetNeutralColor(definitionHost.Model.Style?.ShapeStyle.BackgroundColor ?? new NodeStyle().ShapeStyle.BackgroundColor);
-        var strokeWidth = 0.0f;
+        var backgroundColor = definitionHost.Model.Style?.ShapeStyle.BackgroundColor ?? new NodeStyle().ShapeStyle.BackgroundColor;
+        var strokeColor = NodeVisualDrawing.GetNeutralColor(backgroundColor);
+        var fillColor = backgroundColor.ToSkColor();
+        var strokeWidth = MathF.Max(0.0f, GetMinorGridSize() / 8.0f);
         var dashLength = NodeVisualDrawing.GetSelectionDashLength(GetMinorGridSize());
+
+        foreach (var column in layoutSnapshot.Columns)
+            DrawColumnHandle(canvas, layoutSnapshot, column, fillColor, strokeColor, strokeWidth);
 
         if (_hoveredColumnIndex is int hoveredIndex && hoveredIndex != _selectedColumnIndex)
         {
@@ -2140,7 +2167,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
             if (selectedColumn != null)
             {
                 NodeVisualDrawing.DrawOutlineSelector(canvas, NodeVisualDrawing.OutlineSelectorMode.Solid, selectedColumn.GuideBounds, strokeColor, dashLength, strokeWidth);
-                DrawSelectedColumnHandle(canvas, layoutSnapshot, selectedColumn, strokeColor);
+                DrawColumnHandle(canvas, layoutSnapshot, selectedColumn, strokeColor, null, 0.0f);
             }
         }
     }
@@ -2160,7 +2187,7 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         return layoutSnapshot.HeaderBounds?.Bottom ?? layoutSnapshot.NodeBounds.Top;
     }
 
-    private void DrawSelectedColumnHandle(SKCanvas canvas, NodeLayoutSnapshot layoutSnapshot, NodeColumnLayoutSnapshot columnLayout, SKColor fillColor)
+    private void DrawColumnHandle(SKCanvas canvas, NodeLayoutSnapshot layoutSnapshot, NodeColumnLayoutSnapshot columnLayout, SKColor fillColor, SKColor? strokeColor, float strokeWidth)
     {
         var handleBounds = GetColumnHandleBounds(layoutSnapshot, columnLayout, GetColumnHandleWidth(), GetColumnHandleHeight());
         var radius = handleBounds.Height * 0.5f;
@@ -2173,10 +2200,29 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         };
 
         canvas.DrawRoundRect(handleBounds, radius, radius, fillPaint);
+
+        if (strokeColor.HasValue && strokeWidth > 0.0f)
+        {
+            using var strokePaint = new SKPaint
+            {
+                Color = strokeColor.Value,
+                IsAntialias = true,
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = strokeWidth,
+            };
+
+            canvas.DrawRoundRect(handleBounds, radius, radius, strokePaint);
+        }
     }
 
     private bool TryGetColumnHandleIndex(NodeLayoutSnapshot layoutSnapshot, SKPoint nodePoint, out int columnIndex)
     {
+        if (!IsDesignMode)
+        {
+            columnIndex = default;
+            return false;
+        }
+
         var handleHeight = GetColumnHandleHeight();
         var handleWidth = GetColumnHandleWidth();
 
@@ -2847,16 +2893,22 @@ public sealed class SkiaHostVM : BaseVM, IDropable
         ApplyPreviewComponentPlacement(component, (NodeLayoutSnapshot?)LayoutSnapshot, HitTestResult.None);
 
         if (isNewComponent)
-            definitionHost.AddComponent(component, notifyDocumentChanged: false);
+        {
+            definitionHost.InsertNewComponent(
+                component,
+                _previewDropColumnIndex,
+                _previewDropRowIndex,
+                _previewInlineWithRow,
+                _previewDropXOrder);
+            return;
+        }
 
-        var projection = NodeDragProjectionBuilder.Build(definitionHost, [component]);
-        projection = NodeDragProjectionBuilder.InsertTransfer(
-            projection,
+        definitionHost.MoveExistingComponent(
+            component,
             _previewDropColumnIndex,
             _previewDropRowIndex,
             _previewInlineWithRow,
             _previewDropXOrder);
-        definitionHost.ApplyDragProjection(projection, notifyDocumentChanged: true);
     }
 
     private sealed record PreviewRowLayout(

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.Json;
 using System.Windows.Input;
 using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.Layout;
@@ -20,6 +21,8 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
 {
     //------------------------------------------------------------------------------------------------------------------------------------------
     #region Fields
+
+    private static readonly JsonSerializerOptions StructureSnapshotJsonOptions = new();
 
     private readonly NodeDefinition _definition;
     private readonly ObservableCollection<NodeComponentVM> _nodeComponents = [];
@@ -147,24 +150,19 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     /// <param name="notifyDocumentChanged"><see langword="true"/> to notify the owning document; otherwise, <see langword="false"/>.</param>
     public void InsertColumn(int columnIndex, bool notifyDocumentChanged = true)
     {
-        EnsureModelStructure();
-        var projection = NodeDragProjectionBuilder.Build(this);
-        projection = NodeDragProjectionBuilder.InsertColumn(projection, columnIndex);
-        var insertedColumnId = projection.Columns
-            .OrderBy(column => column.Index)
-            .ElementAt(Math.Clamp(columnIndex, 0, projection.Columns.Count - 1))
-            .Id;
-        ApplyDragProjection(projection, notifyDocumentChanged: false);
-        NormalizePortRowsToEdges();
-        if (SelectedComponent != null)
-            SelectComponent(null);
+        if (!notifyDocumentChanged)
+        {
+            InsertColumnCore(columnIndex);
+            return;
+        }
 
-        var newColumn = GetOrderedColumns().FirstOrDefault(column => column.Id == insertedColumnId);
-        SetSelectedColumn(newColumn ?? GetOrderedColumns()[Math.Clamp(columnIndex, 0, GetOrderedColumns().Count - 1)]);
-        OnPropertyChanged(nameof(ColumnCount));
-
-        if (notifyDocumentChanged)
-            NotifyDocumentChanged();
+        ApplyStructureChangeWithHistory(
+            "Insert column",
+            () =>
+            {
+                InsertColumnCore(columnIndex);
+                return true;
+            });
     }
 
     /// <summary>
@@ -176,34 +174,12 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     /// <returns><see langword="true"/> when the column order changed; otherwise, <see langword="false"/>.</returns>
     public bool MoveColumn(int sourceIndex, int targetIndex, bool notifyDocumentChanged = true)
     {
-        EnsureModelStructure();
-        var orderedColumns = GetOrderedColumns();
-        if (orderedColumns.Count <= 1)
-            return false;
+        if (!notifyDocumentChanged)
+            return MoveColumnCore(sourceIndex, targetIndex);
 
-        var resolvedSourceIndex = Math.Clamp(sourceIndex, 0, orderedColumns.Count - 1);
-        var resolvedTargetIndex = Math.Clamp(targetIndex, 0, orderedColumns.Count - 1);
-        if (resolvedSourceIndex == resolvedTargetIndex)
-            return false;
-
-        var movedColumnId = orderedColumns[resolvedSourceIndex].Id;
-        var targetSide = ResolveOppositeEdgePortSide(orderedColumns.Count, resolvedSourceIndex, resolvedTargetIndex);
-        var projection = NodeDragProjectionBuilder.Build(this);
-        projection = NodeDragProjectionBuilder.MoveColumn(projection, resolvedSourceIndex, resolvedTargetIndex);
-        ApplyDragProjection(projection, notifyDocumentChanged: false);
-        NormalizeMovedColumnPorts(movedColumnId, targetSide);
-        NormalizePortRowsToEdges();
-
-        if (SelectedColumn != null)
-        {
-            OnPropertyChanged(nameof(SelectedColumnIndex));
-            OnPropertyChanged(nameof(CurrentEditTargetDisplayName));
-        }
-
-        if (notifyDocumentChanged)
-            NotifyDocumentChanged();
-
-        return true;
+        return ApplyStructureChangeWithHistory(
+            "Move column",
+            () => MoveColumnCore(sourceIndex, targetIndex));
     }
 
     /// <summary>
@@ -417,6 +393,42 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
     }
 
     /// <summary>
+    /// Inserts a newly created component into the projected layout using the supplied drop target details.
+    /// </summary>
+    /// <param name="component">The new component instance to insert.</param>
+    /// <param name="columnIndex">The zero-based destination column index.</param>
+    /// <param name="rowIndex">The zero-based destination row index.</param>
+    /// <param name="inlineWithRow"><see langword="true"/> to insert inline with an existing row; otherwise, <see langword="false"/>.</param>
+    /// <param name="xOrder">The destination inline slot used when inserting into a shared row.</param>
+    /// <returns><see langword="true"/> when the definition changed; otherwise, <see langword="false"/>.</returns>
+    internal bool InsertNewComponent(NodeComponentVM component, int columnIndex, int rowIndex, bool inlineWithRow, int xOrder)
+    {
+        ArgumentNullException.ThrowIfNull(component);
+
+        return ApplyStructureChangeWithHistory(
+            $"Add {component.ComponentTypeName}",
+            () => InsertNewComponentCore(component, columnIndex, rowIndex, inlineWithRow, xOrder));
+    }
+
+    /// <summary>
+    /// Relocates an existing component into the projected layout using the supplied drop target details.
+    /// </summary>
+    /// <param name="component">The existing component instance to relocate.</param>
+    /// <param name="columnIndex">The zero-based destination column index.</param>
+    /// <param name="rowIndex">The zero-based destination row index.</param>
+    /// <param name="inlineWithRow"><see langword="true"/> to insert inline with an existing row; otherwise, <see langword="false"/>.</param>
+    /// <param name="xOrder">The destination inline slot used when inserting into a shared row.</param>
+    /// <returns><see langword="true"/> when the definition changed; otherwise, <see langword="false"/>.</returns>
+    internal bool MoveExistingComponent(NodeComponentVM component, int columnIndex, int rowIndex, bool inlineWithRow, int xOrder)
+    {
+        ArgumentNullException.ThrowIfNull(component);
+
+        return ApplyStructureChangeWithHistory(
+            $"Move {component.ComponentTypeName}",
+            () => MoveExistingComponentCore(component, columnIndex, rowIndex, inlineWithRow, xOrder));
+    }
+
+    /// <summary>
     /// Replaces the persisted row/component structure from a projected drag result.
     /// </summary>
     /// <param name="projection">The projected drag structure to apply.</param>
@@ -595,14 +607,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         if (component == null || !_nodeComponents.Contains(component))
             return false;
 
-        RemoveSelectedComponentReference(component);
-
-        component.SetComponentChangedCallback(null);
-        _nodeComponents.Remove(component);
-        RemoveComponentFromStructure(component.Model, out _);
-        SynchronizeComponentPlacementFromModel();
-        NotifyDocumentChanged();
-        return true;
+        return RemoveComponentsWithHistory([component]);
     }
 
     /// <summary>
@@ -624,18 +629,7 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         if (componentsToRemove.Count == 0)
             return false;
 
-        ClearComponentSelection();
-
-        foreach (var component in componentsToRemove)
-        {
-            component.SetComponentChangedCallback(null);
-            _nodeComponents.Remove(component);
-            RemoveComponentFromStructure(component.Model, out _);
-        }
-
-        SynchronizeComponentPlacementFromModel();
-        NotifyDocumentChanged();
-        return true;
+        return RemoveComponentsWithHistory(componentsToRemove);
     }
 
     /// <summary>
@@ -687,43 +681,21 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         if (rule == NodeColumnDeleteRule.Cancel || !CanDeleteColumn(columnIndex, rule))
             return false;
 
-        EnsureModelStructure();
-        var orderedColumns = GetOrderedColumns();
-        var sourceColumn = orderedColumns[columnIndex];
+        var beforeSnapshot = CaptureStructureSnapshot();
+        if (!DeleteColumnCore(columnIndex, rule))
+            return false;
 
-        if (SelectedComponent != null)
-            ClearComponentSelection();
-
-        if (rule is NodeColumnDeleteRule.MoveLeft or NodeColumnDeleteRule.MoveRight)
+        if (_recordHistory != null)
         {
-            var targetIndex = rule == NodeColumnDeleteRule.MoveLeft ? columnIndex - 1 : columnIndex + 1;
-            var targetColumn = orderedColumns[targetIndex];
-
-            foreach (var row in sourceColumn.Rows.OrderBy(row => row.YOrder))
-                targetColumn.Rows.Add(row);
-
-            NormalizeRows(targetColumn);
-            orderedColumns.RemoveAt(columnIndex);
-            _definition.Columns = orderedColumns;
-            NormalizeColumns();
-            SetSelectedColumn(null);
-        }
-        else
-        {
-            var deletedComponents = sourceColumn.Rows
-                .SelectMany(row => row.Components)
-                .ToHashSet();
-            RemoveComponentViewModels(deletedComponents);
-
-            orderedColumns.RemoveAt(columnIndex);
-            _definition.Columns = orderedColumns;
-            NormalizeColumns();
-            SetSelectedColumn(null);
+            var afterSnapshot = CaptureStructureSnapshot();
+            RestoreStructureSnapshot(beforeSnapshot);
+            _recordHistory(
+                GetDeleteColumnDescription(rule),
+                () => RestoreStructureSnapshot(afterSnapshot),
+                () => RestoreStructureSnapshot(beforeSnapshot));
+            return true;
         }
 
-        NormalizePortRowsToEdges();
-        SynchronizeComponentPlacementFromModel();
-        OnPropertyChanged(nameof(ColumnCount));
         NotifyDocumentChanged();
         return true;
     }
@@ -767,6 +739,328 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
         applyValue(newValue);
         NotifyDocumentChanged();
         return true;
+    }
+
+    private bool ApplyStructureChangeWithHistory(string description, Func<bool> applyChange)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(description);
+        ArgumentNullException.ThrowIfNull(applyChange);
+
+        var beforeSnapshot = CaptureStructureSnapshot();
+        if (!applyChange())
+            return false;
+
+        if (_recordHistory != null)
+        {
+            var afterSnapshot = CaptureStructureSnapshot();
+            RestoreStructureSnapshot(beforeSnapshot);
+            _recordHistory(
+                description,
+                () => RestoreStructureSnapshot(afterSnapshot),
+                () => RestoreStructureSnapshot(beforeSnapshot));
+            return true;
+        }
+
+        NotifyDocumentChanged();
+        return true;
+    }
+
+    private void InsertColumnCore(int columnIndex)
+    {
+        EnsureModelStructure();
+        var projection = NodeDragProjectionBuilder.Build(this);
+        projection = NodeDragProjectionBuilder.InsertColumn(projection, columnIndex);
+        var insertedColumnId = projection.Columns
+            .OrderBy(column => column.Index)
+            .ElementAt(Math.Clamp(columnIndex, 0, projection.Columns.Count - 1))
+            .Id;
+        ApplyDragProjection(projection, notifyDocumentChanged: false);
+        NormalizePortRowsToEdges();
+        if (SelectedComponent != null)
+            SelectComponent(null);
+
+        var newColumn = GetOrderedColumns().FirstOrDefault(column => column.Id == insertedColumnId);
+        SetSelectedColumn(newColumn ?? GetOrderedColumns()[Math.Clamp(columnIndex, 0, GetOrderedColumns().Count - 1)]);
+        OnPropertyChanged(nameof(ColumnCount));
+    }
+
+    private bool MoveColumnCore(int sourceIndex, int targetIndex)
+    {
+        EnsureModelStructure();
+        var orderedColumns = GetOrderedColumns();
+        if (orderedColumns.Count <= 1)
+            return false;
+
+        var resolvedSourceIndex = Math.Clamp(sourceIndex, 0, orderedColumns.Count - 1);
+        var resolvedTargetIndex = Math.Clamp(targetIndex, 0, orderedColumns.Count - 1);
+        if (resolvedSourceIndex == resolvedTargetIndex)
+            return false;
+
+        var movedColumnId = orderedColumns[resolvedSourceIndex].Id;
+        var targetSide = ResolveOppositeEdgePortSide(orderedColumns.Count, resolvedSourceIndex, resolvedTargetIndex);
+        var projection = NodeDragProjectionBuilder.Build(this);
+        projection = NodeDragProjectionBuilder.MoveColumn(projection, resolvedSourceIndex, resolvedTargetIndex);
+        ApplyDragProjection(projection, notifyDocumentChanged: false);
+        NormalizeMovedColumnPorts(movedColumnId, targetSide);
+        NormalizePortRowsToEdges();
+        var movedColumn = GetOrderedColumns().FirstOrDefault(column => string.Equals(column.Id, movedColumnId, StringComparison.Ordinal));
+        SetSelectedColumn(movedColumn);
+
+        if (SelectedColumn != null)
+        {
+            OnPropertyChanged(nameof(SelectedColumnIndex));
+            OnPropertyChanged(nameof(CurrentEditTargetDisplayName));
+        }
+
+        return true;
+    }
+
+    private bool RemoveComponentsWithHistory(IReadOnlyList<NodeComponentVM> componentsToRemove)
+    {
+        ArgumentNullException.ThrowIfNull(componentsToRemove);
+
+        var existingComponents = componentsToRemove
+            .Where(component => component != null && _nodeComponents.Contains(component))
+            .Distinct()
+            .ToList();
+        if (existingComponents.Count == 0)
+            return false;
+
+        var beforeSnapshot = CaptureStructureSnapshot();
+        if (!RemoveComponentsCore(existingComponents))
+            return false;
+
+        if (_recordHistory != null)
+        {
+            var afterSnapshot = CaptureStructureSnapshot();
+            RestoreStructureSnapshot(beforeSnapshot);
+            _recordHistory(
+                GetDeleteComponentsDescription(existingComponents.Count),
+                () => RestoreStructureSnapshot(afterSnapshot),
+                () => RestoreStructureSnapshot(beforeSnapshot));
+            return true;
+        }
+
+        NotifyDocumentChanged();
+        return true;
+    }
+
+    private bool InsertNewComponentCore(NodeComponentVM component, int columnIndex, int rowIndex, bool inlineWithRow, int xOrder)
+    {
+        if (_nodeComponents.Contains(component))
+            return false;
+
+        AddComponent(component, notifyDocumentChanged: false);
+
+        var projection = NodeDragProjectionBuilder.Build(this, [component]);
+        projection = NodeDragProjectionBuilder.InsertTransfer(
+            projection,
+            columnIndex,
+            rowIndex,
+            inlineWithRow,
+            xOrder);
+        ApplyDragProjection(projection, notifyDocumentChanged: false);
+        SelectComponent(component);
+        return true;
+    }
+
+    private bool MoveExistingComponentCore(NodeComponentVM component, int columnIndex, int rowIndex, bool inlineWithRow, int xOrder)
+    {
+        if (!_nodeComponents.Contains(component))
+            return false;
+
+        var projection = NodeDragProjectionBuilder.Build(this, [component]);
+        projection = NodeDragProjectionBuilder.InsertTransfer(
+            projection,
+            columnIndex,
+            rowIndex,
+            inlineWithRow,
+            xOrder);
+        ApplyDragProjection(projection, notifyDocumentChanged: false);
+        SelectComponent(component);
+        return true;
+    }
+
+    private bool DeleteColumnCore(int columnIndex, NodeColumnDeleteRule rule)
+    {
+        EnsureModelStructure();
+        var orderedColumns = GetOrderedColumns();
+        if (columnIndex < 0 || columnIndex >= orderedColumns.Count)
+            return false;
+
+        var sourceColumn = orderedColumns[columnIndex];
+
+        if (SelectedComponent != null)
+            ClearComponentSelection();
+
+        if (rule is NodeColumnDeleteRule.MoveLeft or NodeColumnDeleteRule.MoveRight)
+        {
+            var targetIndex = rule == NodeColumnDeleteRule.MoveLeft ? columnIndex - 1 : columnIndex + 1;
+            if (targetIndex < 0 || targetIndex >= orderedColumns.Count)
+                return false;
+
+            var targetColumn = orderedColumns[targetIndex];
+
+            foreach (var row in sourceColumn.Rows.OrderBy(row => row.YOrder))
+                targetColumn.Rows.Add(row);
+
+            NormalizeRows(targetColumn);
+            orderedColumns.RemoveAt(columnIndex);
+            _definition.Columns = orderedColumns;
+            NormalizeColumns();
+            SetSelectedColumn(null);
+        }
+        else if (rule == NodeColumnDeleteRule.Delete)
+        {
+            var deletedComponents = sourceColumn.Rows
+                .SelectMany(row => row.Components)
+                .ToHashSet();
+            RemoveComponentViewModels(deletedComponents);
+
+            orderedColumns.RemoveAt(columnIndex);
+            _definition.Columns = orderedColumns;
+            NormalizeColumns();
+            SetSelectedColumn(null);
+        }
+        else
+        {
+            return false;
+        }
+
+        NormalizePortRowsToEdges();
+        SynchronizeComponentPlacementFromModel();
+        OnPropertyChanged(nameof(ColumnCount));
+        return true;
+    }
+
+    private bool RemoveComponentsCore(IReadOnlyList<NodeComponentVM> componentsToRemove)
+    {
+        ArgumentNullException.ThrowIfNull(componentsToRemove);
+
+        var existingComponents = componentsToRemove
+            .Where(component => component != null && _nodeComponents.Contains(component))
+            .Distinct()
+            .ToList();
+        if (existingComponents.Count == 0)
+            return false;
+
+        var componentSet = existingComponents.ToHashSet();
+        if (_selectedComponents.Count > 0 && _selectedComponents.Any(componentSet.Contains))
+            SetComponentSelection([], null);
+
+        foreach (var component in existingComponents)
+        {
+            component.SetComponentChangedCallback(null);
+            _nodeComponents.Remove(component);
+            RemoveComponentFromStructure(component.Model, out _);
+        }
+
+        NormalizePortRowsToEdges();
+        SynchronizeComponentPlacementFromModel();
+        return true;
+    }
+
+    private StructureSnapshot CaptureStructureSnapshot()
+    {
+        return new StructureSnapshot(
+            JsonSerializer.Serialize(_definition.Columns, StructureSnapshotJsonOptions),
+            CaptureSelectionState());
+    }
+
+    private void RestoreStructureSnapshot(StructureSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        var restoredColumns = JsonSerializer.Deserialize<List<NodeColumn>>(snapshot.ColumnsJson, StructureSnapshotJsonOptions)
+            ?? [];
+        _definition.Columns = restoredColumns;
+        EnsureModelStructure();
+        SetComponentSelection([], null);
+        SetSelectedColumn(null);
+        LoadComponentsFromModel();
+        NormalizePortRowsToEdges();
+        ApplySelectionState(snapshot.Selection);
+        OnPropertyChanged(nameof(ColumnCount));
+    }
+
+    private SelectionState CaptureSelectionState()
+    {
+        var selectedComponents = _selectedComponents
+            .Select(component => TryGetComponentSelectionUid(component))
+            .OfType<string>()
+            .ToList();
+
+        return new SelectionState(
+            selectedComponents,
+            TryGetComponentSelectionUid(SelectedComponent),
+            SelectedColumn?.Id);
+    }
+
+    private void ApplySelectionState(SelectionState selection)
+    {
+        ArgumentNullException.ThrowIfNull(selection);
+
+        SetComponentSelection([], null);
+        SetSelectedColumn(null);
+
+        var selectedComponents = selection.SelectedComponents
+            .Select(ResolveComponentSelectionUid)
+            .Where(component => component != null)
+            .Cast<NodeComponentVM>()
+            .Distinct()
+            .ToList();
+        var primaryComponent = ResolveComponentSelectionUid(selection.PrimaryComponent);
+
+        if (selectedComponents.Count > 0)
+        {
+            SetComponentSelection(
+                selectedComponents,
+                primaryComponent != null && selectedComponents.Contains(primaryComponent)
+                    ? primaryComponent
+                    : selectedComponents.Last());
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(selection.SelectedColumnId))
+            return;
+
+        var selectedColumn = GetOrderedColumns()
+            .FirstOrDefault(column => string.Equals(column.Id, selection.SelectedColumnId, StringComparison.Ordinal));
+            SetSelectedColumn(selectedColumn);
+    }
+
+    private static string? TryGetComponentSelectionUid(NodeComponentVM? component)
+    {
+        return component == null || string.IsNullOrWhiteSpace(component.Model.Uid)
+            ? null
+            : component.Model.Uid;
+    }
+
+    private NodeComponentVM? ResolveComponentSelectionUid(string? uid)
+    {
+        if (string.IsNullOrWhiteSpace(uid))
+            return null;
+
+        return _nodeComponents.FirstOrDefault(component =>
+            string.Equals(component.Model.Uid, uid, StringComparison.Ordinal));
+    }
+
+    private static string GetDeleteComponentsDescription(int componentCount)
+    {
+        return componentCount == 1
+            ? "Delete component"
+            : $"Delete {componentCount} components";
+    }
+
+    private static string GetDeleteColumnDescription(NodeColumnDeleteRule rule)
+    {
+        return rule switch
+        {
+            NodeColumnDeleteRule.MoveLeft => "Delete column (move left)",
+            NodeColumnDeleteRule.MoveRight => "Delete column (move right)",
+            NodeColumnDeleteRule.Delete => "Delete column",
+            _ => "Delete column",
+        };
     }
 
     private void OnSelectedComponentPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -1307,6 +1601,13 @@ public sealed class NodeDefinitionVM : NodeTreeItemVM<INodeTreeItemVM>, IEditTab
             }),
         ];
     }
+
+    private sealed record StructureSnapshot(string ColumnsJson, SelectionState Selection);
+
+    private sealed record SelectionState(
+        IReadOnlyList<string> SelectedComponents,
+        string? PrimaryComponent,
+        string? SelectedColumnId);
 
     private List<DataInputWrapperVM> CreateColumnInputs()
     {

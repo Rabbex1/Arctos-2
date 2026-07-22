@@ -93,18 +93,6 @@ public sealed class VisualTreeBuilder
         if (previewComponent != null)
             AddComponentVisual(nodeVisual, previewComponent, nodeStyle, styleContext, minorGridSize, componentBounds, inputLabelWidth, nodeBounds, true, 1.0f, showDebugBounds);
 
-        if (layoutSnapshot?.Columns.Count > 0)
-        {
-            var headerBottom = layoutSnapshot.HeaderBounds?.Bottom ?? nodeBounds.Top;
-            nodeVisual.AddChild(new NodeColumnHandlesVisual(
-                layoutSnapshot.Columns,
-                headerBottom,
-                nodeStyle.ShapeStyle.BackgroundColor.ToSkColor(),
-                NodeVisualDrawing.GetNeutralColor(nodeStyle.ShapeStyle.BackgroundColor),
-                handleWidth: minorGridSize * 4.0f,
-                handleHeight: minorGridSize,
-                strokeWidth: minorGridSize / 8.0f));
-        }
     }
 
     private static void AddComponentVisual(NodeVisual nodeVisual, NodeComponentVM component, NodeStyle nodeStyle, NodeCanvasStyleContext styleContext, float minorGridSize, Dictionary<NodeComponentVM, SKRect>? componentBounds, float inputLabelWidth, SKRect nodeBounds, bool isPreview, float opacity, bool showDebugBounds)

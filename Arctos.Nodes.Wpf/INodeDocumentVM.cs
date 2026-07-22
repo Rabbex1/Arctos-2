@@ -11,6 +11,12 @@ namespace Arctos.Nodes.Wpf;
 /// </summary>
 public interface INodeDocumentVM : IDocumentVM
 {
+    bool IsDesignMode { get; }
+
+    bool IsTestMode { get; }
+
+    INodeDocumentVM PresentationDocument { get; }
+
     string FilePath { get; }
 
     Guid? DocumentId { get; }

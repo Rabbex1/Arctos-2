@@ -226,7 +226,7 @@ namespace Arctos.Shell.Documents
                 {
                     // ReSharper disable once MethodHasAsyncOverload
                     var loaded = fileDoc.Load(metadata.Source);
-                    if (!loaded)
+                    if (!loaded && !fileDoc.LoadAborted)
                         loaded = await fileDoc.LoadAsync(metadata.Source);
 
                     if (!loaded)
@@ -234,6 +234,13 @@ namespace Arctos.Shell.Documents
                         Debug.WriteLine("Document failed to load: " + metadata.Source);
                         await UiHelper.ThreadAsync(() =>
                         {
+                            if (fileDoc.LoadAborted)
+                            {
+                                CleanupFailedDocument(document);
+                                RemoveDocument(document);
+                                return;
+                            }
+
                             _dialogService.ShowMessageBox(
                                 $"Failed to load document: {metadata.Source}",
                                 "Error",

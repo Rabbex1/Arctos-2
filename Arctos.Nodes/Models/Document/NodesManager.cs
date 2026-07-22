@@ -255,6 +255,15 @@ public sealed class NodesManager
     }
 
     /// <summary>
+    /// Saves a raw node map file shape to disk as a <c>.nmap</c> file.
+    /// </summary>
+    public void SaveMapFile(NodeMapFile mapFile, string path)
+    {
+        ArgumentNullException.ThrowIfNull(mapFile);
+        WriteFile(path, mapFile);
+    }
+
+    /// <summary>
     /// Saves a managed shared node library to disk as a <c>.nlib</c> file.
     /// </summary>
     public void SaveLibrary(NodeLibrary library, string path)
@@ -265,6 +274,15 @@ public sealed class NodesManager
             throw new InvalidOperationException("The provided node library is not managed by this manager.");
 
         WriteFile(path, NodeLibraryFile.FromLibrary(library));
+    }
+
+    /// <summary>
+    /// Saves a raw node library file shape to disk as a <c>.nlib</c> file.
+    /// </summary>
+    public void SaveLibraryFile(NodeLibraryFile libraryFile, string path)
+    {
+        ArgumentNullException.ThrowIfNull(libraryFile);
+        WriteFile(path, libraryFile);
     }
 
     #endregion Public Methods

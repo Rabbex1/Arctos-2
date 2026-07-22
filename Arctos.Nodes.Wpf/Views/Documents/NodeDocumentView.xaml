@@ -62,6 +62,26 @@
     </UserControl.Resources>
 
     <DockPanel LastChildFill="True">
+        <Border DockPanel.Dock="Bottom"
+                Margin="8 0 8 8"
+                Padding="8 4"
+                Background="{StaticResource Grey15Brush}"
+                BorderBrush="{StaticResource Grey30Brush}"
+                BorderThickness="1 0 1 1">
+            <DockPanel LastChildFill="False">
+                <Button DockPanel.Dock="Right"
+                        Padding="10 2"
+                        Command="{Binding ToggleSurfaceModeCommand}"
+                        Content="{Binding ToggleSurfaceModeText}"
+                        IsEnabled="{Binding CanToggleSurfaceMode}"
+                        Visibility="{Binding CanToggleSurfaceMode, Converter={StaticResource Bool2Vis}}"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" />
+                <TextBlock VerticalAlignment="Center"
+                           Foreground="{StaticResource Grey80Brush}"
+                           Text="{Binding SurfaceMode, StringFormat=Mode: {0}}" />
+            </DockPanel>
+        </Border>
+
         <Border DockPanel.Dock="Top"
                 Margin=" 8 8, 8 0"
                 MinHeight="22">
@@ -69,10 +89,22 @@
                 <ToggleButton DockPanel.Dock="Right"
                               Padding="8 2"
                               Content="Overview"
-                              Visibility="{Binding ShowOverviewToggle, Converter={StaticResource Bool2Vis}}"
-                              IsChecked="{Binding CurrentCanvas.Overview, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Visibility="{Binding PresentationDocument.ShowOverviewToggle, Converter={StaticResource Bool2Vis}}"
+                              IsChecked="{Binding PresentationDocument.CurrentCanvas.Overview, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource ToolBarToggleButtonStyle}" />
-                <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding NavLinks}">
+                <ItemsControl DockPanel.Dock="Left"
+                              ItemsSource="{Binding PresentationDocument.NavLinks}"
+                              IsEnabled="{Binding IsDesignMode}">
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Setter Property="Opacity" Value="1" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDesignMode}" Value="False">
+                                    <Setter Property="Opacity" Value="0.55" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />
@@ -86,7 +118,7 @@
                 Background="{StaticResource Grey10Brush}"
                 BorderBrush="{StaticResource Grey30Brush}"
                 BorderThickness="1">
-            <ContentPresenter Content="{Binding CurrentCanvas}" />
+            <ContentPresenter Content="{Binding PresentationDocument.CurrentCanvas}" />
         </Border>
     </DockPanel>
 </UserControl>

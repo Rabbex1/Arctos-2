@@ -4,6 +4,8 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:dragDrop="clr-namespace:Arctos.Wpf.DragDrop;assembly=Arctos.Wpf">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="Bool2Vis" />
+
         <Style x:Key="EditTabItemStyle" TargetType="TabItem">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
@@ -84,95 +86,111 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="8" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+        <Grid Visibility="{Binding ActiveNodeDocument.IsDesignMode, Converter={StaticResource Bool2Vis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <Border Grid.Row="0"
+            <Border Grid.Row="0"
+                    Background="{StaticResource BackgroundBrush}"
+                    BorderBrush="{StaticResource ToolWindowBorderBrush}"
+                    BorderThickness="0 0 0 1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Margin="8 6 8 4"
+                               FontWeight="SemiBold"
+                               Text="{Binding ActiveNodeDocument.PresentationDocument.CurrentEditTargetDisplayName, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TabControl Grid.Row="1"
+                                ItemsSource="{Binding ActiveNodeDocument.PresentationDocument.EditTabs}"
+                                ItemContainerStyle="{StaticResource EditTabItemStyle}"
+                                SelectedItem="{Binding ActiveNodeDocument.PresentationDocument.SelectedEditTab, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource EditTabControlStyle}"
+                                TabStripPlacement="Left">
+                        <TabControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="0 8" Text="{Binding Header}">
+                                    <TextBlock.LayoutTransform>
+                                        <RotateTransform Angle="-90" />
+                                    </TextBlock.LayoutTransform>
+                                </TextBlock>
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                    </TabControl>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2"
+                    Padding="8 8 8 6"
+                    Background="{StaticResource BackgroundBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Margin="0 0 0 8"
+                               FontWeight="SemiBold"
+                               Text="Palette" />
+
+                    <ItemsControl Grid.Row="1"
+                                  ItemsSource="{Binding PaletteGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0 0 0 8">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Margin="0 0 0 4"
+                                               FontWeight="SemiBold"
+                                               Text="{Binding Header}" />
+
+                                    <ItemsControl Grid.Row="1"
+                                                  ItemsSource="{Binding Items}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource PaletteItemBorderStyle}">
+                                                    <i:Interaction.Behaviors>
+                                                        <dragDrop:DragBehavior AllowedEffects="Copy"
+                                                                               DragImage="{Binding DragImage}"
+                                                                               UseSystemCursor="True" />
+                                                    </i:Interaction.Behaviors>
+                                                    <TextBlock Text="{Binding Label}" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Padding="12"
                 Background="{StaticResource BackgroundBrush}"
-                BorderBrush="{StaticResource ToolWindowBorderBrush}"
-                BorderThickness="0 0 0 1">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0"
-                           Margin="8 6 8 4"
+                Visibility="{Binding ActiveNodeDocument.IsTestMode, Converter={StaticResource Bool2Vis}}">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Margin="0 0 0 8"
+                           FontSize="14"
                            FontWeight="SemiBold"
-                           Text="{Binding ActiveNodeDocument.CurrentEditTargetDisplayName, UpdateSourceTrigger=PropertyChanged}" />
-
-                <TabControl Grid.Row="1"
-                            ItemsSource="{Binding ActiveNodeDocument.EditTabs}"
-                            ItemContainerStyle="{StaticResource EditTabItemStyle}"
-                            SelectedItem="{Binding ActiveNodeDocument.SelectedEditTab, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Style="{StaticResource EditTabControlStyle}"
-                            TabStripPlacement="Left">
-                    <TabControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Margin="0 8" Text="{Binding Header}">
-                                <TextBlock.LayoutTransform>
-                                    <RotateTransform Angle="-90" />
-                                </TextBlock.LayoutTransform>
-                            </TextBlock>
-                        </DataTemplate>
-                    </TabControl.ItemTemplate>
-                </TabControl>
-            </Grid>
-        </Border>
-
-        <Border Grid.Row="2"
-                Padding="8 8 8 6"
-                Background="{StaticResource BackgroundBrush}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0"
-                           Margin="0 0 0 8"
-                           FontWeight="SemiBold"
-                           Text="Palette" />
-
-                <ItemsControl Grid.Row="1"
-                              ItemsSource="{Binding PaletteGroups}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0 0 0 8">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0"
-                                           Margin="0 0 0 4"
-                                           FontWeight="SemiBold"
-                                           Text="{Binding Header}" />
-
-                                <ItemsControl Grid.Row="1"
-                                              ItemsSource="{Binding Items}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Style="{StaticResource PaletteItemBorderStyle}">
-                                                <i:Interaction.Behaviors>
-                                                    <dragDrop:DragBehavior AllowedEffects="Copy"
-                                                                           DragImage="{Binding DragImage}"
-                                                                           UseSystemCursor="True" />
-                                                </i:Interaction.Behaviors>
-                                                <TextBlock Text="{Binding Label}" />
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Grid>
+                           Text="Test Mode" />
+                <TextBlock Foreground="{StaticResource Grey70Brush}"
+                           TextWrapping="Wrap"
+                           Text="Design tools are hidden while testing. Use the canvas to interact with the node, or return to Design mode to continue editing." />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

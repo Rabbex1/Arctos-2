@@ -21,6 +21,11 @@ namespace Arctos.Shell.Documents
         }
         #endregion
 
+        /// <summary>
+        /// Gets a value indicating whether the most recent load attempt was intentionally aborted by the document implementation.
+        /// </summary>
+        public bool LoadAborted { get; private set; }
+
         #endregion Properties
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -32,6 +37,7 @@ namespace Arctos.Shell.Documents
         public bool Load(string filePath)
         {
             FilePath = filePath;
+            LoadAborted = false;
             var loaded = DoLoad();
             IsChanged = false;
             return loaded;
@@ -40,6 +46,7 @@ namespace Arctos.Shell.Documents
         public async Task<bool> LoadAsync(string filePath)
         {
             FilePath = filePath;
+            LoadAborted = false;
             var loaded = await DoLoadAsync();
             IsChanged = false;
             return loaded;
@@ -73,6 +80,11 @@ namespace Arctos.Shell.Documents
             DisplayName = Path.GetFileName(value);
             Metadata = CreateContentMetadata();
             SetContentComponent("FilePath", _filePath);
+        }
+
+        protected void AbortLoad()
+        {
+            LoadAborted = true;
         }
 
         #endregion Protected Methods

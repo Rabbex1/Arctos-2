@@ -88,6 +88,7 @@
                                                                                                     {
                                                                                                         "$type":  "Text",
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "b8f35de138124627803fb0c9c2b6bd74",
                                                                                                         "Label":  "Text2",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -115,8 +116,9 @@
                                                                                                                           "Green":  255,
                                                                                                                           "Blue":  255,
                                                                                                                           "Alpha":  255
-                                                                                                                      },
+                                                                                                                     },
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "c96d7f33cd8a4d52b61eae55d779175b",
                                                                                                         "Label":  "Port",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -144,8 +146,9 @@
                                                                                                                           "Green":  245,
                                                                                                                           "Blue":  85,
                                                                                                                           "Alpha":  255
-                                                                                                                      },
+                                                                                                                     },
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "9ac5980fd9b74f92b62f4d5b8e3bc4f5",
                                                                                                         "Label":  "Port",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -173,8 +176,9 @@
                                                                                                                           "Green":  99,
                                                                                                                           "Blue":  149,
                                                                                                                           "Alpha":  255
-                                                                                                                      },
+                                                                                                                     },
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "ac6ac4b250dc4ca28161c898d3156a35",
                                                                                                         "Label":  "Port",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -202,8 +206,9 @@
                                                                                                                           "Green":  47,
                                                                                                                           "Blue":  224,
                                                                                                                           "Alpha":  255
-                                                                                                                      },
+                                                                                                                     },
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "deec8e4bc11649c58960f91a0f57a018",
                                                                                                         "Label":  "Port",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -231,8 +236,9 @@
                                                                                                                           "Green":  57,
                                                                                                                           "Blue":  50,
                                                                                                                           "Alpha":  255
-                                                                                                                      },
+                                                                                                                     },
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "35910bff18ec44828fa9c411b8b02375",
                                                                                                         "Label":  "Port",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -260,6 +266,7 @@
                                                                                                         "GroupId":  null,
                                                                                                         "DefaultValue":  "00:00:00",
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "6df7decb45b34a50881116cb1b1415f8",
                                                                                                         "Label":  "Input",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -287,6 +294,7 @@
                                                                                                         "GroupId":  null,
                                                                                                         "DefaultValue":  "2026-06-17T17:37:25.3660833+08:00",
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "9d92d145dfc84d0ca75fd37b98fb684b",
                                                                                                         "Label":  "Input",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,
@@ -320,6 +328,7 @@
                                                                                                                              "Value":  "Test 1"
                                                                                                                          },
                                                                                                         "Id":  null,
+                                                                                                        "Uid":  "f4f4e4ca45554e55b6095b7ecf464423",
                                                                                                         "Label":  "Input",
                                                                                                         "Position":  {
                                                                                                                          "X":  -14.5,

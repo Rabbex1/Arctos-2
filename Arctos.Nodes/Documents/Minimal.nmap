@@ -153,6 +153,7 @@
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "5d8da8eddccb486ebe633279e23f2c11",
                     "Label": "Toggle",
                     "Position": {
                       "X": -38,
@@ -167,92 +168,67 @@
                 ]
               },
               {
-                "Id": "f753ad6d26bb415c949a3116218bb900",
-                "YOrder": 1,
-                "ColumnSpan": 1,
-                "Components": [
-                  {
-                    "$type": "Port",
-                    "Side": 0,
-                    "Shape": 0,
-                    "FillColor": {
-                      "Red": 9,
-                      "Green": 219,
-                      "Blue": 9,
-                      "Alpha": 255
-                    },
-                    "Id": null,
-                    "Label": "Port",
-                    "Position": {
-                      "X": -38,
-                      "Y": -31
-                    },
-                    "Column": 0,
-                    "ParentId": "f753ad6d26bb415c949a3116218bb900",
-                    "YOrder": 1,
-                    "XOrder": 0,
-                    "FixedWidth": 0
-                  }
-                ]
-              },
-              {
                 "Id": "31d16a596b284a3fb3ef6429017fcde9",
-                "YOrder": 2,
+                "YOrder": 1,
                 "ColumnSpan": 1,
                 "Components": [
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "f0cc28db60a9434db352e9afc695e1b2",
                     "Label": "One",
                     "Position": {
                       "X": -38,
-                      "Y": -27
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
-                    "YOrder": 2,
+                    "YOrder": 1,
                     "XOrder": 0,
                     "FixedWidth": 0
                   },
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "405bbfec044c43c18c5c11b187555aad",
                     "Label": "Two",
                     "Position": {
                       "X": -28.5,
-                      "Y": -27
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
-                    "YOrder": 2,
+                    "YOrder": 1,
                     "XOrder": 1,
                     "FixedWidth": 0
                   },
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "7ac207887051458e8ffc0587b17f4c18",
                     "Label": "Three",
                     "Position": {
                       "X": -19,
-                      "Y": -27
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
-                    "YOrder": 2,
+                    "YOrder": 1,
                     "XOrder": 2,
                     "FixedWidth": 0
                   },
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "2cb49c50ec884982afc26d0d6e0b1e16",
                     "Label": "Four",
                     "Position": {
                       "X": -9.5,
-                      "Y": -27
+                      "Y": -31
                     },
                     "Column": 0,
                     "ParentId": "31d16a596b284a3fb3ef6429017fcde9",
-                    "YOrder": 2,
+                    "YOrder": 1,
                     "XOrder": 3,
                     "FixedWidth": 0
                   }
@@ -260,7 +236,7 @@
               },
               {
                 "Id": "21dad2d76c0441acaccc7bd72aec5c98",
-                "YOrder": 3,
+                "YOrder": 2,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -274,14 +250,15 @@
                     "DateTimeDisplayMode": 2,
                     "DefaultValue": "2026-06-22T18:32:30.4624122\u002B08:00",
                     "Id": null,
+                    "Uid": "412876888eb44c5bad94bb8b39802b53",
                     "Label": "Date Time",
                     "Position": {
                       "X": -38,
-                      "Y": -23
+                      "Y": -27
                     },
                     "Column": 0,
                     "ParentId": "21dad2d76c0441acaccc7bd72aec5c98",
-                    "YOrder": 3,
+                    "YOrder": 2,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -289,7 +266,7 @@
               },
               {
                 "Id": "3fea108a8bcc4a65b93d71365945fecc",
-                "YOrder": 4,
+                "YOrder": 3,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -307,14 +284,15 @@
                       114
                     ],
                     "Id": null,
+                    "Uid": "8a1a50af8cf7480bb4d1bd3e68afd20e",
                     "Label": "IP Address",
                     "Position": {
                       "X": -38,
-                      "Y": -19
+                      "Y": -23
                     },
                     "Column": 0,
                     "ParentId": "3fea108a8bcc4a65b93d71365945fecc",
-                    "YOrder": 4,
+                    "YOrder": 3,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -322,6 +300,40 @@
               },
               {
                 "Id": "41566497b33e4a86bbf7314c392984e2",
+                "YOrder": 4,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "GridInput",
+                    "Rows": 1,
+                    "Columns": 4,
+                    "CellWidth": 4,
+                    "CellTypeId": "Integer",
+                    "MinValue": 0,
+                    "MaxValue": 255,
+                    "DefaultValues": [
+                      255,
+                      255,
+                      255,
+                      0
+                    ],
+                    "Id": null,
+                    "Uid": "380cd229564d4694bf9b9e4bde127ccd",
+                    "Label": "Net Mask",
+                    "Position": {
+                      "X": -38,
+                      "Y": -19
+                    },
+                    "Column": 0,
+                    "ParentId": "41566497b33e4a86bbf7314c392984e2",
+                    "YOrder": 4,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "c301204846db4e7ca22439892888b229",
                 "YOrder": 5,
                 "ColumnSpan": 1,
                 "Components": [
@@ -334,19 +346,20 @@
                     "MinValue": 0,
                     "MaxValue": 255,
                     "DefaultValues": [
-                      255,
-                      255,
-                      255,
+                      0,
+                      0,
+                      0,
                       0
                     ],
                     "Id": null,
-                    "Label": "Net Mask",
+                    "Uid": "e7b2cb6142b444c78a25bbb2b005f5a0",
+                    "Label": "Gateway",
                     "Position": {
                       "X": -38,
                       "Y": -15
                     },
                     "Column": 0,
-                    "ParentId": "41566497b33e4a86bbf7314c392984e2",
+                    "ParentId": "c301204846db4e7ca22439892888b229",
                     "YOrder": 5,
                     "XOrder": 0,
                     "FixedWidth": 0
@@ -354,32 +367,22 @@
                 ]
               },
               {
-                "Id": "c301204846db4e7ca22439892888b229",
+                "Id": "a8895cfa1ab5441a8580ce48922ce786",
                 "YOrder": 6,
                 "ColumnSpan": 1,
                 "Components": [
                   {
-                    "$type": "GridInput",
-                    "Rows": 1,
-                    "Columns": 4,
-                    "CellWidth": 4,
-                    "CellTypeId": "Integer",
-                    "MinValue": 0,
-                    "MaxValue": 255,
-                    "DefaultValues": [
-                      0,
-                      0,
-                      0,
-                      0
-                    ],
+                    "$type": "Separator",
+                    "ColorMode": 0,
                     "Id": null,
-                    "Label": "Gateway",
+                    "Uid": "d97a430fff624dc99839c3dd963676c0",
+                    "Label": "Separator",
                     "Position": {
                       "X": -38,
                       "Y": -11
                     },
                     "Column": 0,
-                    "ParentId": "c301204846db4e7ca22439892888b229",
+                    "ParentId": "a8895cfa1ab5441a8580ce48922ce786",
                     "YOrder": 6,
                     "XOrder": 0,
                     "FixedWidth": 0
@@ -387,30 +390,8 @@
                 ]
               },
               {
-                "Id": "a8895cfa1ab5441a8580ce48922ce786",
-                "YOrder": 7,
-                "ColumnSpan": 1,
-                "Components": [
-                  {
-                    "$type": "Separator",
-                    "ColorMode": 0,
-                    "Id": null,
-                    "Label": "Separator",
-                    "Position": {
-                      "X": -38,
-                      "Y": -7
-                    },
-                    "Column": 0,
-                    "ParentId": "a8895cfa1ab5441a8580ce48922ce786",
-                    "YOrder": 7,
-                    "XOrder": 0,
-                    "FixedWidth": 0
-                  }
-                ]
-              },
-              {
                 "Id": "c1d29fa191ef41e4a3e17d2448f00426",
-                "YOrder": 8,
+                "YOrder": 7,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -423,14 +404,15 @@
                     },
                     "Shape": 0,
                     "Id": null,
+                    "Uid": "4102389e3b85458eb91c54b082bc8920",
                     "Label": "Connection",
                     "Position": {
                       "X": -38,
-                      "Y": -5
+                      "Y": -9
                     },
                     "Column": 0,
                     "ParentId": "c1d29fa191ef41e4a3e17d2448f00426",
-                    "YOrder": 8,
+                    "YOrder": 7,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -438,7 +420,7 @@
               },
               {
                 "Id": "ebfad4106a244a70bafea2bbd21e88e1",
-                "YOrder": 9,
+                "YOrder": 8,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -451,14 +433,15 @@
                     },
                     "Shape": 0,
                     "Id": null,
+                    "Uid": "5a3ab86197534858b3082955540da72d",
                     "Label": "Indicator",
                     "Position": {
                       "X": -38,
-                      "Y": -1
+                      "Y": -5
                     },
                     "Column": 0,
                     "ParentId": "ebfad4106a244a70bafea2bbd21e88e1",
-                    "YOrder": 9,
+                    "YOrder": 8,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }
@@ -466,20 +449,51 @@
               },
               {
                 "Id": "eb27e432cf71469ea9d8d11066a1cf98",
-                "YOrder": 10,
+                "YOrder": 9,
                 "ColumnSpan": 1,
                 "Components": [
                   {
                     "$type": "Separator",
                     "ColorMode": 0,
                     "Id": null,
+                    "Uid": "a2f206bd7bea41fa820984db8edc18da",
                     "Label": "Separator",
                     "Position": {
                       "X": -38,
-                      "Y": 3
+                      "Y": -1
                     },
                     "Column": 0,
                     "ParentId": "eb27e432cf71469ea9d8d11066a1cf98",
+                    "YOrder": 9,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "9daef4e5042f479b8141d3c454f707d2",
+                "YOrder": 10,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Port",
+                    "Side": 0,
+                    "Shape": 2,
+                    "FillColor": {
+                      "Red": 221,
+                      "Green": 45,
+                      "Blue": 23,
+                      "Alpha": 255
+                    },
+                    "Id": null,
+                    "Uid": "fd7abcb754214b7f83d28898e8f15ae5",
+                    "Label": "Port",
+                    "Position": {
+                      "X": -38,
+                      "Y": 1
+                    },
+                    "Column": 0,
+                    "ParentId": "9daef4e5042f479b8141d3c454f707d2",
                     "YOrder": 10,
                     "XOrder": 0,
                     "FixedWidth": 0
@@ -494,6 +508,7 @@
                   {
                     "$type": "Text",
                     "Id": null,
+                    "Uid": "7f610bc3a7c94f059e208873803b9439",
                     "Label": "Text",
                     "Position": {
                       "X": -38,
@@ -523,6 +538,7 @@
                     "DateTimeDisplayMode": 2,
                     "DefaultValue": "test",
                     "Id": null,
+                    "Uid": "d4dcc09200db4213b0b100bf198731fa",
                     "Label": "String Input",
                     "Position": {
                       "X": -38,
@@ -552,6 +568,7 @@
                     "DateTimeDisplayMode": 2,
                     "DefaultValue": "123.456",
                     "Id": null,
+                    "Uid": "8e877d5562af41b8b331a0bf6284e973",
                     "Label": "Numeric",
                     "Position": {
                       "X": -38,
@@ -573,6 +590,7 @@
                   {
                     "$type": "Text",
                     "Id": null,
+                    "Uid": "f69ffcbf612141e79e0af7897894cc8f",
                     "Label": "Text",
                     "Position": {
                       "X": -38,
@@ -594,6 +612,7 @@
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "657f2107c8e04f97af59fffbdd8a7ff0",
                     "Label": "1",
                     "Position": {
                       "X": -38,
@@ -608,6 +627,7 @@
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "a60906ef9b86498f9e00ace1735d9b1e",
                     "Label": "2",
                     "Position": {
                       "X": -25.333332,
@@ -622,6 +642,7 @@
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "d9e761fa2d3342c79495e7de00eb581c",
                     "Label": "3",
                     "Position": {
                       "X": -12.666665,
@@ -645,6 +666,7 @@
                     "Height": 4,
                     "Expand": true,
                     "Id": null,
+                    "Uid": "355a65df008945bdb4bea649dd5d3aee",
                     "Label": "Spacer",
                     "Position": {
                       "X": -38,
@@ -668,6 +690,7 @@
                     "Height": 4,
                     "Expand": true,
                     "Id": null,
+                    "Uid": "41341305407c41ce993db5b81dc70c2c",
                     "Label": "Spacer",
                     "Position": {
                       "X": -38,
@@ -690,6 +713,7 @@
                     "$type": "Separator",
                     "ColorMode": 0,
                     "Id": null,
+                    "Uid": "b82d12dbe7c24e60bfc688c069ff945d",
                     "Label": "Separator",
                     "Position": {
                       "X": -38,
@@ -711,6 +735,7 @@
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "b2400dc87d784f458ec708e0c28aaa14",
                     "Label": "Button",
                     "Position": {
                       "X": -38,
@@ -732,6 +757,7 @@
                   {
                     "$type": "Button",
                     "Id": null,
+                    "Uid": "064e2655b08e4f6b8820b328777f87ef",
                     "Label": "Button",
                     "Position": {
                       "X": -38,
@@ -761,6 +787,7 @@
                     "DateTimeDisplayMode": 2,
                     "DefaultValue": true,
                     "Id": null,
+                    "Uid": "c963cfa4b6e9488fae61676ed18436d1",
                     "Label": "Bool Input",
                     "Position": {
                       "X": -38,
@@ -784,6 +811,7 @@
                     "Height": 4,
                     "Expand": true,
                     "Id": null,
+                    "Uid": "30c5450e6118420f85b370f7a53c1444",
                     "Label": "Spacer",
                     "Position": {
                       "X": -38,
@@ -806,45 +834,8 @@
             "WidthNu": 0,
             "Rows": [
               {
-                "Id": "b8a781b5599e4527a76af08a808d843b",
-                "YOrder": 0,
-                "ColumnSpan": 1,
-                "Components": [
-                  {
-                    "$type": "Input",
-                    "DisplayName": "Dropdown",
-                    "Description": null,
-                    "TypeId": "StringSelection",
-                    "IsReadOnly": false,
-                    "IsVisible": true,
-                    "GroupId": null,
-                    "DateTimeDisplayMode": 2,
-                    "DefaultValue": {
-                      "Source": 0,
-                      "Options": [
-                        "one",
-                        "two",
-                        "three"
-                      ],
-                      "Value": "two"
-                    },
-                    "Id": null,
-                    "Label": "Dropdown",
-                    "Position": {
-                      "X": 1,
-                      "Y": -35
-                    },
-                    "Column": 1,
-                    "ParentId": "b8a781b5599e4527a76af08a808d843b",
-                    "YOrder": 0,
-                    "XOrder": 0,
-                    "FixedWidth": 0
-                  }
-                ]
-              },
-              {
                 "Id": "9ed0256606114c1aab6b8bc064aa6bc2",
-                "YOrder": 1,
+                "YOrder": 0,
                 "ColumnSpan": 1,
                 "Components": [
                   {
@@ -874,14 +865,105 @@
                       0
                     ],
                     "Id": null,
+                    "Uid": "5487592ce7dc4181bb840bf29695fe73",
                     "Label": "Grid Input",
                     "Position": {
                       "X": 1,
-                      "Y": -31
+                      "Y": -35
                     },
                     "Column": 1,
                     "ParentId": "9ed0256606114c1aab6b8bc064aa6bc2",
+                    "YOrder": 0,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "d50137bd73e44444b4bef7976506e7e0",
+                "YOrder": 1,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Text",
+                    "Id": null,
+                    "Uid": "3f773d24a0e647c79d04c276c428535d",
+                    "Label": "Text",
+                    "Position": {
+                      "X": 1,
+                      "Y": -19
+                    },
+                    "Column": 1,
+                    "ParentId": "d50137bd73e44444b4bef7976506e7e0",
                     "YOrder": 1,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "1a877d42ea854bfa8c5c198f4ce6dbdb",
+                "YOrder": 2,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Input",
+                    "DisplayName": "Dropdown",
+                    "Description": null,
+                    "TypeId": "StringSelection",
+                    "IsReadOnly": false,
+                    "IsVisible": true,
+                    "GroupId": null,
+                    "DateTimeDisplayMode": 2,
+                    "DefaultValue": {
+                      "Source": 0,
+                      "Options": [
+                        "one",
+                        "two",
+                        "three"
+                      ],
+                      "Value": "two"
+                    },
+                    "Id": null,
+                    "Uid": "430cae4851f64e938557c427c9a18a77",
+                    "Label": "Dropdown",
+                    "Position": {
+                      "X": 1,
+                      "Y": -15
+                    },
+                    "Column": 1,
+                    "ParentId": "1a877d42ea854bfa8c5c198f4ce6dbdb",
+                    "YOrder": 2,
+                    "XOrder": 0,
+                    "FixedWidth": 0
+                  }
+                ]
+              },
+              {
+                "Id": "26aec18109c841c9bbf033c17c31c790",
+                "YOrder": 3,
+                "ColumnSpan": 1,
+                "Components": [
+                  {
+                    "$type": "Port",
+                    "Side": 1,
+                    "Shape": 0,
+                    "FillColor": {
+                      "Red": 28,
+                      "Green": 243,
+                      "Blue": 30,
+                      "Alpha": 255
+                    },
+                    "Id": null,
+                    "Uid": "7b32b24abfa44e37983ce84cac526c10",
+                    "Label": "Port",
+                    "Position": {
+                      "X": 1,
+                      "Y": -11
+                    },
+                    "Column": 1,
+                    "ParentId": "26aec18109c841c9bbf033c17c31c790",
+                    "YOrder": 3,
                     "XOrder": 0,
                     "FixedWidth": 0
                   }

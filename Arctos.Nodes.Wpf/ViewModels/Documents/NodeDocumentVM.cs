@@ -1,11 +1,16 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Text.Json;
+using System.Windows;
+using System.Windows.Input;
 using Arctos;
 using Arctos.History;
 using Arctos.Nodes;
 using Arctos.Nodes.Models;
 using Arctos.Nodes.Wpf.ViewModels;
 using Arctos.Shell.Documents;
+using Arctos.Wpf.Utilities;
 
 namespace Arctos.Nodes.Wpf.ViewModels.Documents;
 
@@ -37,6 +42,7 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM, IHistory
     private float _canvasMinimumColumnWidth = 24.0f;
     private float _canvasPortSize = 1.5f;
     private NodePortPlacement _canvasPortPlacement = NodePortPlacement.Over;
+    private ICommand? _toggleSurfaceModeCommand;
 
     #endregion Fields
 
@@ -47,6 +53,43 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM, IHistory
     /// Gets the owning node session.
     /// </summary>
     public NodeSession Session { get; }
+
+    /// <summary>
+    /// Gets the active document surface currently presented by this shell document.
+    /// </summary>
+    public virtual INodeDocumentVM PresentationDocument => this;
+
+    /// <summary>
+    /// Gets a value indicating whether this shell document is currently presenting its design surface.
+    /// </summary>
+    public virtual bool IsDesignMode => true;
+
+    /// <summary>
+    /// Gets a value indicating whether this shell document is currently presenting its transient test surface.
+    /// </summary>
+    public bool IsTestMode => !IsDesignMode;
+
+    /// <summary>
+    /// Gets a value indicating whether this document can switch between design and test surfaces.
+    /// </summary>
+    public virtual bool CanToggleSurfaceMode => false;
+
+    /// <summary>
+    /// Gets the user-facing surface mode text.
+    /// </summary>
+    public string SurfaceMode => IsDesignMode ? "Design" : "Test";
+
+    /// <summary>
+    /// Gets the user-facing command text for switching surface modes.
+    /// </summary>
+    public string ToggleSurfaceModeText => IsDesignMode ? "Enter Test" : "Return Design";
+
+    /// <summary>
+    /// Gets the command that toggles between the design and test surfaces when supported.
+    /// </summary>
+    public ICommand ToggleSurfaceModeCommand => _toggleSurfaceModeCommand ??= new RelayCommand(
+        _ => ToggleSurfaceMode(),
+        _ => CanToggleSurfaceMode);
 
     /// <summary>
     /// Gets the document-scoped history context.
@@ -529,6 +572,14 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM, IHistory
     }
 
     /// <summary>
+    /// Refreshes the current canvas surface mode flags.
+    /// </summary>
+    protected void RefreshCanvasSurfaceMode()
+    {
+        CurrentCanvas.IsDesignMode = IsDesignMode;
+    }
+
+    /// <summary>
     /// Creates a recorder that writes actions into the current document history and keeps the canvas up to date.
     /// </summary>
     /// <returns>The recorder callback used by child view models.</returns>
@@ -556,12 +607,66 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM, IHistory
     }
 
     /// <summary>
+    /// Gets the history service used by this document and any transient child surfaces.
+    /// </summary>
+    protected IHistoryService HistoryService => _historyService;
+
+    /// <summary>
+    /// Toggles the current surface mode when supported by the derived document type.
+    /// </summary>
+    protected virtual void ToggleSurfaceMode()
+    {
+    }
+
+    /// <summary>
     /// Resolves the effective canvas background color for the current document context.
     /// </summary>
     /// <returns>The effective canvas background color.</returns>
     protected virtual NodeColor ResolveCanvasBackgroundColor()
     {
         return NodeColor.Neutral.Surface;
+    }
+
+    /// <summary>
+    /// Validates component UIDs in the raw file and optionally auto-fixes the file in place before loading continues.
+    /// </summary>
+    protected bool ValidateAndAutoFixComponentUids<TFile>(
+        string filePath,
+        Func<string, TFile?> deserialize,
+        Action<TFile> save)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        ArgumentNullException.ThrowIfNull(deserialize);
+        ArgumentNullException.ThrowIfNull(save);
+
+        var json = File.ReadAllText(filePath);
+        var validation = NodeComponentUidValidator.ValidateJson(json);
+        if (validation.IsValid)
+            return true;
+
+        var promptText =
+            $"Invalid file:{Environment.NewLine}{Environment.NewLine}" +
+            $"Missing component UIDs: {validation.MissingUidCount}{Environment.NewLine}" +
+            $"Duplicate component UIDs: {validation.DuplicateUidCount}{Environment.NewLine}{Environment.NewLine}" +
+            "Auto fix - Yes/No";
+
+        var result = ShowLoadValidationMessageBox(promptText, "Invalid File");
+        if (result != MessageBoxResult.Yes)
+        {
+            AbortLoad();
+            return false;
+        }
+
+        var file = deserialize(json)
+            ?? throw new InvalidOperationException($"The file '{filePath}' could not be deserialized.");
+        _ = file switch
+        {
+            NodeMapFile mapFile => NodeComponentUidValidator.AutoFix(mapFile),
+            NodeLibraryFile libraryFile => NodeComponentUidValidator.AutoFix(libraryFile),
+            _ => throw new NotSupportedException($"Unsupported file validation type '{typeof(TFile).Name}'."),
+        };
+        save(file);
+        return true;
     }
 
     /// <summary>
@@ -739,6 +844,15 @@ public abstract class NodeDocumentVM : FileDocumentVM, INodeDocumentVM, IHistory
     {
         for (var navLink = NavLinkRoot; navLink != null; navLink = navLink.Child)
             yield return navLink;
+    }
+
+    private static MessageBoxResult ShowLoadValidationMessageBox(string message, string caption)
+    {
+        if (Application.Current?.Dispatcher == null || Application.Current.Dispatcher.CheckAccess())
+            return MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+        return Application.Current.Dispatcher.Invoke(
+            () => MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Warning));
     }
 
     private static bool ShouldRefreshNavigationState(string? propertyName)

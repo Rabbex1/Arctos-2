@@ -25,6 +25,11 @@ public abstract class NodeComponent
     public string? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the internal persisted component identity used by the editor for selection and structural tracking.
+    /// </summary>
+    public string Uid { get; set; } = Guid.NewGuid().ToString("N");
+
+    /// <summary>
     /// Gets or sets the user-facing component label or text.
     /// </summary>
     public string Label { get; set; } = string.Empty;
