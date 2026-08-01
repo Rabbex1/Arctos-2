@@ -8,7 +8,8 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=logging:LogToolWindowVM}"
              d:DesignHeight="500"
-             d:DesignWidth="1100">
+             d:DesignWidth="1100"
+             Background="#282828">
     <DockPanel>
         <Border DockPanel.Dock="Top"
                 Padding="8"

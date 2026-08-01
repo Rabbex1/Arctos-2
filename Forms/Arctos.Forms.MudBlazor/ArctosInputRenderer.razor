@@ -1,0 +1,371 @@
+@if (Input is InputLabelVM label)
+{
+    <MudText Typo="global::MudBlazor.Typo.body1">@label.Value</MudText>
+}
+else if (Input is InputGroupVM group)
+{
+    @if (group.Collapsable)
+    {
+        <MudExpansionPanels Elevation="0" Outlined="true">
+            <MudExpansionPanel Text="@group.Header">
+                <ArctosForm Form="@group.PropertiesForm" />
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    }
+    else
+    {
+        <MudPaper Outlined="true" Class="pa-4">
+            <MudText Typo="global::MudBlazor.Typo.subtitle2" Class="mb-3">@group.Header</MudText>
+            <ArctosForm Form="@group.PropertiesForm" />
+        </MudPaper>
+    }
+}
+else
+{
+    <MudPaper Outlined="true" Class="pa-3">
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="4">
+                <MudText Typo="global::MudBlazor.Typo.body2">@Input.Description</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="8">
+                @switch (Input)
+                {
+                    case InputStringVM input:
+                        <MudTextField T="string"
+                                      Value="@input.Value"
+                                      ValueChanged="value => input.Value = value ?? string.Empty"
+                                      Disabled="@IsDisabled(input)"
+                                      Immediate="true"
+                                      Lines="@(input.IsMultiLine ? input.ShowMaxLines : 1)"
+                                      AutoGrow="@input.IsMultiLine"
+                                      Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputTextAreaVM input:
+                        <MudTextField T="string"
+                                      Value="@input.Value"
+                                      ValueChanged="value => input.Value = value ?? string.Empty"
+                                      Disabled="@IsDisabled(input)"
+                                      Immediate="true"
+                                      Lines="6"
+                                      AutoGrow="true"
+                                      Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputBoolVM input:
+                        <MudSwitch T="bool"
+                                   Value="@input.Value"
+                                   ValueChanged="value => input.Value = value"
+                                   Disabled="@IsDisabled(input)"
+                                   Color="global::MudBlazor.Color.Primary" />
+                        break;
+                    case InputIntegerVM input:
+                        <MudNumericField T="int"
+                                         Value="@input.Value"
+                                         ValueChanged="value => input.Value = value"
+                                         Disabled="@IsDisabled(input)"
+                                         HideSpinButtons="true"
+                                         Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputUnsignedIntegerVM input:
+                        <MudNumericField T="uint"
+                                         Value="@input.Value"
+                                         ValueChanged="value => input.Value = value"
+                                         Disabled="@IsDisabled(input)"
+                                         HideSpinButtons="true"
+                                         Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputDoubleVM input:
+                        <MudNumericField T="double"
+                                         Value="@input.Value"
+                                         ValueChanged="value => input.Value = value"
+                                         Disabled="@IsDisabled(input)"
+                                         HideSpinButtons="true"
+                                         Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputFloatVM input:
+                        <MudNumericField T="float"
+                                         Value="@input.Value"
+                                         ValueChanged="value => input.Value = value"
+                                         Disabled="@IsDisabled(input)"
+                                         HideSpinButtons="true"
+                                         Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputDateTimeVM input:
+                        <MudTextField T="string"
+                                      Value="@input.DateTimeString"
+                                      ValueChanged="value => input.DateTimeString = value ?? string.Empty"
+                                      Disabled="@IsDisabled(input)"
+                                      Immediate="true"
+                                      Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputTimeSpanVM input:
+                        <MudTextField T="string"
+                                      Value="@input.Value.ToString()"
+                                      ValueChanged="value => SetTimeSpan(input, value)"
+                                      Validation="@TimeSpanValidation"
+                                      Disabled="@IsDisabled(input)"
+                                      Immediate="true"
+                                      Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputInfinityIntVM input:
+                        <MudTextField T="string"
+                                      Value="@input.StringValue"
+                                      ValueChanged="value => input.StringValue = value ?? string.Empty"
+                                      Validation="@InfinityIntegerValidation"
+                                      Disabled="@IsDisabled(input)"
+                                      Immediate="true"
+                                      Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputEnumVM input:
+                        <MudSelect T="string"
+                                   Value="@(input.Value?.ToString() ?? string.Empty)"
+                                   ValueChanged="value => SetEnumValue(input, value)"
+                                   Disabled="@IsDisabled(input)"
+                                   Variant="global::MudBlazor.Variant.Outlined">
+                            @foreach (var option in GetEnumOptions(input))
+                            {
+                                <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
+                            }
+                        </MudSelect>
+                        break;
+                    case InputStringComboVM input:
+                        <MudSelect T="string"
+                                   Value="@input.Value"
+                                   ValueChanged="value => input.Value = value ?? string.Empty"
+                                   Disabled="@IsDisabled(input)"
+                                   Variant="global::MudBlazor.Variant.Outlined">
+                            @foreach (var option in input.Options)
+                            {
+                                <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
+                            }
+                        </MudSelect>
+                        break;
+                    case InputObjectComboVM input:
+                        <MudSelect T="int"
+                                   Value="@GetSelectedObjectIndex(input)"
+                                   ValueChanged="value => SetSelectedObject(input, value)"
+                                   Disabled="@IsDisabled(input)"
+                                   Variant="global::MudBlazor.Variant.Outlined">
+                            @for (var index = 0; index < input.Options.Count; index++)
+                            {
+                                var option = input.Options[index];
+                                <MudSelectItem T="int" Value="@index">@GetDisplayText(option, input.DisplayMember)</MudSelectItem>
+                            }
+                        </MudSelect>
+                        break;
+                    case DisplayObjectVM input:
+                        <MudTextField T="string"
+                                      Value="@GetDisplayText(input.Value, input.DisplayMember)"
+                                      Disabled="true"
+                                      Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputStringListBoxVM input:
+                        <MudSelect T="string"
+                                   Value="@input.Value"
+                                   ValueChanged="value => input.Value = value ?? string.Empty"
+                                   Disabled="@IsDisabled(input)"
+                                   Variant="global::MudBlazor.Variant.Outlined">
+                            @foreach (var option in input.Options)
+                            {
+                                <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
+                            }
+                        </MudSelect>
+                        break;
+                    case InputStringListVM input:
+                        <MudStack Spacing="1">
+                            @foreach (var item in input.Items)
+                            {
+                                <MudStack Row="true" Spacing="1">
+                                    <MudTextField T="string"
+                                                  Value="@item.Value"
+                                                  ValueChanged="value => item.Value = value ?? string.Empty"
+                                                  Disabled="@IsDisabled(input)"
+                                                  Immediate="true"
+                                                  Variant="global::MudBlazor.Variant.Outlined"
+                                                  Class="flex-grow-1" />
+                                    <MudIconButton Icon="@ArrowUpIcon"
+                                                   Disabled="@IsDisabled(input)"
+                                                   OnClick="@(() => MoveStringItem(input, item, true))" />
+                                    <MudIconButton Icon="@ArrowDownIcon"
+                                                   Disabled="@IsDisabled(input)"
+                                                   OnClick="@(() => MoveStringItem(input, item, false))" />
+                                    <MudIconButton Icon="@DeleteIcon"
+                                                   Disabled="@IsDisabled(input)"
+                                                   Color="global::MudBlazor.Color.Error"
+                                                   OnClick="@(() => RemoveStringItem(input, item))" />
+                                </MudStack>
+                            }
+                            <MudButton Variant="global::MudBlazor.Variant.Text"
+                                       StartIcon="@AddIcon"
+                                       Disabled="@IsDisabled(input)"
+                                       OnClick="@(() => input.AddCommand.Execute(null))">
+                                Add item
+                            </MudButton>
+                        </MudStack>
+                        break;
+                    case InputIntRangeVM input:
+                        <MudStack Spacing="1">
+                            <MudSlider T="int"
+                                       Min="@(input.Value?.Min ?? 0)"
+                                       Max="@(input.Value?.Max ?? 0)"
+                                       Value="@(input.Value?.Value ?? 0)"
+                                       ValueChanged="value => SetIntRange(input, value)"
+                                       Disabled="@IsDisabled(input)"
+                                       Color="global::MudBlazor.Color.Primary" />
+                            <MudTextField T="string"
+                                          Value="@input.StringValue"
+                                          ValueChanged="value => input.StringValue = value ?? string.Empty"
+                                          Validation="@((Func<string?, IEnumerable<string>>)(value => MudBlazorValidationAdapters.ValidateIntegerRange(input, value)))"
+                                          Disabled="@IsDisabled(input)"
+                                          Immediate="true"
+                                          Variant="global::MudBlazor.Variant.Outlined" />
+                        </MudStack>
+                        break;
+                    case InputIntRangeExtraVM input:
+                        <MudTextField T="string"
+                                      Value="@input.StringValue"
+                                      ValueChanged="value => input.StringValue = value ?? string.Empty"
+                                      Validation="@((Func<string?, IEnumerable<string>>)(value => MudBlazorValidationAdapters.ValidateIntegerRangeExtra(input, value)))"
+                                      Disabled="@IsDisabled(input)"
+                                      Immediate="true"
+                                      HelperText="@input.AllowedValuesDescription"
+                                      Variant="global::MudBlazor.Variant.Outlined" />
+                        break;
+                    case InputFloatRangeVM input:
+                        <MudStack Spacing="1">
+                            <MudSlider T="double"
+                                       Min="@(input.Value?.Min ?? 0)"
+                                       Max="@(input.Value?.Max ?? 0)"
+                                       Value="@((double)(input.Value?.Value ?? 0f))"
+                                       ValueChanged="value => SetFloatRange(input, value)"
+                                       Disabled="@IsDisabled(input)"
+                                       Color="global::MudBlazor.Color.Primary" />
+                            <MudNumericField T="double"
+                                             Value="@((double)(input.Value?.Value ?? 0f))"
+                                             ValueChanged="value => SetFloatRange(input, value)"
+                                             Validation="@((Func<double, IEnumerable<string>>)(value => MudBlazorValidationAdapters.ValidateFloatRange(input, value)))"
+                                             Disabled="@IsDisabled(input)"
+                                             HideSpinButtons="true"
+                                             Immediate="true"
+                                             Min="@(input.Value?.Min ?? 0)"
+                                             Max="@(input.Value?.Max ?? 0)"
+                                             Variant="global::MudBlazor.Variant.Outlined" />
+                            <MudText Typo="global::MudBlazor.Typo.caption">Min: @(input.Value?.Min ?? 0) | Value: @(input.Value?.Value ?? 0f) | Max: @(input.Value?.Max ?? 0)</MudText>
+                        </MudStack>
+                        break;
+                    case IInputMatrixVM matrix:
+                        <div style="@GetMatrixStyle(matrix.Columns)">
+                            @foreach (var cell in matrix.Cells)
+                            {
+                                <MudTextField T="string"
+                                              Value="@cell.Text"
+                                              ValueChanged="value => cell.Text = value ?? string.Empty"
+                                              Disabled="@IsDisabled(Input)"
+                                              Immediate="true"
+                                              Variant="global::MudBlazor.Variant.Outlined"
+                                              Margin="global::MudBlazor.Margin.Dense" />
+                            }
+                        </div>
+                        break;
+                    default:
+                        <MudText Typo="global::MudBlazor.Typo.caption">No MudBlazor renderer is registered for @Input.GetType().Name.</MudText>
+                        break;
+                }
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public DataInputWrapperVM Input { get; set; } = null!;
+
+    private const string ArrowUpIcon = global::MudBlazor.Icons.Material.Filled.ArrowUpward;
+    private const string ArrowDownIcon = global::MudBlazor.Icons.Material.Filled.ArrowDownward;
+    private const string DeleteIcon = global::MudBlazor.Icons.Material.Filled.DeleteOutline;
+    private const string AddIcon = global::MudBlazor.Icons.Material.Filled.Add;
+    private static readonly Func<string?, IEnumerable<string>> TimeSpanValidation = MudBlazorValidationAdapters.ValidateTimeSpan;
+    private static readonly Func<string?, IEnumerable<string>> InfinityIntegerValidation = MudBlazorValidationAdapters.ValidateInfinityInteger;
+
+    private static bool IsDisabled(DataInputWrapperVM input) => input.IsReadOnly || !input.IsEnabled;
+
+    private static IEnumerable<string> GetEnumOptions(InputEnumVM input)
+    {
+        return input.Value == null ? [] : Enum.GetNames(input.Value.GetType());
+    }
+
+    private static void SetEnumValue(InputEnumVM input, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || input.Value == null)
+            return;
+
+        input.Value = (Enum)Enum.Parse(input.Value.GetType(), value, ignoreCase: true);
+    }
+
+    private static int GetSelectedObjectIndex(InputObjectComboVM input)
+    {
+        return input.Value == null ? -1 : input.Options.IndexOf(input.Value);
+    }
+
+    private static void SetSelectedObject(InputObjectComboVM input, int index)
+    {
+        if (index < 0 || index >= input.Options.Count)
+            return;
+
+        input.Value = input.Options[index];
+    }
+
+    private static string GetDisplayText(object? value, string displayMember)
+    {
+        if (value == null)
+            return string.Empty;
+
+        if (string.IsNullOrWhiteSpace(displayMember))
+            return value.ToString() ?? string.Empty;
+
+        var property = value.GetType().GetProperty(displayMember);
+        return property?.GetValue(value)?.ToString() ?? value.ToString() ?? string.Empty;
+    }
+
+    private static void SetTimeSpan(InputTimeSpanVM input, string? value)
+    {
+        if (TimeSpan.TryParse(value, out var parsedValue))
+            input.Value = parsedValue;
+    }
+
+    private static void SetIntRange(InputIntRangeVM input, int value)
+    {
+        if (input.Value == null)
+            return;
+
+        input.Value.Value = value;
+        input.StringValue = value.ToString();
+    }
+
+    private static void SetFloatRange(InputFloatRangeVM input, double value)
+    {
+        if (input.Value == null)
+            return;
+
+        input.Value.Value = (float)value;
+    }
+
+    private static string GetMatrixStyle(int columns)
+    {
+        return $"display:grid;grid-template-columns:repeat({Math.Max(columns, 1)}, minmax(0, 1fr));gap:8px;";
+    }
+
+    private static void RemoveStringItem(InputStringListVM input, InputStringListVM.StringListItemVM item)
+    {
+        input.SelectedItem = item;
+        input.RemoveCommand.Execute(null);
+    }
+
+    private static void MoveStringItem(InputStringListVM input, InputStringListVM.StringListItemVM item, bool moveUp)
+    {
+        input.SelectedItem = item;
+        if (moveUp)
+            input.MoveUpCommand.Execute(null);
+        else
+            input.MoveDownCommand.Execute(null);
+    }
+}

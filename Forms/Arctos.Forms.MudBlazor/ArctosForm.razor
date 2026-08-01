@@ -1,0 +1,16 @@
+@if (Form != null)
+{
+    <MudForm>
+        <MudStack Spacing="2" Class="arctos-form">
+            @foreach (var input in Form.Inputs.Where(input => !input.Hide))
+            {
+                <ArctosInputRenderer Input="@input" />
+            }
+        </MudStack>
+    </MudForm>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public InputFormVM Form { get; set; } = null!;
+}
