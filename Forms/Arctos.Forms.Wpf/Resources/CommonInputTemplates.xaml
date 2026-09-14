@@ -18,6 +18,7 @@
     <valueConverters:NotBoolToVisibilityConverter x:Key="NotBool2Vis" />
     <valueConverters:NotNullToVisibilityConverter x:Key="NotNull2Vis" />
     <valueConverters:StringToResourceConverter x:Key="String2Resource" />
+    <wpfInputs:InputColorValueConverter x:Key="InputColorValueConverter" />
 
     <Style x:Key="InputTextBox" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
         <Setter Property="BorderThickness" Value="1" />
@@ -81,6 +82,31 @@
                    TextAlignment="{Binding Justify}"
                    TextWrapping="Wrap"
                    Margin="0 2" />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type forms:InputColorVM}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="1" BorderBrush="{StaticResource ToolWindowBorderBrush}" BorderThickness="1">
+                <colorPicker:PortableColorPicker SmallChange="5"
+                                                 SelectedColor="{Binding Value, Mode=TwoWay, Converter={StaticResource InputColorValueConverter}}"
+                                                 ShowAlpha="True">
+                    <colorPicker:PortableColorPicker.Style>
+                        <Style TargetType="{x:Type colorPicker:PortableColorPicker}" BasedOn="{StaticResource DefaultColorPickerStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsReadOnly}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </colorPicker:PortableColorPicker.Style>
+                </colorPicker:PortableColorPicker>
+            </Border>
+        </Grid>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type forms:InputIntegerVM}">

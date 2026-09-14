@@ -6,7 +6,7 @@ namespace Arctos.History;
 public sealed class HistoryService : IHistoryService
 {
     public const int DefaultMaxEntries = 100;
-    private readonly Dictionary<string, HistoryContext> _contexts = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, IHistoryContext> _contexts = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Creates a new history service using the default maximum entry count.
@@ -42,6 +42,19 @@ public sealed class HistoryService : IHistoryService
         var createdContext = new HistoryContext(id, MaxEntries);
         _contexts.Add(id, createdContext);
         return createdContext;
+    }
+
+    /// <inheritdoc/>
+    public bool TryRegisterContext(IHistoryContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentException.ThrowIfNullOrWhiteSpace(context.Id);
+
+        if (_contexts.TryGetValue(context.Id, out var existingContext))
+            return ReferenceEquals(existingContext, context);
+
+        _contexts.Add(context.Id, context);
+        return true;
     }
 
     /// <inheritdoc/>

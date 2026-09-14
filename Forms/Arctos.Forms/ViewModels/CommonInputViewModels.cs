@@ -35,6 +35,27 @@ public sealed class InputBoolVM : DataInputWrapperVM<bool>
     }
 }
 
+/// <summary>
+/// Represents a portable color input. Platform adapters provide the editor UI.
+/// </summary>
+public sealed class InputColorVM : DataInputWrapperVM<InputColor>
+{
+    public InputColorVM(string description, InputColor color, Action<InputColor>? onChange)
+        : base(description, color, onChange)
+    {
+    }
+
+    public InputColorVM(string description, InputColor color, Action<DataInputWrapperVM<InputColor>, InputColor> onChange)
+        : base(description, color, onChange)
+    {
+    }
+
+    public void UpdateColor(InputColor color)
+    {
+        UpdateValue(color);
+    }
+}
+
 public sealed class InputDateTimeVM : DataInputWrapperVM<DateTime>
 {
     private static readonly string[] Formats =
@@ -521,9 +542,9 @@ public sealed class InputMatrixVM<T> : DataInputWrapperVM<T[]>, IInputMatrixVM
         BuildCells();
     }
 
-    public int Rows { get; }
+    public int Rows { get; private set; }
 
-    public int Columns { get; }
+    public int Columns { get; private set; }
 
     public ObservableCollection<InputMatrixCellVM> Cells { get; } = [];
 
@@ -547,6 +568,26 @@ public sealed class InputMatrixVM<T> : DataInputWrapperVM<T[]>, IInputMatrixVM
         var normalized = Normalize(values, Rows, Columns);
         UpdateValue(normalized);
         SyncCellsFromValue(normalized);
+    }
+
+    /// <summary>
+    /// Changes the matrix dimensions and values without notifying the change callback.
+    /// </summary>
+    public void Reconfigure(int rows, int columns, T[]? values)
+    {
+        if (rows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(rows), rows, "Rows must be greater than zero.");
+
+        if (columns <= 0)
+            throw new ArgumentOutOfRangeException(nameof(columns), columns, "Columns must be greater than zero.");
+
+        Rows = rows;
+        Columns = columns;
+        OnPropertyChanged(nameof(Rows));
+        OnPropertyChanged(nameof(Columns));
+
+        UpdateValue(Normalize(values, rows, columns));
+        BuildCells();
     }
 
     private void BuildCells()

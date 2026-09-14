@@ -109,6 +109,32 @@ namespace Arctos.Shell.Documents
             WeakReferenceMessenger.Default.Send(new DocumentMessage(this, DocumentAction.DocumentAdded, [document]));
         }
 
+        /// <summary>
+        /// Reports that the document has received UI focus.
+        /// </summary>
+        /// <remarks>
+        /// A newly focused document follows the ordinary active-document path. An already active
+        /// document emits a separate notification so hosts can restore presentation context.
+        /// </remarks>
+        public void NotifyDocumentFocused(IDocumentVM document)
+        {
+            ArgumentNullException.ThrowIfNull(document);
+
+            if (!Documents.Contains(document))
+                return;
+
+            if (!ReferenceEquals(ActiveDocument, document))
+            {
+                ActiveDocument = document;
+                return;
+            }
+
+            WeakReferenceMessenger.Default.Send(new DocumentMessage(
+                this,
+                DocumentAction.ActiveDocumentFocused,
+                [document]));
+        }
+
         public void RemoveDocument(IDocumentVM? document)
         {
             if (document == null) return;
@@ -462,6 +488,14 @@ namespace Arctos.Shell.Documents
 
         public void Receive(AvalonDockMessage message)
         {
+            if (message.Action == AvalonDockAction.DocumentFocused)
+            {
+                if (message.Params?[0] is IDocumentVM document)
+                    NotifyDocumentFocused(document);
+
+                return;
+            }
+
             if (message.Action != AvalonDockAction.DocumentPaneLoaded) return;
 
             if (message.Params?[0] is not LayoutSerializationCallbackEventArgs args)

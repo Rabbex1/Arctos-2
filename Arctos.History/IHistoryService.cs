@@ -13,6 +13,16 @@ public interface IHistoryService
     IHistoryContext GetOrCreateContext(string id);
 
     /// <summary>
+    /// Registers an existing detached context so it can be resolved by its stable identifier again.
+    /// </summary>
+    /// <param name="context">The context to register.</param>
+    /// <returns>
+    /// <see langword="true"/> when the context was registered, or when the same instance was
+    /// already registered; otherwise, <see langword="false"/> when another instance owns the ID.
+    /// </returns>
+    bool TryRegisterContext(IHistoryContext context);
+
+    /// <summary>
     /// Attempts to get an existing history context.
     /// </summary>
     /// <param name="id">The stable context identifier.</param>

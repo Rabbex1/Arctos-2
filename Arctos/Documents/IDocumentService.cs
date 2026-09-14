@@ -20,6 +20,7 @@ namespace Arctos.Shell.Documents
         bool SwitchTo(string name);
         bool SwitchToType(Type type);
         void AddDocument(IDocumentVM document, bool makeCurrent = true);
+        void NotifyDocumentFocused(IDocumentVM document);
         void RemoveDocument(IDocumentVM document);
         void CloseDocument(IDocumentVM document);
         void CloseAllDocuments(IDocumentVM? except = null);

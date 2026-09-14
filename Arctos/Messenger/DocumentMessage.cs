@@ -12,6 +12,7 @@ namespace Arctos.Messenger
         DocumentAdded,
         DocumentRemoved,
         ActiveDocumentChanged,
+        ActiveDocumentFocused,
         ActiveDocumentNameChanged
     }
 

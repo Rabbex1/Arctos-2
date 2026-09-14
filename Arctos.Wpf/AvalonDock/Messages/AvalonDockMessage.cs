@@ -6,6 +6,7 @@ namespace Arctos.Wpf.AvalonDock
   {
     ShowDocument,
     HideDocument,
+    DocumentFocused,
     AnchorablePaneLoaded,
     DocumentPaneLoaded
   }

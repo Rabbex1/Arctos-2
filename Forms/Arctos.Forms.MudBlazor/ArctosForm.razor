@@ -1,7 +1,7 @@
 @if (Form != null)
 {
     <MudForm>
-        <MudStack Spacing="2" Class="arctos-form">
+        <MudStack Spacing="1" Class="arctos-form">
             @foreach (var input in Form.Inputs.Where(input => !input.Hide))
             {
                 <ArctosInputRenderer Input="@input" />
