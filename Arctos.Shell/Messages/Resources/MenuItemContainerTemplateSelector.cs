@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace Arctos.Shell.Resources
+namespace Arctos.Shell.Messages.Resources
 {
   public class MenuItemContainerTemplateSelector : ItemContainerTemplateSelector
   {
