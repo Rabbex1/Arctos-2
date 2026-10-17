@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="9.10.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Arctos.Forms\Arctos.Forms.csproj" />
+    <ProjectReference Include="..\Arctos.Forms.MudBlazor\Arctos.Forms.MudBlazor.csproj" />
+  </ItemGroup>
+</Project>

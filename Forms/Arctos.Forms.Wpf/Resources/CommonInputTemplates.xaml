@@ -109,6 +109,27 @@
         </Grid>
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type forms:InputBrushVM}">
+        <Button Click="OpenBrushEditor_Click" Padding="3" HorizontalContentAlignment="Stretch">
+            <Grid Height="30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="38" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <wpfInputs:BrushPreview Input="{Binding}" Margin="0,0,8,0" />
+                <TextBlock Grid.Column="1" Text="{Binding DisplayDescription}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+            </Grid>
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsReadOnly}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
+                        <DataTrigger Binding="{Binding IsEnabled}" Value="False"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type forms:InputIntegerVM}">
         <TextBox Style="{StaticResource InputTextBox}" IsReadOnly="{Binding IsReadOnly}">
             <Validation.ErrorTemplate>

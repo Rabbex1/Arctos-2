@@ -70,6 +70,9 @@ else
                             </div>
                         </MudField>
                         break;
+                    case InputBrushVM input:
+                        <BrushInput Input="@input" />
+                        break;
                     case InputIntegerVM input:
                         <MudNumericField T="int"
                                          Value="@input.Value"

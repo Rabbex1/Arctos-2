@@ -1,0 +1,88 @@
+@page "/"
+
+<PageTitle>Arctos Forms brush harness</PageTitle>
+<MudThemeProvider IsDarkMode="_darkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-8">
+    <MudText Typo="Typo.h4" GutterBottom="true">Arctos Forms brush editor</MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">This harness exercises the MudBlazor adapter against the same portable contract as WPF.</MudText>
+    <MudSwitch T="bool" Value="_darkMode" ValueChanged="SetTheme" Color="Color.Primary">Dark mode</MudSwitch>
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="RefreshPalette" Class="mb-5">Replace palette (Light / Dark)</MudButton>
+
+    <MudGrid Spacing="3">
+        @foreach (var input in _inputs)
+        {
+            <MudItem xs="12">
+                <MudPaper Class="pa-4" Outlined="true">
+                    <ArctosInputRenderer Input="input" />
+                    <MudText Typo="Typo.caption" Class="mt-2" Style="font-family:monospace;word-break:break-all">@input.Value</MudText>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+
+    <MudPaper Class="pa-4 mt-6" Outlined="true">
+        <MudText Typo="Typo.h6">Committed changes</MudText>
+        <MudText Typo="Typo.caption">Palette refreshes and cancelled edits should not appear.</MudText>
+        @foreach (var message in _events)
+        {
+            <MudText Style="font-family:monospace">@message</MudText>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private readonly List<InputBrushVM> _inputs = [];
+    private readonly List<string> _events = [];
+    private bool _darkPalette;
+    private bool _darkMode;
+    private readonly BrushInputOptions _brushOptions = new() { MaximumRadialViewRange = 4 };
+
+    private void SetTheme(bool dark)
+    {
+        _darkMode = dark;
+        foreach (var input in _inputs)
+        {
+            input.EditorBackground = dark ? new(38, 38, 42) : new(247, 246, 242);
+            input.EditorForeground = dark ? new(240, 240, 240) : new(32, 32, 32);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        _inputs.Add(Create("Named palette brush", "@Surface", InputBrushKinds.All));
+        _inputs.Add(Create("Solid-only property", "@AccentSolid", InputBrushKinds.Named | InputBrushKinds.Solid));
+        _inputs.Add(Create("Linear gradient", "linear(0,0.5,1,0.5;0:#1E90FFFF;1:#C71585FF)", InputBrushKinds.All));
+        _inputs.Add(Create("Radial gradient", "radial(0.5,0.5,0.5,0.5;0:#FFFFFFFF;1:#4169E100)", InputBrushKinds.All));
+        _inputs.Add(Create("Angular gradient", "angular(0.5,0.5,0,360;0:#FF0000FF;0.333333:#00FF00FF;0.666667:#0000FFFF;1:#FF0000FF)", InputBrushKinds.All));
+        _inputs.Add(Create("Clearable / inherited", "@Surface", InputBrushKinds.All, true));
+    }
+
+    private InputBrushVM Create(string label, string value, InputBrushKinds kinds, bool allowClear = false) =>
+        new(label, value, CreatePalette(false), kinds, changed =>
+        {
+            _events.Insert(0, $"{DateTime.Now:HH:mm:ss.fff}  {label}: {changed}");
+            _ = InvokeAsync(StateHasChanged);
+        }, allowClear, _brushOptions);
+
+    private void RefreshPalette()
+    {
+        _darkPalette = !_darkPalette;
+        foreach (var input in _inputs)
+            input.ReplacePalette(CreatePalette(_darkPalette));
+    }
+
+    private static InputBrushPaletteEntry[] CreatePalette(bool dark) =>
+    [
+        new("Surface", dark ? "#20242BFF" : "#F7F8FAFF"),
+        new("AccentSolid", dark ? "#8AB4F8FF" : "#2457D6FF"),
+        new("Hero", dark
+            ? "linear(0,0,1,1;0:#11243DFF;0.5:#71436FFF;1:#C06C47FF)"
+            : "linear(0,0,1,1;0:#DFF3FFFF;0.5:#FCE1FFFF;1:#FFE8CFFF)"),
+        new("Spotlight", "radial(0.35,0.3,0.65,0.7;0:#FFFFFFFF;1:#4169E100)"),
+        new("Spectrum", "angular(0.5,0.5,0,360;0:#FF0000FF;0.333333:#00FF00FF;0.666667:#0000FFFF;1:#FF0000FF)")
+    ];
+}

@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="../Arctos.Wpf/Arctos.Wpf.csproj" />
+  <Project Path="../Arctos/Arctos.csproj" />
+  <Project Path="Arctos.Forms.MudBlazor.TestHarness/Arctos.Forms.MudBlazor.TestHarness.csproj" />
+  <Project Path="Arctos.Forms.MudBlazor/Arctos.Forms.MudBlazor.csproj" />
+  <Project Path="Arctos.Forms.Tests/Arctos.Forms.Tests.csproj" />
+  <Project Path="Arctos.Forms.Wpf.TestHarness/Arctos.Forms.Wpf.TestHarness.csproj" />
+  <Project Path="Arctos.Forms.Wpf/Arctos.Forms.Wpf.csproj" />
+  <Project Path="Arctos.Forms/Arctos.Forms.csproj" />
+</Solution>

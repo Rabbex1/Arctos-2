@@ -39,6 +39,8 @@ dotnet build "Arctos 2.sln" -v:minimal
 
 For more build notes, see [`BUILDING.md`](BUILDING.md).
 
+The reusable Forms brush editor and its WPF and MudBlazor harnesses are documented in [`Forms/BRUSH_INPUT.md`](Forms/BRUSH_INPUT.md).
+
 ## Status
 
 This is an early public release of a long-evolved codebase. The repository is usable today, but it is still being cleaned up and shaped for a broader audience. Some projects may move to separate branches over time as the public surface area becomes more deliberate.

@@ -1,0 +1,45 @@
+<Window x:Class="Arctos.Forms.Wpf.TestHarness.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:formsWpf="clr-namespace:Arctos.Forms.Wpf;assembly=Arctos.Forms.Wpf"
+        Title="Arctos Forms brush test harness" Width="920" Height="680"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="180" /></Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Text="Arctos Forms brush editor" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Open each row to test named references, solid colors, gradients, restrictions, clear, accept, and cancel." Margin="0,4,0,14" />
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Content="Dark mode" VerticalAlignment="Center" Margin="0,0,12,0" Checked="ThemeChanged" Unchecked="ThemeChanged" />
+                <Button Content="Replace palette (Light / Dark)" Click="RefreshPalette_Click" Padding="12,5" Margin="0,0,8,0" />
+                <Button Content="Inject invalid draft" Click="InvalidDraft_Click" Padding="12,5" Margin="0,0,8,0" />
+                <Button Content="Benchmark angular preview" Click="Benchmark_Click" Padding="12,5" />
+            </StackPanel>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,18,0,12">
+        <ItemsControl ItemsSource="{Binding Inputs}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="170" /><ColumnDefinition Width="*" /><ColumnDefinition Width="260" /></Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Description}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <Button Grid.Column="1" Click="Edit_Click" Padding="5" HorizontalContentAlignment="Stretch">
+                            <Grid Height="34">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <formsWpf:BrushPreview Input="{Binding}" Margin="0,0,10,0" />
+                                <TextBlock Grid.Column="1" Text="{Binding DisplayDescription}" VerticalAlignment="Center" />
+                            </Grid>
+                        </Button>
+                        <TextBlock Grid.Column="2" Text="{Binding Value}" FontFamily="Consolas" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="10,0,0,0" ToolTip="{Binding Value}" />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        </ScrollViewer>
+
+        <GroupBox Grid.Row="2" Header="Committed changes (palette refreshes should not appear)">
+            <ListBox ItemsSource="{Binding Events}" FontFamily="Consolas" />
+        </GroupBox>
+    </Grid>
+</Window>

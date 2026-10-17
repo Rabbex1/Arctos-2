@@ -1,0 +1,132 @@
+@using System.Globalization
+@using global::MudBlazor.Utilities
+
+<div class="arctos-brush-input">
+    <MudButton Variant="Variant.Outlined" FullWidth="true" Disabled="@(Input.IsReadOnly || !Input.IsEnabled)" OnClick="OpenEditor">
+        <div class="arctos-brush-summary"><span class="arctos-brush-preview" style="@PreviewStyle(Input.Value)"></span><span>@Input.DisplayDescription</span></div>
+    </MudButton>
+    <MudDialog Visible="Input.IsEditing" Options="EditorOptions" AriaLabel="Brush editor" Style="@DialogStyle" ContentStyle="padding:20px;overflow:visible;flex:0 0 auto">
+        <DialogContent>
+            @if (_model is not null)
+            {
+                <div class="brush-editor" style="@EditorStyle">
+                    <div class="brush-tabs" role="tablist" aria-label="Brush type">
+                        @foreach (var mode in BrushEditingModel.Tabs)
+                        {
+                            <button type="button" role="tab" aria-selected="@(mode == _model.Mode)" disabled="@(!_model.Allowed(mode))" class="@(mode == _model.Mode ? "selected" : "")" @onclick="() => SwitchMode(mode)">@mode</button>
+                        }
+                    </div>
+                    <div class="editor-body">
+                        @if (_model.Mode == "Palette")
+                        {
+                            <div class="palette-grid">
+                                @foreach (var entry in Input.Palette)
+                                {
+                                    <button type="button" title="@entry.Name" @onclick="() => _model.SelectPalette(entry)"><span class="palette-swatch" style="@DescriptionStyle(entry.Description)"></span>@entry.Name</button>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="selector-column"><ColourSpectrum @key="_model" Value="@SelectedColor" ValueChanged="SetColor" CenterFields="@(_model.Mode == "Solid")" /></div>
+                            <div class="preview-column">
+                                <BrushEditorCanvas @key="_model.Mode" Model="_model" Changed="Refresh" />
+                                @if (_model.IsGradient)
+                                {
+                                    <div class="geometry-controls">
+                                        @if (_model.Mode != "Sweep")
+                                        {
+                                            <div class="tool-buttons">
+                                                <button type="button" class="@(_model.Tool == "Points" ? "selected" : "")" @onclick='() => SetTool("Points")'>Points</button>
+                                                <button type="button" class="@(_model.Tool != "Points" ? "selected" : "")" @onclick='() => SetTool(_model.Mode == "Radial" ? "Centre" : "Angle")'>@(_model.Mode == "Radial" ? "Centre" : "Angle")</button>
+                                            </div>
+                                        }
+                                        @if (_model.Tool == "Points" || _model.Mode == "Sweep")
+                                        {
+                                            <div class="point-row">
+                                                <div class="point-picker">
+                                                    <button type="button" class="point-choice" aria-haspopup="listbox" aria-expanded="@_pointOpen" @onclick="() => _pointOpen = !_pointOpen">
+                                                        <span>@_model.Stops[_model.Selected].Label</span><span class="point-dot" style="@Dot(_model.Color)"></span><span aria-hidden="true">▾</span>
+                                                    </button>
+                                                    @if (_pointOpen)
+                                                    {
+                                                        <div class="point-options" role="listbox" aria-label="Gradient points">
+                                                            @for (var i = 0; i < _model.Stops.Count; i++)
+                                                            {
+                                                                var index = i; var stop = _model.Stops[i];
+                                                                <button type="button" role="option" aria-selected="@(i == _model.Selected)" @onclick="() => SelectPoint(index)"><span>@stop.Label</span><span class="point-dot" style="@Dot(stop.Color)"></span></button>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <button type="button" aria-label="Add point" title="Add point" @onclick="() => _model.Add()">+</button>
+                                                <button type="button" aria-label="Delete point" title="Delete point" disabled="@(_model.Stops.Count <= 2)" @onclick="() => _model.Remove()"><svg width="14" height="16" viewBox="0 0 14 16" aria-hidden="true"><path d="M2 4h10M4 4v10h6V4M5 2h4M6 6v6M8 6v6" fill="none" stroke="currentColor" stroke-width="1.4" /></svg></button>
+                                            </div>
+                                        }
+                                        @if (_model.Mode == "Sweep" || _model.Tool == "Angle")
+                                        {
+                                            <label class="angle-field">Angle °<input aria-label="Gradient angle" type="number" step="0.1" value="@Number(_model.Angle)" @onchange="AngleChanged" /></label>
+                                        }
+                                        else
+                                        {
+                                            var point = _model.PointPosition;
+                                            <div class="xy-fields"><label>X<input aria-label="Point X" type="number" min="@(_model.Mode == "Radial" ? null : "0")" max="@(_model.Mode == "Radial" ? null : "1")" step="0.01" value="@Number(point.X)" @onchange="e => CoordinateChanged(true, e)" /></label><label>Y<input aria-label="Point Y" type="number" min="@(_model.Mode == "Radial" ? null : "0")" max="@(_model.Mode == "Radial" ? null : "1")" step="0.01" value="@Number(point.Y)" @onchange="e => CoordinateChanged(false, e)" /></label></div>
+                                        }
+                                        @if (_model.Mode == "Radial")
+                                        {
+                                            <label class="view-range">View range<input aria-label="Radial view range" type="range" min="1" max="@Number(_model.MaximumViewRange)" step="any" value="@Number(_model.ViewRange)" @oninput="ViewRangeChanged" /><span>@(_model.ViewRange.ToString("0.0", CultureInfo.InvariantCulture))×</span></label>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="editor-error" title="@Input.ValidationError">@Input.ValidationError</div>
+                    <div class="editor-actions">
+                        @if (Input.AllowClear) { <button type="button" class="clear-button" @onclick="() => _model.Clear()">Clear / inherit</button> }
+                        <button type="button" @onclick="Cancel">Cancel</button><button type="button" disabled="@(!Input.CanCommit)" @onclick="Accept">Accept</button>
+                    </div>
+                </div>
+            }
+        </DialogContent>
+    </MudDialog>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public InputBrushVM Input { get; set; } = null!;
+    private BrushEditingModel? _model;
+    private bool _pointOpen;
+    private static readonly DialogOptions EditorOptions = new() { NoHeader = true, CloseButton = false, CloseOnEscapeKey = false, BackdropClick = false, FullWidth = false, MaxWidth = MaxWidth.ExtraLarge };
+    private string EditorStyle => $"--editor-bg:{InputBrushFormat.FormatColor(Input.EditorBackground)};--editor-fg:{InputBrushFormat.FormatColor(Input.EditorForeground)};background:var(--editor-bg);color:var(--editor-fg)";
+    private string DialogStyle => $"width:580px;min-width:580px;height:520px;max-height:none;overflow:visible;background:{InputBrushFormat.FormatColor(Input.EditorBackground)};color:{InputBrushFormat.FormatColor(Input.EditorForeground)}";
+    private MudColor SelectedColor => new(_model!.Color.Red, _model.Color.Green, _model.Color.Blue, _model.Color.Alpha);
+    private void OpenEditor() { Input.BeginEdit(); _model = new(Input); _pointOpen = false; }
+    private void SwitchMode(string mode) { _pointOpen = false; _model!.SwitchMode(mode); }
+    private void SetTool(string tool) { _pointOpen = false; _model!.SetTool(tool); }
+    private void SelectPoint(int index) { _model!.Select(index); _pointOpen = false; }
+    private void SetColor(MudColor c) => _model!.SetColor(new(c.R, c.G, c.B, c.A));
+    private void Refresh() { _pointOpen = false; StateHasChanged(); }
+    private void AngleChanged(ChangeEventArgs e) { if (TryNumber(e, out var v)) _model!.Angle = v; }
+    private void CoordinateChanged(bool x, ChangeEventArgs e) { if (TryNumber(e, out var v)) _model!.SetCoordinate(x, v); }
+    private void ViewRangeChanged(ChangeEventArgs e) { if (TryNumber(e, out var v)) _model!.ViewRange = v; }
+    private static bool TryNumber(ChangeEventArgs e, out double v) => double.TryParse(e.Value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out v) && double.IsFinite(v);
+    private static string Number(double v) => v.ToString("0.###", CultureInfo.InvariantCulture);
+    private static string Dot(InputColor c) => $"background:{InputBrushFormat.FormatColor(c)}";
+    private void Accept() => _model!.Accept();
+    private void Cancel() => Input.CancelEdit();
+    private string PreviewStyle(string? value) => Input.TryResolve(value, out var brush, out _) ? BrushStyle(brush!) : "background:transparent";
+    private static string DescriptionStyle(string value) => InputBrushFormat.TryParse(value, out var brush, out _) ? BrushStyle(brush!) : "background:transparent";
+    private static string BrushStyle(InputBrushDescription brush)
+    {
+        string Stops(IEnumerable<InputGradientStop> stops) => string.Join(',', stops.Select(s => $"{InputBrushFormat.FormatColor(s.Color)} {Number(s.Offset * 100)}%"));
+        var fill = brush switch {
+            InputSolidBrushDescription s => Dot(s.Color),
+            InputLinearGradientBrushDescription l => $"background:linear-gradient({Number(ColourTriangle.WrapHue(Math.Atan2(l.X2 - l.X1, l.Y1 - l.Y2) * 180 / Math.PI))}deg,{Stops(l.Stops)})",
+            InputRadialGradientBrushDescription r => $"background:radial-gradient(ellipse {Number(r.RadiusX * 100)}% {Number(r.RadiusY * 100)}% at {Number(r.CenterX * 100)}% {Number(r.CenterY * 100)}%,{Stops(r.Stops)})",
+            InputAngularGradientBrushDescription a => $"background:conic-gradient(from {Number(a.StartAngle)}deg at {Number(a.CenterX * 100)}% {Number(a.CenterY * 100)}%,{Stops(a.Stops)})",
+            _ => "background:transparent"
+        };
+        var radius = brush.Kind switch { InputBrushKind.Linear => "0", InputBrushKind.Radial or InputBrushKind.Angular => "50%", _ => "6%" };
+        return $"{fill};border-radius:{radius}";
+    }
+}

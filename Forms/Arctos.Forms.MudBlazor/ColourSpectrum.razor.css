@@ -1,0 +1,29 @@
+.colour-triangle-picker { width: 240px; margin: auto; }
+.colour-wheel { position: relative; width: 240px; aspect-ratio: 1; margin: auto; touch-action: none; }
+.common-fields { width: 240px; margin-top: 6px; }
+.center-fields .common-fields { transform: translateX(144px); }
+.format-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; font-size: 12px; }
+.format-row select { flex: 1; min-width: 0; color: inherit; background: var(--editor-bg, #f7f6f2); border: 1px solid #888; border-radius: 3px; padding: 3px; }
+.hue-ring {
+    position: absolute;
+    inset: 1%;
+    z-index: 1;
+    border-radius: 50%;
+    /* Use the widely supported sRGB default, without the newer 'in srgb' syntax. */
+    background-image: conic-gradient(#f00 0deg, #ff0 60deg, #0f0 120deg, #0ff 180deg, #00f 240deg, #f0f 300deg, #f00 360deg);
+    -webkit-mask-image: radial-gradient(circle closest-side, transparent 83.67%, #000 83.67%);
+    mask-image: radial-gradient(circle closest-side, transparent 83.67%, #000 83.67%);
+    cursor: crosshair;
+}
+.colour-triangle { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; background: transparent; cursor: crosshair; touch-action: none; }
+.hue-marker, .colour-marker { position: absolute; z-index: 2; width: 10px; height: 10px; border: 2px solid white; box-shadow: 0 0 0 1px black; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+.colour-marker { width: 8px; height: 8px; }
+.colour-triangle:focus, .hue-ring:focus { outline: none; }
+.colour-wheel:focus-within { outline: none; }
+.hue-ring:focus-visible ~ .hue-marker, .colour-triangle:focus-visible ~ .colour-marker { outline: 2px dashed currentColor; outline-offset: 3px; }
+.alpha-row, .hex-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; }
+.alpha-row input, .hex-row input { flex: 1; min-width: 0; }
+.colour-channels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+.colour-channels label { font-size: 12px; }
+.colour-channels input, .hex-row input { box-sizing: border-box; width: 100%; border: 1px solid var(--mud-palette-lines-inputs, #888); border-radius: 3px; padding: 3px 5px; color: inherit; background: transparent; font: inherit; }
+input[type=range] { accent-color: var(--mud-palette-primary, #594ae2); }
