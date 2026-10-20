@@ -79,6 +79,21 @@ public sealed class InputBrushFormatTests
 
 public sealed class InputBrushViewModelTests
 {
+    [Fact]
+    public void AppearanceChangesNotifyBindingsWithoutChangingTheBrush()
+    {
+        var commits = new List<string?>();
+        var input = new InputBrushVM("Brush", "#FFFFFFFF", [], InputBrushKinds.All, commits.Add);
+        var changes = new List<string?>();
+        input.PropertyChanged += (_, e) => changes.Add(e.PropertyName);
+        input.EditorBackground = new(38, 38, 42);
+        input.EditorForeground = new(240, 240, 240);
+        input.EditorBackground = new(38, 38, 42);
+        Assert.Equal(new[] { nameof(InputBrushVM.EditorBackground), nameof(InputBrushVM.EditorForeground) }, changes);
+        Assert.Equal("#FFFFFFFF", input.Value);
+        Assert.Empty(commits);
+    }
+
     private static readonly InputBrushPaletteEntry[] Palette =
     [
         new("Surface", "#FFFFFFFF"),

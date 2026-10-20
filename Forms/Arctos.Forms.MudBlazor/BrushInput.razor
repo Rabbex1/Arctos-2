@@ -1,8 +1,10 @@
 @using System.Globalization
+@using System.ComponentModel
 @using global::MudBlazor.Utilities
+@implements IDisposable
 
 <div class="arctos-brush-input">
-    <MudButton Variant="Variant.Outlined" FullWidth="true" Disabled="@(Input.IsReadOnly || !Input.IsEnabled)" OnClick="OpenEditor">
+    <MudButton Variant="Variant.Outlined" FullWidth="true" Style="@EditorStyle" Disabled="@(Input.IsReadOnly || !Input.IsEnabled)" OnClick="OpenEditor">
         <div class="arctos-brush-summary"><span class="arctos-brush-preview" style="@PreviewStyle(Input.Value)"></span><span>@Input.DisplayDescription</span></div>
     </MudButton>
     <MudDialog Visible="Input.IsEditing" Options="EditorOptions" AriaLabel="Brush editor" Style="@DialogStyle" ContentStyle="padding:20px;overflow:visible;flex:0 0 auto">
@@ -96,6 +98,25 @@
     [Parameter, EditorRequired] public InputBrushVM Input { get; set; } = null!;
     private BrushEditingModel? _model;
     private bool _pointOpen;
+    private InputBrushVM? _subscribedInput;
+    private bool _disposed;
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(_subscribedInput, Input)) return;
+        if (_subscribedInput is not null) _subscribedInput.PropertyChanged -= AppearanceChanged;
+        _subscribedInput = Input;
+        _subscribedInput.PropertyChanged += AppearanceChanged;
+    }
+    private void AppearanceChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(InputBrushVM.EditorBackground) or nameof(InputBrushVM.EditorForeground) or null or "")
+            _ = InvokeAsync(() => { if (!_disposed) StateHasChanged(); });
+    }
+    public void Dispose()
+    {
+        _disposed = true;
+        if (_subscribedInput is not null) _subscribedInput.PropertyChanged -= AppearanceChanged;
+    }
     private static readonly DialogOptions EditorOptions = new() { NoHeader = true, CloseButton = false, CloseOnEscapeKey = false, BackdropClick = false, FullWidth = false, MaxWidth = MaxWidth.ExtraLarge };
     private string EditorStyle => $"--editor-bg:{InputBrushFormat.FormatColor(Input.EditorBackground)};--editor-fg:{InputBrushFormat.FormatColor(Input.EditorForeground)};background:var(--editor-bg);color:var(--editor-fg)";
     private string DialogStyle => $"width:580px;min-width:580px;height:520px;max-height:none;overflow:visible;background:{InputBrushFormat.FormatColor(Input.EditorBackground)};color:{InputBrushFormat.FormatColor(Input.EditorForeground)}";

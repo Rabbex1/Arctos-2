@@ -11,6 +11,7 @@
                     xmlns:valueConverters="clr-namespace:Arctos.Wpf.ValueConverters;assembly=Arctos.Wpf"
                     xmlns:wpfInputs="clr-namespace:Arctos.Forms.Wpf">
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="BrushInputStyles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
@@ -110,7 +111,7 @@
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type forms:InputBrushVM}">
-        <Button Click="OpenBrushEditor_Click" Padding="3" HorizontalContentAlignment="Stretch">
+        <Button Click="OpenBrushEditor_Click" Padding="3" Style="{StaticResource BrushInputButtonStyle}">
             <Grid Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="38" />
@@ -119,14 +120,6 @@
                 <wpfInputs:BrushPreview Input="{Binding}" Margin="0,0,8,0" />
                 <TextBlock Grid.Column="1" Text="{Binding DisplayDescription}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
             </Grid>
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsReadOnly}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="False"><Setter Property="IsEnabled" Value="False" /></DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
         </Button>
     </DataTemplate>
 

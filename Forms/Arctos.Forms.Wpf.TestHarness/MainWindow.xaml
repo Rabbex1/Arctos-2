@@ -24,7 +24,7 @@
                     <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="170" /><ColumnDefinition Width="*" /><ColumnDefinition Width="260" /></Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Description}" VerticalAlignment="Center" FontWeight="SemiBold" />
-                        <Button Grid.Column="1" Click="Edit_Click" Padding="5" HorizontalContentAlignment="Stretch">
+                        <Button Grid.Column="1" Click="Edit_Click" Padding="5" Style="{StaticResource BrushInputButtonStyle}">
                             <Grid Height="34">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                 <formsWpf:BrushPreview Input="{Binding}" Margin="0,0,10,0" />

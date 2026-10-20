@@ -37,9 +37,11 @@ public sealed class InputBrushVM : DataInputWrapperVM<string>
 
     public BrushInputOptions Options { get; }
 
-    /// <summary>Application-supplied editor colours; the editor has no light/dark mode.</summary>
-    public InputColor EditorBackground { get; set; } = new(247, 246, 242);
-    public InputColor EditorForeground { get; set; } = new(32, 32, 32);
+    private InputColor _editorBackground = new(247, 246, 242);
+    private InputColor _editorForeground = new(32, 32, 32);
+    /// <summary>Application-supplied colours for the compact input and editor, not the containing form.</summary>
+    public InputColor EditorBackground { get => _editorBackground; set => SetProperty(ref _editorBackground, value); }
+    public InputColor EditorForeground { get => _editorForeground; set => SetProperty(ref _editorForeground, value); }
 
     public bool IsEditing
     {

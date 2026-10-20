@@ -98,7 +98,7 @@ input.EditorBackground = new InputColor(38, 38, 42);
 input.EditorForeground = new InputColor(240, 240, 240);
 ```
 
-Use an opaque background and a contrasting foreground. Both harnesses now have a separate Dark mode switch that sets these colours; it does not replace or alter the palette.
+Use an opaque background and a contrasting foreground. Both library adapters apply these colours to the compact brush-input button as well as the picker dialog; they do not change the containing form or the brush swatch itself. The compact input updates when either colour property changes. WPF's default input template applies the library's `BrushInputButtonStyle` automatically; custom WPF hosts can reuse it from `Resources/BrushInputStyles.xaml`. Both harnesses have a separate Dark mode switch that sets these colours; it does not replace or alter the palette.
 
 The triangle picker adds no third-party dependencies. WPF uses `ColourTriangleSurface` and a DPI-sized `WriteableBitmap`; the web component uses a Canvas triangle, CSS conic-gradient ring, and HTML selection markers. Both use the same sRGB barycentric mixing equations (`ColourTriangle.cs`, mirrored in `wwwroot/colourTriangle.js`). Ring images are cached in WPF, and triangle pixels are regenerated only for hue or size/DPI changes, not selection-marker or alpha changes. Pointer capture keeps dragging active outside the triangle, clamping to its closest edge. Numeric channels use 0–255; hex accepts `#RRGGBB` (preserves alpha) or `#RRGGBBAA`.
 
